@@ -1,0 +1,20 @@
+# ParagraphsItem routing definition
+paragraphs_item.settings_tab:
+  route_name: paragraphs_item.settings
+  title: 'Settings'
+  base_route: paragraphs_item.settings
+
+paragraphs_item.view:
+  route_name: paragraphs_item.view
+  base_route: paragraphs_item.view
+  title: 'View'
+
+paragraphs_item.edit:
+  route_name: paragraphs_item.edit
+  base_route: paragraphs_item.view
+  title: Edit
+
+paragraphs_item.delete_confirm:
+  route_name:  paragraphs_item.delete
+  base_route:  paragraphs_item.view
+  title: Delete

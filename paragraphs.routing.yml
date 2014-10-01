@@ -1,0 +1,82 @@
+# ParagraphsType routing definition
+paragraphs_type.list:
+  path: '/admin/structure/paragraphs_type'
+  defaults:
+    _entity_list: 'paragraphs_type'
+    _title: 'ParagraphsType Configuration'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+paragraphs_type.add:
+  path: '/admin/structure/paragraphs_type/add'
+  defaults:
+    _entity_form: 'paragraphs_type.add'
+    _title: 'Add ParagraphsType'
+  requirements:
+    _permission: 'administer site configuration'
+
+paragraphs_type.edit:
+  path: '/admin/structure/paragraphs_type/{paragraphs_type}'
+  defaults:
+    _entity_form: 'paragraphs_type.edit'
+    _title: 'Edit ParagraphsType'
+  requirements:
+    _permission: 'administer site configuration'
+
+paragraphs_type.delete:
+  path: '/admin/structure/paragraphs_type/{paragraphs_type}/delete'
+  defaults:
+    _entity_form: 'paragraphs_type.delete'
+    _title: 'Delete ParagraphsType'
+  requirements:
+    _permission: 'administer site configuration'
+# ParagraphsItem routing definition
+paragraphs_item.view:
+  path: '/admin/paragraphs_item/{paragraphs_item}'
+  defaults:
+    _entity_view: 'paragraphs_item'
+    _title: 'ParagraphsItem Content'
+  requirements:
+    _entity_access: 'paragraphs_item.view'
+
+paragraphs_item.list:
+  path: '/admin/paragraphs_item'
+  defaults:
+    _entity_list: 'paragraphs_item'
+    _title: 'ParagraphsItem List'
+  requirements:
+    _permission: 'view ParagraphsItem entity'
+
+paragraphs_item.add:
+  path: '/admin/paragraphs_item/add'
+  defaults:
+    _entity_form: paragraphs_item.add
+    _title: 'Add ParagraphsItem'
+  requirements:
+    _entity_create_access: 'paragraphs_item'
+
+paragraphs_item.edit:
+  path: '/admin/paragraphs_item/{paragraphs_item}/edit'
+  defaults:
+    _entity_form: paragraphs_item.edit
+    _title: 'Edit ParagraphsItem'
+  requirements:
+    _entity_access: 'paragraphs_item.edit'
+
+paragraphs_item.delete:
+  path: '/admin/paragraphs_item/{paragraphs_item}/delete'
+  defaults:
+    _entity_form: paragraphs_item.delete
+    _title: 'Delete ParagraphsItem'
+  requirements:
+    _entity_access: 'paragraphs_item.delete'
+
+paragraphs_item.settings:
+  path: 'admin/structure/paragraphs_item'
+  defaults:
+   _form: '\Drupal\paragraphs\Entity\Form\ParagraphsItemSettingsForm'
+   _title: 'ParagraphsItem Settings'
+  requirements:
+    _permission: 'administer ParagraphsItem entity'

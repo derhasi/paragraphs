@@ -1,0 +1,5 @@
+paragraphs_type.list:
+  title: 'Paragraphs types'
+  parent: system.admin_structure
+  description: 'Manage paragraphs types, including default status, comment settings, etc.'
+  route_name: paragraphs_type.list
