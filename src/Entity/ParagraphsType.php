@@ -29,7 +29,6 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
- *     "uuid" = "uuid"
  *   },
  *   bundle_of = "paragraphs_item",
  *   links = {
@@ -47,12 +46,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    * @var string
    */
   public $id;
-  /**
-   * The ParagraphsType UUID.
-   *
-   * @var string
-   */
-  public $uuid;
+
   /**
    * The ParagraphsType label.
    *
