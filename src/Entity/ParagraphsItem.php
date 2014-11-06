@@ -35,6 +35,9 @@ use Drupal\user\UserInterface;
  *     "access" = "Drupal\paragraphs\ParagraphsItemAccessControlHandler",
  *   },
  *   base_table = "paragraphs_item",
+ *   data_table = "paragraphs_item_field_data",
+ *   revision_table = "paragraphs_item_revision",
+ *   revision_data_table = "paragraphs_item_revision_field_data",
  *   translatable = TRUE,
  *   admin_permission = "administer ParagraphsItem entity",
  *   entity_keys = {
