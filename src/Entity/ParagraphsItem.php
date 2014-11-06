@@ -109,21 +109,21 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
    * {@inheritdoc}
    */
   public function getOwner() {
-    return $this->get('user_id')->entity;
+    return $this->get('uid')->entity;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getOwnerId() {
-    return $this->get('user_id')->target_id;
+    return $this->get('uid')->target_id;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setOwnerId($uid) {
-    $this->set('user_id', $uid);
+    $this->set('uid', $uid);
     return $this;
   }
 
@@ -131,7 +131,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
    * {@inheritdoc}
    */
   public function setOwner(UserInterface $account) {
-    $this->set('user_id', $account->id());
+    $this->set('uid', $account->id());
     return $this;
   }
 
@@ -246,6 +246,31 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setDescription(t('The ParagraphsItem language code.'))
       ->setRevisionable(TRUE);
 
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Authored by'))
+      ->setDescription(t('The user ID of the paragraphs author.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setSetting('handler', 'default')
+      ->setDefaultValueCallback('Drupal\paragraphs\Entity\ParagraphsItem::getCurrentUserId')
+      ->setTranslatable(TRUE)
+      ->setDisplayOptions('view', array(
+        'label' => 'hidden',
+        'type' => 'author',
+        'weight' => 0,
+      ))
+      ->setDisplayOptions('form', array(
+        'type' => 'entity_reference_autocomplete',
+        'weight' => 5,
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'size' => '60',
+          'autocomplete_type' => 'tags',
+          'placeholder' => '',
+        ),
+      ))
+      ->setDisplayConfigurable('form', TRUE);
+
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setDescription(t('The time that the ParagraphsItem was created.'))
@@ -296,4 +321,17 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
 
     return $fields;
   }
+
+  /**
+   * Default value callback for 'uid' base field definition.
+   *
+   * @see ::baseFieldDefinitions()
+   *
+   * @return array
+   *   An array of default values.
+   */
+  public static function getCurrentUserId() {
+    return array(\Drupal::currentUser()->id());
+  }
+
 }
