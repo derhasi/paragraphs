@@ -225,7 +225,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
         'weight' => -4,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'string',
+        'type' => 'string_textfield',
         'weight' => -4,
       ))
       ->setDisplayConfigurable('form', TRUE)
