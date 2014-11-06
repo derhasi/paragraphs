@@ -79,6 +79,21 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
   /**
    * {@inheritdoc}
    */
+  public function preSaveRevision(EntityStorageInterface $storage, \stdClass $record) {
+    parent::preSaveRevision($storage, $record);
+
+    if (!$this->isNewRevision() && isset($this->original) && (!isset($record->revision_log) || $record->revision_log === '')) {
+      // If we are updating an existing node without adding a new revision, we
+      // need to make sure $entity->revision_log is reset whenever it is empty.
+      // Therefore, this code allows us to avoid clobbering an existing log
+      // entry with an empty one.
+      $record->revision_log = $this->original->revision_log->value;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCreatedTime() {
     return $this->get('created')->value;
   }
@@ -163,20 +178,6 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
   public function setRevisionAuthorId($uid) {
     $this->set('revision_uid', $uid);
     return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function preSaveRevision(EntityStorageInterface $storage, \stdClass $record) {
-    parent::preSaveRevision($storage, $record);
-
-    if (!$this->isNewRevision() && isset($this->original) && (!isset($record->revision_log) || $record->revision_log === '')) {
-      // If we are updating an existing product without adding a new
-      // revision and the user did not supply a revision log, keep the existing
-      // one.
-      $record->revision_log = $this->original->getRevisionLog();
-    }
   }
 
   /**
