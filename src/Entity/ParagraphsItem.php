@@ -57,17 +57,23 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterface
-{
+class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterface {
 
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
-    parent::preCreate($storage_controller, $values);
-    $values += array(
-      'user_id' => \Drupal::currentUser()->id(),
-    );
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    // If no owner has been set explicitly, make the current user the owner.
+    if (!$this->getOwner()) {
+      $this->setOwnerId(\Drupal::currentUser()->id());
+    }
+    // If no revision author has been set explicitly, make the node owner the
+    // revision author.
+    if (!$this->getRevisionAuthor()) {
+      $this->setRevisionAuthorId($this->getOwnerId());
+    }
   }
 
   /**
