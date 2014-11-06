@@ -36,7 +36,6 @@ use Drupal\user\UserInterface;
  *   },
  *   base_table = "paragraphs_item",
  *   admin_permission = "administer ParagraphsItem entity",
- *   fieldable = TRUE,
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "name",
