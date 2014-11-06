@@ -1,8 +1,8 @@
-paragraphs_type.add:
-  route_name: 'paragraphs_type.add'
+paragraphs.type_add:
+  route_name: 'paragraphs.type_add'
   title: 'Add Paragraphs Type'
   appears_on:
-    - paragraphs_type.list
+    - paragraphs.type_list
 
 paragraphs_item.add:
   route_name: paragraphs_item.add

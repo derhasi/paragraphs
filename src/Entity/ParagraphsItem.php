@@ -45,7 +45,7 @@ use Drupal\user\UserInterface;
  *     "revision" = "vid"
  *   },
  *   bundle_entity_type = "paragraphs_type",
- *   field_ui_base_route = "paragraphs_type.edit",
+ *   field_ui_base_route = "entity.paragraphs_type.edit_form",
  *   permission_granularity = "bundle",
  *   links = {
  *     "edit-form" = "paragraphs_item.edit",

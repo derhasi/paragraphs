@@ -32,8 +32,8 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   },
  *   bundle_of = "paragraphs_item",
  *   links = {
- *     "edit-form" = "paragraphs_type.edit",
- *     "delete-form" = "paragraphs_type.delete"
+ *     "edit-form" = "entity.paragraphs_type.edit_form",
+ *     "delete-form" = "entity.paragraphs_type.delete_form"
  *   }
  * )
  */

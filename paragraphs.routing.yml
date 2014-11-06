@@ -1,15 +1,13 @@
 # ParagraphsType routing definition
-paragraphs_type.list:
+paragraphs.type_list:
   path: '/admin/structure/paragraphs_type'
   defaults:
     _entity_list: 'paragraphs_type'
     _title: 'ParagraphsType Configuration'
   requirements:
     _permission: 'administer site configuration'
-  options:
-    _admin_route: TRUE
 
-paragraphs_type.add:
+paragraphs.type_add:
   path: '/admin/structure/paragraphs_type/add'
   defaults:
     _entity_form: 'paragraphs_type.add'
@@ -17,21 +15,22 @@ paragraphs_type.add:
   requirements:
     _permission: 'administer site configuration'
 
-paragraphs_type.edit:
+entity.paragraphs_type.edit_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}'
   defaults:
     _entity_form: 'paragraphs_type.edit'
     _title: 'Edit ParagraphsType'
   requirements:
-    _permission: 'administer site configuration'
+    _entity_access: 'paragraphs_type.update'
 
-paragraphs_type.delete:
+entity.paragraphs_type.delete_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}/delete'
   defaults:
     _entity_form: 'paragraphs_type.delete'
     _title: 'Delete ParagraphsType'
   requirements:
-    _permission: 'administer site configuration'
+    _entity_access: 'paragraphs_type.delete'
+
 # ParagraphsItem routing definition
 paragraphs_item.view:
   path: '/admin/paragraphs_item/{paragraphs_item}'
