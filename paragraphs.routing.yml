@@ -32,6 +32,14 @@ entity.paragraphs_type.delete_form:
     _entity_access: 'paragraphs_type.delete'
 
 # ParagraphsItem routing definition
+paragraphs.item_list:
+  path: '/admin/paragraphs_item'
+  defaults:
+    _entity_list: 'paragraphs_item'
+    _title: 'Paragraphs item list'
+  requirements:
+    _permission: 'access paragraphs items overview'
+
 entity.paragraphs_item.canonical:
   path: '/admin/paragraphs_item/{paragraphs_item}'
   defaults:
@@ -39,14 +47,6 @@ entity.paragraphs_item.canonical:
     _title: 'ParagraphsItem Content'
   requirements:
     _entity_access: 'paragraphs_item.view'
-
-paragraphs.item_list:
-  path: '/admin/paragraphs_item'
-  defaults:
-    _entity_list: 'paragraphs_item'
-    _title: 'ParagraphsItem List'
-  requirements:
-    _permission: 'administer paragraphs types'
 
 paragraphs.item_add:
   path: '/admin/paragraphs_item/add'
