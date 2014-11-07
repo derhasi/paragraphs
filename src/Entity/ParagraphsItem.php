@@ -39,7 +39,6 @@ use Drupal\user\UserInterface;
  *   revision_table = "paragraphs_item_revision",
  *   revision_data_table = "paragraphs_item_revision_field_data",
  *   translatable = TRUE,
- *   admin_permission = "administer ParagraphsItem entity",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "name",
@@ -49,7 +48,6 @@ use Drupal\user\UserInterface;
  *   },
  *   bundle_entity_type = "paragraphs_type",
  *   field_ui_base_route = "entity.paragraphs_type.edit_form",
- *   permission_granularity = "bundle",
  *   links = {
  *     "edit-form" = "entity.paragraphs_item.edit_form",
  *     "delete-form" = "entity.paragraphs_item.delete_form"
