@@ -71,11 +71,3 @@ entity.paragraphs_item.delete_form:
     _title: 'Delete ParagraphsItem'
   requirements:
     _entity_access: 'paragraphs_item.delete'
-
-paragraphs_item.settings:
-  path: 'admin/structure/paragraphs_item'
-  defaults:
-   _form: '\Drupal\paragraphs\Entity\Form\ParagraphsItemSettingsForm'
-   _title: 'ParagraphsItem Settings'
-  requirements:
-    _permission: 'administer ParagraphsItem entity'

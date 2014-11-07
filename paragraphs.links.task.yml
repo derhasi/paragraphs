@@ -1,9 +1,3 @@
-# ParagraphsItem routing definition
-paragraphs_item.settings_tab:
-  route_name: paragraphs_item.settings
-  title: 'Settings'
-  base_route: paragraphs_item.settings
-
 entity.paragraphs_item.canonical:
   route_name: entity.paragraphs_item.canonical
   base_route: entity.paragraphs_item.canonical

@@ -52,7 +52,6 @@ use Drupal\user\UserInterface;
  *   permission_granularity = "bundle",
  *   links = {
  *     "edit-form" = "entity.paragraphs_item.edit_form",
- *     "admin-form" = "paragraphs_item.settings",
  *     "delete-form" = "entity.paragraphs_item.delete_form"
  *   }
  * )
