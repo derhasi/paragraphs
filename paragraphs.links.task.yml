@@ -4,17 +4,17 @@ paragraphs_item.settings_tab:
   title: 'Settings'
   base_route: paragraphs_item.settings
 
-paragraphs_item.view:
-  route_name: paragraphs_item.view
-  base_route: paragraphs_item.view
+entity.paragraphs_item.canonical:
+  route_name: entity.paragraphs_item.canonical
+  base_route: entity.paragraphs_item.canonical
   title: 'View'
 
-paragraphs_item.edit:
-  route_name: paragraphs_item.edit
-  base_route: paragraphs_item.view
+entity.paragraphs_item.edit_form:
+  route_name: entity.paragraphs_item.edit_form
+  base_route: entity.paragraphs_item.canonical
   title: Edit
 
-paragraphs_item.delete_confirm:
-  route_name:  paragraphs_item.delete
-  base_route:  paragraphs_item.view
+entity.paragraphs_item.delete_form:
+  route_name:  entity.paragraphs_item.delete_form
+  base_route:  entity.paragraphs_item.canonical
   title: Delete

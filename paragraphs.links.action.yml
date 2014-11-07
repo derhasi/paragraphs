@@ -5,8 +5,8 @@ paragraphs.type_add:
     - paragraphs.type_list
 
 paragraphs_item.add:
-  route_name: paragraphs_item.add
+  route_name: paragraphs.item_add
   title: 'Add ParagraphsItem'
   appears_on:
-    - paragraphs_item.list
+    - paragraphs.item_list
     - paragraphs_item.view

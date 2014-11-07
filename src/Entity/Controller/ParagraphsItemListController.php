@@ -34,7 +34,7 @@ class ParagraphsItemListController extends EntityListBuilder
     /* @var $entity \Drupal\paragraphs\Entity\ParagraphsItem */
     $row['id'] = $entity->id();
     $row['name'] = \Drupal::l($this->getLabel($entity),
-      'paragraphs_item.list', array(
+      'paragraphs.item_list', array(
         'paragraphs_paragraphs_item' => $entity->id(),
       ));
     return $row + parent::buildRow($entity);

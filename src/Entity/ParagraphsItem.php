@@ -51,9 +51,9 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.paragraphs_type.edit_form",
  *   permission_granularity = "bundle",
  *   links = {
- *     "edit-form" = "paragraphs_item.edit",
+ *     "edit-form" = "entity.paragraphs_item.edit_form",
  *     "admin-form" = "paragraphs_item.settings",
- *     "delete-form" = "paragraphs_item.delete"
+ *     "delete-form" = "entity.paragraphs_item.delete_form"
  *   }
  * )
  */
