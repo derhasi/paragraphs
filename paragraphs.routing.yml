@@ -5,7 +5,7 @@ paragraphs.type_list:
     _entity_list: 'paragraphs_type'
     _title: 'ParagraphsType Configuration'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer paragraphs types'
 
 paragraphs.type_add:
   path: '/admin/structure/paragraphs_type/add'
@@ -13,7 +13,7 @@ paragraphs.type_add:
     _entity_form: 'paragraphs_type.add'
     _title: 'Add ParagraphsType'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer paragraphs types'
 
 entity.paragraphs_type.edit_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}'
@@ -21,7 +21,7 @@ entity.paragraphs_type.edit_form:
     _entity_form: 'paragraphs_type.edit'
     _title: 'Edit ParagraphsType'
   requirements:
-    _entity_access: 'paragraphs_type.update'
+    _permission: 'administer paragraphs types'
 
 entity.paragraphs_type.delete_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}/delete'
@@ -46,7 +46,7 @@ paragraphs_item.list:
     _entity_list: 'paragraphs_item'
     _title: 'ParagraphsItem List'
   requirements:
-    _permission: 'view ParagraphsItem entity'
+    _permission: 'administer paragraphs types'
 
 paragraphs_item.add:
   path: '/admin/paragraphs_item/add'

@@ -25,7 +25,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     }
  *   },
  *   config_prefix = "paragraphs_type",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "administer paragraphs types",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
