@@ -28,8 +28,7 @@ use Drupal\user\UserInterface;
  *     "list_builder" = "Drupal\paragraphs\Entity\Controller\ParagraphsItemListController",
  *
  *     "form" = {
- *       "add" = "Drupal\paragraphs\Entity\Form\ParagraphsItemForm",
- *       "edit" = "Drupal\paragraphs\Entity\Form\ParagraphsItemForm",
+ *       "default" = "Drupal\paragraphs\Entity\Form\ParagraphsItemForm",
  *       "delete" = "Drupal\paragraphs\Entity\Form\ParagraphsItemDeleteForm",
  *     },
  *     "access" = "Drupal\paragraphs\ParagraphsItemAccessControlHandler",
