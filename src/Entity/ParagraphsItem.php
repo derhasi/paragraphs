@@ -41,7 +41,6 @@ use Drupal\user\UserInterface;
  *   translatable = TRUE,
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "name",
  *     "uuid" = "uuid",
  *     "bundle" = "type",
  *     "revision" = "vid"
@@ -218,26 +217,6 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setDescription(t('The paragraphs type.'))
       ->setSetting('target_type', 'paragraphs_type')
       ->setReadOnly(TRUE);
-
-    $fields['name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Name'))
-      ->setDescription(t('The name of the ParagraphsItem entity.'))
-      ->setSettings(array(
-        'default_value' => '',
-        'max_length' => 50,
-        'text_processing' => 0,
-      ))
-      ->setDisplayOptions('view', array(
-        'label' => 'above',
-        'type' => 'string',
-        'weight' => -4,
-      ))
-      ->setDisplayOptions('form', array(
-        'type' => 'string_textfield',
-        'weight' => -4,
-      ))
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
