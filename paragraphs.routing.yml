@@ -48,11 +48,22 @@ entity.paragraphs_item.canonical:
   requirements:
     _entity_access: 'paragraphs_item.view'
 
-paragraphs.item_add:
+paragraphs.item_add_page:
   path: '/admin/paragraphs_item/add'
   defaults:
-    _entity_form: paragraphs_item.add
-    _title: 'Add ParagraphsItem'
+    _content: '\Drupal\paragraphs\Controller\ParagraphsItemController::addPage'
+    _title: 'Add Paragraphs item'
+  options:
+    _access_mode: 'ANY'
+  requirements:
+    _permission: 'administer paragraphs types'
+    _node_add_access: 'paragraphs_item'
+
+paragraphs.item_add:
+  path: '/admin/paragraphs_item/add/{paragraphs_type}'
+  defaults:
+    _content: '\Drupal\paragraphs\Controller\ParagraphsItemController::add'
+    _title: 'Add Paragraphs item'
   requirements:
     _entity_create_access: 'paragraphs_item'
 
