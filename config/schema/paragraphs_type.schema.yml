@@ -8,5 +8,3 @@ paragraphs.paragraphs_type.*:
     label:
       type: label
       label: 'Label'
-    uuid:
-      type: string

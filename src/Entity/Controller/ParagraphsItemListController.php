@@ -9,6 +9,7 @@ namespace Drupal\paragraphs\Entity\Controller;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
+use Drupal\Core\Url;
 
 /**
  * Provides a list controller for ParagraphsItem entity.
@@ -23,7 +24,7 @@ class ParagraphsItemListController extends EntityListBuilder
    */
   public function buildHeader() {
     $header['id'] = t('Paragraphs item id');
-    $header['name'] = t('Name');
+    $header['type'] = t('Paragraphs item type');
     return $header + parent::buildHeader();
   }
 
@@ -32,11 +33,11 @@ class ParagraphsItemListController extends EntityListBuilder
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\paragraphs\Entity\ParagraphsItem */
-    $row['id'] = $entity->id();
-    $row['name'] = \Drupal::l($this->getLabel($entity),
-      'paragraphs_item.list', array(
-        'paragraphs_paragraphs_item' => $entity->id(),
-      ));
+    $row['id'] = \Drupal::l($entity->id(),
+      new Url('entity.paragraphs_item.canonical', array(
+        'paragraphs_item' => $entity->id(),
+      )));
+    $row['type'] = $entity->getType();
     return $row + parent::buildRow($entity);
   }
 }

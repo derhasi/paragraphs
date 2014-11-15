@@ -61,6 +61,6 @@ class ParagraphsTypeForm extends EntityForm
         '%label' => $paragraphs_type->label(),
       )));
     }
-    $form_state->setRedirect('paragraphs_type.list');
+    $form_state->setRedirect('paragraphs.type_list');
   }
 }

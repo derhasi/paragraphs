@@ -30,7 +30,7 @@ class ParagraphsItemDeleteForm extends ContentEntityConfirmFormBase
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('paragraphs_item.list');
+    return new Url('paragraphs.item_list');
   }
 
   /**
@@ -47,6 +47,6 @@ class ParagraphsItemDeleteForm extends ContentEntityConfirmFormBase
     $this->entity->delete();
 
     watchdog('content', '@type: deleted %title.', array('@type' => $this->entity->bundle(), '%title' => $this->entity->label()));
-    $form_state->setRedirect('paragraphs_item.list');
+    $form_state->setRedirect('paragraphs.item_list');
   }
 }

@@ -25,16 +25,15 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     }
  *   },
  *   config_prefix = "paragraphs_type",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "administer paragraphs types",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
- *     "uuid" = "uuid"
  *   },
  *   bundle_of = "paragraphs_item",
  *   links = {
- *     "edit-form" = "paragraphs_type.edit",
- *     "delete-form" = "paragraphs_type.delete"
+ *     "edit-form" = "entity.paragraphs_type.edit_form",
+ *     "delete-form" = "entity.paragraphs_type.delete_form"
  *   }
  * )
  */
@@ -47,12 +46,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    * @var string
    */
   public $id;
-  /**
-   * The ParagraphsType UUID.
-   *
-   * @var string
-   */
-  public $uuid;
+
   /**
    * The ParagraphsType label.
    *

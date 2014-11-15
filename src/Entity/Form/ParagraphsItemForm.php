@@ -30,7 +30,7 @@ class ParagraphsItemForm extends ContentEntityForm
     $form['langcode'] = array(
       '#title' => t('Language'),
       '#type' => 'language_select',
-      '#default_value' => $entity->getUntranslated()->language()->id,
+      '#default_value' => $entity->getUntranslated()->language()->getId(),
       '#languages' => Language::STATE_ALL,
     );
 
@@ -43,7 +43,7 @@ class ParagraphsItemForm extends ContentEntityForm
   public function submit(array $form, FormStateInterface $form_state) {
     // Build the entity object from the submitted values.
     $entity = parent::submit($form, $form_state);
-    $form_state->setRedirect('paragraphs_item.list');
+    $form_state->setRedirect('paragraphs.item_list');
 
     return $entity;
   }

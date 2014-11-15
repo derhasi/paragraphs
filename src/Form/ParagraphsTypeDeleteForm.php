@@ -28,7 +28,7 @@ class ParagraphsTypeDeleteForm extends EntityConfirmFormBase
   * {@inheritdoc}
   */
   public function getCancelUrl() {
-    return new Url('paragraphs_type.list');
+    return new Url('paragraphs.type_list');
   }
 
   /**
