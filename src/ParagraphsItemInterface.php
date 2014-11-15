@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Provides an interface defining a ParagraphsItem entity.
+ * Provides an interface defining a paragraphs entity.
  * @ingroup account
  */
 interface ParagraphsItemInterface extends ContentEntityInterface, EntityOwnerInterface

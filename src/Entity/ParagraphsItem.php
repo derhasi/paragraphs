@@ -15,13 +15,13 @@ use Drupal\paragraphs\ParagraphsItemInterface;
 use Drupal\user\UserInterface;
 
 /**
- * Defines the ParagraphsItem entity.
+ * Defines the Paragraphs entity.
  *
  * @ingroup paragraphs
  *
  * @ContentEntityType(
  *   id = "paragraphs_item",
- *   label = @Translation("ParagraphsItem entity"),
+ *   label = @Translation("Paragraphs"),
  *   bundle_label = @Translation("Paragraphs type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
@@ -196,18 +196,18 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields['id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('ID'))
-      ->setDescription(t('The ID of the ParagraphsItem entity.'))
+      ->setDescription(t('The ID of the Paragraphs entity.'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
     $fields['uuid'] = BaseFieldDefinition::create('uuid')
       ->setLabel(t('UUID'))
-      ->setDescription(t('The UUID of the ParagraphsItem entity.'))
+      ->setDescription(t('The UUID of the paragraphs entity.'))
       ->setReadOnly(TRUE);
 
     $fields['vid'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Revision ID'))
-      ->setDescription(t('The ParagraphsItem revision ID.'))
+      ->setDescription(t('The paragraphs entity revision ID.'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
@@ -219,7 +219,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
 
     $fields['langcode'] = BaseFieldDefinition::create('language')
       ->setLabel(t('Language code'))
-      ->setDescription(t('The ParagraphsItem language code.'))
+      ->setDescription(t('The paragraphs entity language code.'))
       ->setRevisionable(TRUE);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
