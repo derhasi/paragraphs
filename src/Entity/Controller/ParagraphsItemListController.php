@@ -12,7 +12,7 @@ use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Url;
 
 /**
- * Provides a list controller for ParagraphsItem entity.
+ * Provides a list controller for paragraphs entity.
  *
  * @ingroup paragraphs
  */

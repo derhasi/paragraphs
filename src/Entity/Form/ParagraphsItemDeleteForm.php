@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Provides a form for deleting a ParagraphsItem entity.
+ * Provides a form for deleting a Paragraphs entity.
  *
  * @ingroup paragraphs
  */

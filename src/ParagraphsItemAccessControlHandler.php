@@ -13,7 +13,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
 
 /**
- * Access controller for the ParagraphsItem entity.
+ * Access controller for the paragraphs entity.
  *
  * @see \Drupal\paragraphs\Entity\ParagraphsItem.
  */

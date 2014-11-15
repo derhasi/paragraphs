@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\Language;
 
 /**
- * Form controller for the ParagraphsItem entity edit forms.
+ * Form controller for the Paragraphs entity edit forms.
  *
  * @ingroup paragraphs
  */
