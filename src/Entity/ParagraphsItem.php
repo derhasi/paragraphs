@@ -76,14 +76,6 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
    */
   public function preSaveRevision(EntityStorageInterface $storage, \stdClass $record) {
     parent::preSaveRevision($storage, $record);
-
-    if (!$this->isNewRevision() && isset($this->original) && (!isset($record->revision_log) || $record->revision_log === '')) {
-      // If we are updating an existing node without adding a new revision, we
-      // need to make sure $entity->revision_log is reset whenever it is empty.
-      // Therefore, this code allows us to avoid clobbering an existing log
-      // entry with an empty one.
-      $record->revision_log = $this->original->revision_log->value;
-    }
   }
 
   /**
@@ -179,14 +171,13 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
    * {@inheritdoc}
    */
   public function getRevisionLog() {
-    return $this->get('revision_log')->value;
+    return '';
   }
 
   /**
    * {@inheritdoc}
    */
   public function setRevisionLog($revision_log) {
-    $this->set('revision_log', $revision_log);
     return $this;
   }
 
@@ -281,19 +272,6 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setSetting('target_type', 'user')
       ->setQueryable(FALSE)
       ->setRevisionable(TRUE);
-
-    $fields['revision_log'] = BaseFieldDefinition::create('string_long')
-      ->setLabel(t('Revision log message'))
-      ->setDescription(t('Briefly describe the changes you have made.'))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
-      ->setDisplayOptions('form', array(
-        'type' => 'string_textarea',
-        'weight' => 25,
-        'settings' => array(
-          'rows' => 4,
-        ),
-      ));
 
     return $fields;
   }
