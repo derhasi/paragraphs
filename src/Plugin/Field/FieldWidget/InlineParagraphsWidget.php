@@ -61,24 +61,34 @@ class InlineParagraphsWidget extends WidgetBase {
       $entity_type = $entity_manager->getDefinition($target_type);
       $bundle_key = $entity_type->getKey('bundle');
 
+      // @todo: fix bundle key selection.
       $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
                                                                     $bundle_key => 'text',
                                                                   ));
-      $items->set($delta, $paragraphs_entity);
+      // Broken?
+      //$items->set($delta, $paragraphs_entity);
     }
     else {
+
+      // Broken?
       $paragraphs_entity = $items->get($delta);
+      $paragraphs_entity->getValue();
     }
 
     $element += array(
       '#type' => 'container',
-      'subform' => array(),
+      'subform' => array(
+        '#parents' => array(
+          'subform',
+        ),
+      ),
+      '#tree' => TRUE,
     );
 
     $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
 
     $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
-    
+
     return array('target_id' => $element);
   }
 
