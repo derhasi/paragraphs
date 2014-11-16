@@ -53,18 +53,45 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $entity = $items->getEntity();
 
-    $item = $items->get($delta);
+    $subform = array();
 
+    if (!$items->offsetExists($delta)) {
 
-    entity_get_form_display()
+    }
+    else {
+
+    }
+
+    // Load those entities and loop through them to extract their labels.
+    $entities = entity_load_multiple($this->getFieldSetting('target_type'), $this->getEntityIds($items, $delta));
+    //$form = \Drupal::service('entity.form_builder')->getForm($entity, 'default');
 
     $element += array(
-      '#type' => 'textfield',
-      '#maxlength' => 1024,
-      '#default_value' => $delta,
+      'subform' => $subform,
     );
 
     return array('target_id' => $element);
+  }
+
+  /**
+   * Builds an array of entity IDs for which to get the entity labels.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   Array of default values for this field.
+   * @param int $delta
+   *   The order of a field item in the array of subelements (0, 1, 2, etc).
+   *
+   * @return array
+   *   An array of entity IDs.
+   */
+  protected function getEntityIds(FieldItemListInterface $items, $delta) {
+    $entity_ids = array();
+
+    foreach ($items as $item) {
+      $entity_ids[] = $item->target_id;
+    }
+
+    return $entity_ids;
   }
 
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
