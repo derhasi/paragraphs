@@ -7,10 +7,13 @@
 
 namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\EntityOwnerInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\paragraphs;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
@@ -50,7 +53,97 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $entity = $items->getEntity();
 
+    $item = $items->get($delta);
+
+
+    entity_get_form_display()
+
+    $element += array(
+      '#type' => 'textfield',
+      '#maxlength' => 1024,
+      '#default_value' => $delta,
+    );
+
     return array('target_id' => $element);
+  }
+
+  public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
+    $elements = parent::formMultipleElements($items, $form, $form_state);
+
+    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
+
+    // Add 'add more select' button and moves the default 'add more' button, if not working with a programmed form.
+    if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
+      $bundles = paragraphs_type_get_types();
+      $options = array();
+
+      foreach ($bundles as $machine_name => $bundle) {
+        if (!count($this->getSelectionHandlerSetting('target_bundles'))
+          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
+          $options[$machine_name] = $bundle->label;
+        }
+      }
+
+      $button = $elements['add_more'];
+
+      $elements['add_more'] = array(
+        '#type' => 'container',
+      );
+
+      $elements['add_more']['add_more_select'] = array(
+        '#type'    => 'select',
+        '#options' => $options,
+        '#title'   => t('Paragraph type'),
+        '#label_display' => 'hidden',
+      );
+
+      $elements['add_more']['add_more_button'] = $button;
+    }
+
+    return $elements;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function addMoreAjax(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+
+    // Ensure the widget allows adding additional items.
+    if ($element['#cardinality'] != FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+      return;
+    }
+
+    // Add a DIV around the delta receiving the Ajax effect.
+    $delta = $element['#max_delta'];
+    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
+    $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
+
+    return $element;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function addMoreSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $values = NestedArray::getValue($form_state->getValues(), array_slice($button['#array_parents'], 0, -3));
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    // Increment the items count.
+    $field_state = static::getWidgetState($parents, $field_name, $form_state);
+    $field_state['items_count']++;
+    $field_state['selected_bundle'] = $values['add_more']['add_more_select'];
+
+    static::setWidgetState($parents, $field_name, $form_state, $field_state);
+
+    $form_state->setRebuild();
   }
 
   /**
@@ -58,95 +151,6 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function errorElement(array $element, ConstraintViolationInterface $error, array $form, FormStateInterface $form_state) {
     return $element['target_id'];
-  }
-
-  /**
-   * Validates an element.
-   */
-  public function elementValidate($element, FormStateInterface $form_state, $form) { }
-
-  /**
-   * Gets the entity labels.
-   */
-  protected function getLabels(FieldItemListInterface $items, $delta) {
-    if ($items->isEmpty()) {
-      return array();
-    }
-
-    $entity_labels = array();
-
-    // Load those entities and loop through them to extract their labels.
-    $entities = entity_load_multiple($this->getFieldSetting('target_type'), $this->getEntityIds($items, $delta));
-
-    foreach ($entities as $entity_id => $entity_item) {
-      $label = $entity_item->label();
-      $key = "$label ($entity_id)";
-      // Labels containing commas or quotes must be wrapped in quotes.
-      $key = Tags::encode($key);
-      $entity_labels[] = $key;
-    }
-    return $entity_labels;
-  }
-
-  /**
-   * Builds an array of entity IDs for which to get the entity labels.
-   *
-   * @param \Drupal\Core\Field\FieldItemListInterface $items
-   *   Array of default values for this field.
-   * @param int $delta
-   *   The order of a field item in the array of subelements (0, 1, 2, etc).
-   *
-   * @return array
-   *   An array of entity IDs.
-   */
-  protected function getEntityIds(FieldItemListInterface $items, $delta) {
-    $entity_ids = array();
-
-    foreach ($items as $item) {
-      $entity_ids[] = $item->target_id;
-    }
-
-    return $entity_ids;
-  }
-
-  /**
-   * Creates a new entity from a label entered in the autocomplete input.
-   *
-   * @param string $label
-   *   The entity label.
-   * @param int $uid
-   *   The entity uid.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface
-   */
-  protected function createNewEntity($label, $uid) {
-    $entity_manager = \Drupal::entityManager();
-    $target_type = $this->getFieldSetting('target_type');
-    $target_bundles = $this->getSelectionHandlerSetting('target_bundles');
-
-    // Get the bundle.
-    if (!empty($target_bundles)) {
-      $bundle = reset($target_bundles);
-    }
-    else {
-      $bundles = entity_get_bundles($target_type);
-      $bundle = reset($bundles);
-    }
-
-    $entity_type = $entity_manager->getDefinition($target_type);
-    $bundle_key = $entity_type->getKey('bundle');
-    $label_key = $entity_type->getKey('label');
-
-    $entity = $entity_manager->getStorage($target_type)->create(array(
-                                                                  $label_key => $label,
-                                                                  $bundle_key => $bundle,
-                                                                ));
-
-    if ($entity instanceof EntityOwnerInterface) {
-      $entity->setOwnerId($uid);
-    }
-
-    return $entity;
   }
 
   /**
@@ -173,5 +177,4 @@ class InlineParagraphsWidget extends WidgetBase {
     $target_type_info = \Drupal::entityManager()->getDefinition($target_type);
     return $target_type_info->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface');
   }
-
 }
