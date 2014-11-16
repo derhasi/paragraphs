@@ -8,6 +8,7 @@
 namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
@@ -51,25 +52,33 @@ class InlineParagraphsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $entity = $items->getEntity();
-
-    $subform = array();
+    $host_entity = $items->getEntity();
 
     if (!$items->offsetExists($delta)) {
+      $entity_manager = \Drupal::entityManager();
+      $target_type = $this->getFieldSetting('target_type');
 
+      $entity_type = $entity_manager->getDefinition($target_type);
+      $bundle_key = $entity_type->getKey('bundle');
+
+      $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
+                                                                    $bundle_key => 'text',
+                                                                  ));
+      $items->set($delta, $paragraphs_entity);
     }
     else {
-
+      $paragraphs_entity = $items->get($delta);
     }
 
-    // Load those entities and loop through them to extract their labels.
-    $entities = entity_load_multiple($this->getFieldSetting('target_type'), $this->getEntityIds($items, $delta));
-    //$form = \Drupal::service('entity.form_builder')->getForm($entity, 'default');
-
     $element += array(
-      'subform' => $subform,
+      '#type' => 'container',
+      'subform' => array(),
     );
 
+    $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
+
+    $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+    
     return array('target_id' => $element);
   }
 
