@@ -1,11 +1,11 @@
 paragraphs.type_add:
   route_name: 'paragraphs.type_add'
-  title: 'Add Paragraphs Type'
+  title: 'Add a Paragraphs type'
   appears_on:
     - paragraphs.type_list
 
 paragraphs.item_add_page:
   route_name: paragraphs.item_add_page
-  title: 'Add ParagraphsItem'
+  title: 'Add a Paragraphs item'
   appears_on:
     - paragraphs.item_list

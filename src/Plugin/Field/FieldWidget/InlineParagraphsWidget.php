@@ -52,42 +52,43 @@ class InlineParagraphsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    $field_name = $this->fieldDefinition->getName();
+    $parents = $form['#parents'];
     $host_entity = $items->getEntity();
+    $paragraphs_entity = FALSE;
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
-    if (!$items->offsetExists($delta)) {
+    if ($items[$delta]->entity) {
+      $paragraphs_entity = $items[$delta]->entity;
+    }
+    elseif (isset($widget_state['selected_bundle'])) {
       $entity_manager = \Drupal::entityManager();
       $target_type = $this->getFieldSetting('target_type');
 
       $entity_type = $entity_manager->getDefinition($target_type);
       $bundle_key = $entity_type->getKey('bundle');
 
-      // @todo: fix bundle key selection.
       $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
-                                                                    $bundle_key => 'text',
-                                                                  ));
-      // Broken?
-      //$items->set($delta, $paragraphs_entity);
-    }
-    else {
+        $bundle_key => $widget_state['selected_bundle'],
+      ));
 
-      // Broken?
-      $paragraphs_entity = $items->get($delta);
-      $paragraphs_entity->getValue();
+      $items[$delta]->setValue($paragraphs_entity);
     }
 
-    $element += array(
-      '#type' => 'container',
-      'subform' => array(
-        '#parents' => array(
-          'subform',
+    if ($paragraphs_entity) {
+      $element += array(
+        '#type' => 'container',
+        'subform' => array(
+          '#parents' => array(
+            'subform',
+          ),
         ),
-      ),
-      '#tree' => TRUE,
-    );
+        '#tree' => TRUE,
+      );
 
-    $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
-
-    $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+      $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
+      $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+    }
 
     return array('target_id' => $element);
   }

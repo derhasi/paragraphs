@@ -20,7 +20,7 @@ class ParagraphsTypeListBuilder extends ConfigEntityListBuilder
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['label'] = $this->t('ParagraphsType');
+    $header['label'] = $this->t('Paragraphs types');
     $header['id'] = $this->t('Machine name');
     return $header + parent::buildHeader();
   }

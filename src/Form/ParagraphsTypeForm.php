@@ -26,7 +26,7 @@ class ParagraphsTypeForm extends EntityForm
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $paragraphs_type->label(),
-      '#description' => $this->t("Label for the ParagraphsType."),
+      '#description' => $this->t("Label for the Paragraphs type."),
       '#required' => TRUE,
     );
 

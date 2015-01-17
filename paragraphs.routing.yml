@@ -3,7 +3,7 @@ paragraphs.type_list:
   path: '/admin/structure/paragraphs_type'
   defaults:
     _entity_list: 'paragraphs_type'
-    _title: 'ParagraphsType Configuration'
+    _title: 'Paragraphs types'
   requirements:
     _permission: 'administer paragraphs types'
 
@@ -11,7 +11,7 @@ paragraphs.type_add:
   path: '/admin/structure/paragraphs_type/add'
   defaults:
     _entity_form: 'paragraphs_type.add'
-    _title: 'Add ParagraphsType'
+    _title: 'Add a Paragraphs type'
   requirements:
     _permission: 'administer paragraphs types'
 
@@ -19,7 +19,7 @@ entity.paragraphs_type.edit_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}'
   defaults:
     _entity_form: 'paragraphs_type.edit'
-    _title: 'Edit ParagraphsType'
+    _title: 'Edit a Paragraphs type'
   requirements:
     _permission: 'administer paragraphs types'
 
@@ -27,58 +27,6 @@ entity.paragraphs_type.delete_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}/delete'
   defaults:
     _entity_form: 'paragraphs_type.delete'
-    _title: 'Delete ParagraphsType'
+    _title: 'Delete a Paragraphs type'
   requirements:
     _entity_access: 'paragraphs_type.delete'
-
-# ParagraphsItem routing definition
-paragraphs.item_list:
-  path: '/admin/paragraphs_item'
-  defaults:
-    _entity_list: 'paragraphs_item'
-    _title: 'Paragraphs item list'
-  requirements:
-    _permission: 'access paragraphs items overview'
-
-entity.paragraphs_item.canonical:
-  path: '/admin/paragraphs_item/{paragraphs_item}'
-  defaults:
-    _entity_view: 'paragraphs_item'
-    _title: 'ParagraphsItem Content'
-  requirements:
-    _entity_access: 'paragraphs_item.view'
-
-paragraphs.item_add_page:
-  path: '/admin/paragraphs_item/add'
-  defaults:
-    _content: '\Drupal\paragraphs\Controller\ParagraphsItemController::addPage'
-    _title: 'Add Paragraphs item'
-  options:
-    _access_mode: 'ANY'
-  requirements:
-    _permission: 'administer paragraphs types'
-    _node_add_access: 'paragraphs_item'
-
-paragraphs.item_add:
-  path: '/admin/paragraphs_item/add/{paragraphs_type}'
-  defaults:
-    _content: '\Drupal\paragraphs\Controller\ParagraphsItemController::add'
-    _title: 'Add Paragraphs item'
-  requirements:
-    _entity_create_access: 'paragraphs_item'
-
-entity.paragraphs_item.edit_form:
-  path: '/admin/paragraphs_item/{paragraphs_item}/edit'
-  defaults:
-    _entity_form: paragraphs_item.edit
-    _title: 'Edit ParagraphsItem'
-  requirements:
-    _entity_access: 'paragraphs_item.edit'
-
-entity.paragraphs_item.delete_form:
-  path: '/admin/paragraphs_item/{paragraphs_item}/delete'
-  defaults:
-    _entity_form: paragraphs_item.delete
-    _title: 'Delete ParagraphsItem'
-  requirements:
-    _entity_access: 'paragraphs_item.delete'
