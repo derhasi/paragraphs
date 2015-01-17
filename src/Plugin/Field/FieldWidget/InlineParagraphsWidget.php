@@ -53,7 +53,7 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
-    $parents = $form['#parents'];
+    $parents = $element['#field_parents'];
     $host_entity = $items->getEntity();
     $paragraphs_entity = FALSE;
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
@@ -71,26 +71,33 @@ class InlineParagraphsWidget extends WidgetBase {
       $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
         $bundle_key => $widget_state['selected_bundle'],
       ));
-
-      $items[$delta]->setValue($paragraphs_entity);
+      $items->set($delta, $paragraphs_entity);
     }
 
     if ($paragraphs_entity) {
+      $element_parents = $parents;
+      $element_parents[] = $field_name;
+      $element_parents[] = $delta;
+      $element_parents[] = 'subform';
+
       $element += array(
         '#type' => 'container',
+        '#element_validate' => array(array($this, 'elementValidate')),
         'subform' => array(
-          '#parents' => array(
-            'subform',
-          ),
+          '#parents' => $element_parents,
         ),
-        '#tree' => TRUE,
       );
 
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
       $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+
+      $widget_state['entities'][$delta] = $paragraphs_entity;
+      $widget_state['displays'][$delta] = $display;
+      $widget_state['items'] = $items;
+      static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
 
-    return array('target_id' => $element);
+    return $element;
   }
 
   /**
@@ -115,9 +122,14 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
+    $field_name = $this->fieldDefinition->getName();
+    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
+    $parents = $form['#parents'];
+    $field_state = static::getWidgetState($parents, $field_name, $form_state);
     $elements = parent::formMultipleElements($items, $form, $form_state);
 
-    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
+    // We remove one because we don't want it to create items by itself.
+    unset($elements[$field_state['items_count']]);
 
     // Add 'add more select' button and moves the default 'add more' button, if not working with a programmed form.
     if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
@@ -132,6 +144,9 @@ class InlineParagraphsWidget extends WidgetBase {
       }
 
       $button = $elements['add_more'];
+
+      // @todo: fix this so we won't error out on paragraph field errors.
+      $button['#limit_validation_errors'][] = array(array_merge($parents, array($field_name)));
 
       $elements['add_more'] = array(
         '#type' => 'container',
@@ -197,7 +212,7 @@ class InlineParagraphsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function errorElement(array $element, ConstraintViolationInterface $error, array $form, FormStateInterface $form_state) {
-    return $element['target_id'];
+    return $element;
   }
 
   /**
@@ -223,5 +238,43 @@ class InlineParagraphsWidget extends WidgetBase {
     $target_type = $this->getFieldSetting('target_type');
     $target_type_info = \Drupal::entityManager()->getDefinition($target_type);
     return $target_type_info->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function elementValidate($element, FormStateInterface $form_state, $form) {
+    $field_name = $this->fieldDefinition->getName();
+    $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+    $delta = $element['#delta'];
+
+
+    $entity = $widget_state['entities'][$delta];
+    $display = $widget_state['displays'][$delta];
+
+    $display->extractFormValues($entity, $element['subform'], $form_state);
+    $display->validateFormValues($entity, $element['subform'], $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
+    // Don't do entity saving when we have validation erors.
+    if (count($form_state->getErrors())) {
+      return $values;
+    }
+
+    $field_name = $this->fieldDefinition->getName();
+    $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+
+    foreach ($values as $delta => &$item) {
+      if (isset($item['subform']) && isset($widget_state['entities'][$delta])) {
+        $paragraphs_entity = $widget_state['entities'][$delta];
+        $paragraphs_entity->save();
+        $item['target_id'] = $paragraphs_entity->id();
+      }
+    }
+    return $values;
   }
 }

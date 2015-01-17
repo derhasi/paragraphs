@@ -236,6 +236,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
           'placeholder' => '',
         ),
       ))
+      ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
@@ -252,6 +253,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
         'type' => 'datetime_timestamp',
         'weight' => 10,
       ))
+      ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
