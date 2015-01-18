@@ -182,6 +182,7 @@ class InlineParagraphsWidget extends WidgetBase {
         }
       }
 
+      // @todo: being able to select a form display.
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
 
       if ($item_mode == 'edit') {
