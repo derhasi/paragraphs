@@ -132,7 +132,7 @@ class InlineParagraphsWidget extends WidgetBase {
         }
         elseif ($item_mode == 'remove') {
           $element['actions']['remove_button'] = array(
-            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSelectionHandlerSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save"!', array('!title' => $this->getSelectionHandlerSetting('title'), '!confirm' => t('Confirm Deletion'), '!save' => t('Save'))) . '</em></p>',
+            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSelectionHandlerSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press or "!save" at the bottom of the page!', array('!title' => $this->getSelectionHandlerSetting('title'), '!save' => t('Save'))) . '</em></p>',
           );
           $element['actions']['restore_button'] = array(
             '#type' => 'submit',
@@ -143,19 +143,6 @@ class InlineParagraphsWidget extends WidgetBase {
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'restoreItemAjax'),
-              'wrapper' => $wrapper_id,
-              'effect' => 'fade',
-            ),
-          );
-          $element['actions']['confirm_remove_button'] = array(
-            '#type' => 'submit',
-            '#value' => t('Confirm Deletion'),
-            '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
-            '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'removeItemAjax'),
               'wrapper' => $wrapper_id,
               'effect' => 'fade',
             ),
@@ -457,12 +444,14 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
     $delta = $element['#delta'];
 
-
     $entity = $widget_state['paragraphs'][$delta]['entity'];
     $display = $widget_state['paragraphs'][$delta]['display'];
 
-    $display->extractFormValues($entity, $element['subform'], $form_state);
-    $display->validateFormValues($entity, $element['subform'], $form_state);
+    // Only extract/validate values when we are in edit mode.
+    if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
+      $display->extractFormValues($entity, $element['subform'], $form_state);
+      $display->validateFormValues($entity, $element['subform'], $form_state);
+    }
   }
 
   /**
@@ -478,10 +467,17 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
 
     foreach ($values as $delta => &$item) {
-      if (isset($item['subform']) && isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])) {
+      if (isset($item['subform'])
+        && isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
+        && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
         $paragraphs_entity->save();
         $item['target_id'] = $paragraphs_entity->id();
+      }
+      // If our mode is remove don't save or reference this entity.
+      // @todo: Maybe we should actually delete it here?
+      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove') {
+        $item['target_id']  = NULL;
       }
     }
     return $values;
