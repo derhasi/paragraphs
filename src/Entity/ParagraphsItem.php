@@ -223,18 +223,12 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
         'label' => 'hidden',
-        'type' => 'author',
+        'type' => 'hidden',
         'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'entity_reference_autocomplete',
-        'weight' => 5,
-        'settings' => array(
-          'match_operator' => 'CONTAINS',
-          'size' => '60',
-          'autocomplete_type' => 'tags',
-          'placeholder' => '',
-        ),
+        'type' => 'hidden',
+        'weight' => 0,
       ))
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
@@ -245,13 +239,12 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'timestamp',
+        'type' => 'hidden',
         'weight' => 0,
       ))
       ->setDisplayOptions('form', array(
-        'type' => 'datetime_timestamp',
-        'weight' => 10,
+        'type' => 'hidden',
+        'weight' => 0,
       ))
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);

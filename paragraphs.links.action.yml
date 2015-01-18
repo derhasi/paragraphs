@@ -3,9 +3,3 @@ paragraphs.type_add:
   title: 'Add a Paragraphs type'
   appears_on:
     - paragraphs.type_list
-
-paragraphs.item_add_page:
-  route_name: paragraphs.item_add_page
-  title: 'Add a Paragraphs item'
-  appears_on:
-    - paragraphs.item_list
