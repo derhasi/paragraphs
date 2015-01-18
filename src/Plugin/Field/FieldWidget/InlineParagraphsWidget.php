@@ -294,7 +294,7 @@ class InlineParagraphsWidget extends WidgetBase {
         '#theme' => 'field_multiple_value_form',
         '#field_name' => $field_name,
         '#cardinality' => $cardinality,
-        '#cardinality_multiple' => $this->fieldDefinition->getFieldStorageDefinition()->isMultiple(),
+        '#cardinality_multiple' => TRUE,
         '#required' => $this->fieldDefinition->isRequired(),
         '#title' => $title,
         '#description' => $description,
@@ -310,6 +310,10 @@ class InlineParagraphsWidget extends WidgetBase {
 
       $elements += array(
         '#type' => 'container',
+        '#field_name' => $field_name,
+        '#cardinality' => $cardinality,
+        '#cardinality_multiple' => TRUE,
+        '#max_delta' => $max-1,
         'text' => array(
           '#markup' => $element_text,
         ),
@@ -317,7 +321,7 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     // Add 'add more' button, if not working with a programmed form.
-    if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
+    if (($max < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $id_prefix = implode('-', array_merge($parents, array($field_name)));
       $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
       $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
@@ -360,11 +364,6 @@ class InlineParagraphsWidget extends WidgetBase {
     // Go one level up in the form, to the widgets container.
     $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
 
-    // Ensure the widget allows adding additional items.
-    if ($element['#cardinality'] != FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
-      return;
-    }
-
     // Add a DIV around the delta receiving the Ajax effect.
     $delta = $element['#max_delta'];
     $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
@@ -387,7 +386,11 @@ class InlineParagraphsWidget extends WidgetBase {
 
     // Increment the items count.
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-    $widget_state['items_count']++;
+
+    if ($widget_state['items_count'] < $element['#cardinality'] || $element['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+      $widget_state['items_count']++;
+    }
+
     $widget_state['selected_bundle'] = $values['add_more']['add_more_select'];
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
