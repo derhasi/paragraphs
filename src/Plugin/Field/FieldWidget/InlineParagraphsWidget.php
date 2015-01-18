@@ -139,10 +139,10 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Restore'),
             '#name' => strtr($id_prefix, '-', '_') . '_restore',
             '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
             '#delta' => $delta,
             '#ajax' => array(
-              'callback' => array(get_class($this), 'removeItemAjax'),
+              'callback' => array(get_class($this), 'restoreItemAjax'),
               'wrapper' => $wrapper_id,
               'effect' => 'fade',
             ),
@@ -358,8 +358,6 @@ class InlineParagraphsWidget extends WidgetBase {
     // Go one level up in the form, to the widgets container.
     $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
 
-    drupal_debug($button);
-
     $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
     $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
 
@@ -381,6 +379,38 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $widget_state['paragraphs'][$delta]['mode'] = 'remove';
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
+  }
+
+  public static function restoreItemAjax(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+
+    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
+    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+
+    return $element;
+  }
+
+  public static function restoreItemSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
+
+    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = $delta[0];
+
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    $widget_state['paragraphs'][$delta]['mode'] = 'edit';
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
