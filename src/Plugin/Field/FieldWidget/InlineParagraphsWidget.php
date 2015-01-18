@@ -303,7 +303,7 @@ class InlineParagraphsWidget extends WidgetBase {
     } else {
 
       // @todo: properize this.
-      $add_text = 'No !title_multiple added yet. Select a !title type and press the button below to add one.';
+      $add_text = 'No !title_multiple have been added yet. Select a !title type and press the button below to add one.';
       $element_text = '<label>' . $title . "</label>";
       $element_text .= '<p><em>' . t($add_text, array('!title_multiple' => t($this->getSelectionHandlerSetting('title_plural')), '!title' => t($this->getSelectionHandlerSetting('title')))) . '</em></p>';
       $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
