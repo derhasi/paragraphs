@@ -387,6 +387,8 @@ class InlineParagraphsWidget extends WidgetBase {
     $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
     $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
 
+    unset($element['_weight']);
+
     return $element;
   }
 
@@ -418,6 +420,8 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
     $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+
+    unset($element['_weight']);
 
     return $element;
   }
