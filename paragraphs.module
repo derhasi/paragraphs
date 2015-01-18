@@ -44,39 +44,3 @@ function paragraphs_type_get_names() {
 function paragraphs_type_load($name) {
   return ParagraphsType::load($name);
 }
-
-/**
- * Implements hook_theme().
- */
-function paragraphs_theme() {
-  return array(
-    'paragraphs_item_add_list' => array(
-      'variables' => array('content' => NULL),
-//      'file' => 'paragraphs.pages.inc',
-    ),
-  );
-}
-
-/**
- * Prepares variables for list of available node type templates.
- *
- * Default template: node-add-list.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - content: An array of content types.
- *
- * @see node_add_page()
- */
-function template_preprocess_paragraphs_item_add_list(&$variables) {
-  $variables['types'] = array();
-  if (!empty($variables['content'])) {
-    foreach ($variables['content'] as $type) {
-      $variables['types'][$type->id] = array(
-        'type' => $type->id,
-        'add_link' => \Drupal::l($type->label, new Url('paragraphs.item_add', array('paragraphs_type' => $type->id))),
-//        'description' => Xss::filterAdmin($type->description),
-      );
-    }
-  }
-}

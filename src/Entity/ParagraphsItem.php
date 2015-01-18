@@ -25,13 +25,7 @@ use Drupal\user\UserInterface;
  *   bundle_label = @Translation("Paragraphs type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\paragraphs\Entity\Controller\ParagraphsItemListController",
- *
- *     "form" = {
- *       "default" = "Drupal\paragraphs\Entity\Form\ParagraphsItemForm",
- *       "delete" = "Drupal\paragraphs\Entity\Form\ParagraphsItemDeleteForm",
- *     },
- *     "access" = "Drupal\paragraphs\ParagraphsItemAccessControlHandler",
+ *     "access" = "Drupal\paragraphs\ParagraphsItemAccessControlHandler"
  *   },
  *   base_table = "paragraphs_item",
  *   data_table = "paragraphs_item_field_data",
@@ -45,11 +39,7 @@ use Drupal\user\UserInterface;
  *     "revision" = "vid"
  *   },
  *   bundle_entity_type = "paragraphs_type",
- *   field_ui_base_route = "entity.paragraphs_type.edit_form",
- *   links = {
- *     "edit-form" = "entity.paragraphs_item.edit_form",
- *     "delete-form" = "entity.paragraphs_item.delete_form"
- *   }
+ *   field_ui_base_route = "entity.paragraphs_type.edit_form"
  * )
  */
 class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterface {
