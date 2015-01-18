@@ -289,16 +289,32 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    $elements += array(
-      '#theme' => 'field_multiple_value_form',
-      '#field_name' => $field_name,
-      '#cardinality' => $cardinality,
-      '#cardinality_multiple' => $this->fieldDefinition->getFieldStorageDefinition()->isMultiple(),
-      '#required' => $this->fieldDefinition->isRequired(),
-      '#title' => $title,
-      '#description' => $description,
-      '#max_delta' => $max-1,
-    );
+    if ($max > 0) {
+      $elements += array(
+        '#theme' => 'field_multiple_value_form',
+        '#field_name' => $field_name,
+        '#cardinality' => $cardinality,
+        '#cardinality_multiple' => $this->fieldDefinition->getFieldStorageDefinition()->isMultiple(),
+        '#required' => $this->fieldDefinition->isRequired(),
+        '#title' => $title,
+        '#description' => $description,
+        '#max_delta' => $max-1,
+      );
+    } else {
+
+      // @todo: properize this.
+      $add_text = 'No !title_multiple added yet. Select a !title type and press the button below to add one.';
+      $element_text = '<label>' . $title . "</label>";
+      $element_text .= '<p><em>' . t($add_text, array('!title_multiple' => t($this->getSelectionHandlerSetting('title_plural')), '!title' => t($this->getSelectionHandlerSetting('title')))) . '</em></p>';
+      $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
+
+      $elements += array(
+        '#type' => 'container',
+        'text' => array(
+          '#markup' => $element_text,
+        ),
+      );
+    }
 
     // Add 'add more' button, if not working with a programmed form.
     if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
