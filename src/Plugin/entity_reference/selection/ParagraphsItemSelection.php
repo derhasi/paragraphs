@@ -62,6 +62,7 @@ class ParagraphsItemSelection extends SelectionBase {
       '#size' => 6,
       '#multiple' => TRUE,
       '#element_validate' => array('_entity_reference_element_validate_filter'),
+      '#description' => t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.')
     );
 
     $form['title'] = array(
