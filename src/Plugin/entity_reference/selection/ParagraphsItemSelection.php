@@ -40,10 +40,10 @@ class ParagraphsItemSelection extends SelectionBase {
     // Merge-in default values.
     $selection_handler_settings += array(
       'target_bundles' => array(),
-      'add_mode' => 'select',
-      'edit_mode' => 'open',
-      'title' => 'Paragraph',
-      'title_plural' => 'Paragraphs'
+      'add_mode' => PARAGRAPHS_DEFAULT_ADD_MODE,
+      'edit_mode' => PARAGRAPHS_DEFAULT_EDIT_MODE,
+      'title' => PARAGRAPHS_DEFAULT_TITLE,
+      'title_plural' => PARAGRAPHS_DEFAULT_TITLE_PLURAL,
     );
 
     $bundle_options = array();
@@ -68,7 +68,7 @@ class ParagraphsItemSelection extends SelectionBase {
       '#type' => 'textfield',
       '#title' => t('Item Title'),
       '#description' => t('Label to appear as title on the button as "Add new [title]", this label is translatable'),
-      '#default_value' => $selection_handler_settings['title'],
+      '#default_value' => (!isset($selection_handler_settings['title'])) ? $selection_handler_settings['title'] : PARAGRAPHS_DEFAULT_TITLE,
       '#required' => TRUE,
     );
 
@@ -76,7 +76,7 @@ class ParagraphsItemSelection extends SelectionBase {
       '#type' => 'textfield',
       '#title' => t('Plural Item Title'),
       '#description' => t('Title in its plural form.'),
-      '#default_value' => $selection_handler_settings['title_plural'],
+      '#default_value' => (!isset($selection_handler_settings['title_plural'])) ? $selection_handler_settings['title_plural'] : PARAGRAPHS_DEFAULT_TITLE_PLURAL,
       '#required' => TRUE,
     );
 
@@ -89,7 +89,7 @@ class ParagraphsItemSelection extends SelectionBase {
         'closed' => t('Closed'),
         'preview' => t('Preview'),
       ),
-      '#default_value' => $selection_handler_settings['edit_mode'],
+      '#default_value' => (!empty($selection_handler_settings['edit_mode'])) ? $selection_handler_settings['edit_mode'] : PARAGRAPHS_DEFAULT_EDIT_MODE,
       '#required' => TRUE,
     );
 
@@ -101,7 +101,7 @@ class ParagraphsItemSelection extends SelectionBase {
         'select' => t('Select List'),
         'button' => t('Buttons'),
       ),
-      '#default_value' => $selection_handler_settings['add_mode'],
+      '#default_value' => (!empty($selection_handler_settings['add_mode'])) ? $selection_handler_settings['add_mode'] : PARAGRAPHS_DEFAULT_ADD_MODE,
       '#required' => TRUE,
     );
 

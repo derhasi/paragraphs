@@ -9,6 +9,11 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\paragraphs\Entity\ParagraphsType;
 
+define('PARAGRAPHS_DEFAULT_TITLE', 'Paragraph');
+define('PARAGRAPHS_DEFAULT_TITLE_PLURAL', 'Paragraphs');
+define('PARAGRAPHS_DEFAULT_EDIT_MODE', 'open');
+define('PARAGRAPHS_DEFAULT_ADD_MODE', 'select');
+
 /**
  * Implements hook_help().
  */

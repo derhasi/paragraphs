@@ -8,6 +8,7 @@
 namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\String;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -58,12 +59,13 @@ class InlineParagraphsWidget extends WidgetBase {
     $paragraphs_entity = FALSE;
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
+    $entity_manager = \Drupal::entityManager();
+    $target_type = $this->getFieldSetting('target_type');
+
     if ($items[$delta]->entity) {
       $paragraphs_entity = $items[$delta]->entity;
     }
     elseif (isset($widget_state['selected_bundle'])) {
-      $entity_manager = \Drupal::entityManager();
-      $target_type = $this->getFieldSetting('target_type');
 
       $entity_type = $entity_manager->getDefinition($target_type);
       $bundle_key = $entity_type->getKey('bundle');
@@ -84,15 +86,32 @@ class InlineParagraphsWidget extends WidgetBase {
         '#type' => 'container',
         '#element_validate' => array(array($this, 'elementValidate')),
         'subform' => array(
+          '#type' => 'container',
           '#parents' => $element_parents,
         ),
       );
 
+      $item_bundles = $entity_manager->getBundleInfo($target_type);
+      if (isset($item_bundles[$paragraphs_entity->bundle()])) {
+        $bundle_info = $item_bundles[$paragraphs_entity->bundle()];
+        $element['paragraph_bundle_title'] = array(
+          '#type' => 'container',
+          '#weight' => -1000,
+        );
+        $element['paragraph_bundle_title']['info'] = array(
+          '#markup' => t('!title type: %bundle', array('!title' => t($this->getSelectionHandlerSetting('title')), '%bundle' => $bundle_info['label'])),
+        );
+      }
+
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
       $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
 
-      $widget_state['entities'][$delta] = $paragraphs_entity;
-      $widget_state['displays'][$delta] = $display;
+
+      $widget_state['paragraphs'][$delta] = array(
+        'entity' => $paragraphs_entity,
+        'display' => $display,
+      );
+
       $widget_state['items'] = $items;
       static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
@@ -126,27 +145,75 @@ class InlineParagraphsWidget extends WidgetBase {
     $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
     $parents = $form['#parents'];
     $field_state = static::getWidgetState($parents, $field_name, $form_state);
-    $elements = parent::formMultipleElements($items, $form, $form_state);
 
-    // We remove one because we don't want it to create items by itself.
-    unset($elements[$field_state['items_count']]);
+    $max = $field_state['items_count'];
+    $is_multiple = TRUE;
 
-    // Add 'add more select' button and moves the default 'add more' button, if not working with a programmed form.
-    if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
-      $bundles = paragraphs_type_get_types();
-      $options = array();
+    $title = String::checkPlain($this->fieldDefinition->getLabel());
+    $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
-      foreach ($bundles as $machine_name => $bundle) {
-        if (!count($this->getSelectionHandlerSetting('target_bundles'))
-          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
-          $options[$machine_name] = $bundle->label;
+    $elements = array();
+
+    if ($max > 0) {
+      for ($delta = 0; $delta < $max; $delta++) {
+        // For multiple fields, title and description are handled by the wrapping
+        // table.
+        $element = array(
+          '#title' => $is_multiple ? '' : $title,
+          '#description' => $is_multiple ? '' : $description,
+        );
+        $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
+
+        if ($element) {
+          // Input field for the delta (drag-n-drop reordering).
+          if ($is_multiple) {
+            // We name the element '_weight' to avoid clashing with elements
+            // defined by widget.
+            $element['_weight'] = array(
+              '#type' => 'weight',
+              '#title' => t('Weight for row @number', array('@number' => $delta + 1)),
+              '#title_display' => 'invisible',
+              // Note: this 'delta' is the FAPI #type 'weight' element's property.
+              '#delta' => $max,
+              '#default_value' => $items[$delta]->_weight ?: $delta,
+              '#weight' => 100,
+            );
+          }
+
+          $elements[$delta] = $element;
         }
       }
+    }
 
-      $button = $elements['add_more'];
+    $entity_manager = \Drupal::entityManager();
+    $target_type = $this->getFieldSetting('target_type');
+    $bundles = $entity_manager->getBundleInfo($target_type);
+    $options = array();
 
-      // @todo: fix this so we won't error out on paragraph field errors.
-      $button['#limit_validation_errors'][] = array(array_merge($parents, array($field_name)));
+    foreach ($bundles as $machine_name => $bundle) {
+      if (!count($this->getSelectionHandlerSetting('target_bundles'))
+        || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
+        $options[$machine_name] = $bundle['label'];
+      }
+    }
+
+    $elements += array(
+      '#theme' => 'field_multiple_value_form',
+      '#field_name' => $field_name,
+      '#cardinality' => $cardinality,
+      '#cardinality_multiple' => $this->fieldDefinition->getFieldStorageDefinition()->isMultiple(),
+      '#required' => $this->fieldDefinition->isRequired(),
+      '#title' => $title,
+      '#description' => $description,
+      '#max_delta' => $max-1,
+    );
+
+    // Add 'add more' button, if not working with a programmed form.
+    if ($cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED && !$form_state->isProgrammed()) {
+      $id_prefix = implode('-', array_merge($parents, array($field_name)));
+      $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
+      $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
+      $elements['#suffix'] = '</div>';
 
       $elements['add_more'] = array(
         '#type' => 'container',
@@ -159,7 +226,19 @@ class InlineParagraphsWidget extends WidgetBase {
         '#label_display' => 'hidden',
       );
 
-      $elements['add_more']['add_more_button'] = $button;
+      $elements['add_more']['add_more_button'] = array(
+        '#type' => 'submit',
+        '#name' => strtr($id_prefix, '-', '_') . '_add_more',
+        '#value' => t('Add another item'),
+        '#attributes' => array('class' => array('field-add-more-submit')),
+        '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+        '#submit' => array(array(get_class($this), 'addMoreSubmit')),
+        '#ajax' => array(
+          'callback' => array(get_class($this), 'addMoreAjax'),
+          'wrapper' => $wrapper_id,
+          'effect' => 'fade',
+        ),
+      );
     }
 
     return $elements;
@@ -249,8 +328,8 @@ class InlineParagraphsWidget extends WidgetBase {
     $delta = $element['#delta'];
 
 
-    $entity = $widget_state['entities'][$delta];
-    $display = $widget_state['displays'][$delta];
+    $entity = $widget_state['paragraphs'][$delta]['entity'];
+    $display = $widget_state['paragraphs'][$delta]['display'];
 
     $display->extractFormValues($entity, $element['subform'], $form_state);
     $display->validateFormValues($entity, $element['subform'], $form_state);
@@ -269,8 +348,8 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
 
     foreach ($values as $delta => &$item) {
-      if (isset($item['subform']) && isset($widget_state['entities'][$delta])) {
-        $paragraphs_entity = $widget_state['entities'][$delta];
+      if (isset($item['subform']) && isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])) {
+        $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
         $paragraphs_entity->save();
         $item['target_id'] = $paragraphs_entity->id();
       }
