@@ -62,6 +62,8 @@ class InlineParagraphsWidget extends WidgetBase {
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
 
+    $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
+
     if ($items[$delta]->entity) {
       $paragraphs_entity = $items[$delta]->entity;
     }
@@ -82,6 +84,9 @@ class InlineParagraphsWidget extends WidgetBase {
       $element_parents[] = $delta;
       $element_parents[] = 'subform';
 
+      $id_prefix = implode('-', array_merge($parents, array($field_name, $delta)));
+      $wrapper_id = drupal_html_id($id_prefix . '-item-wrapper');
+
       $element += array(
         '#type' => 'container',
         '#element_validate' => array(array($this, 'elementValidate')),
@@ -90,6 +95,9 @@ class InlineParagraphsWidget extends WidgetBase {
           '#parents' => $element_parents,
         ),
       );
+
+      $element['#prefix'] = '<div id="' . $wrapper_id . '">';
+      $element['#suffix'] = '</div>';
 
       $item_bundles = $entity_manager->getBundleInfo($target_type);
       if (isset($item_bundles[$paragraphs_entity->bundle()])) {
@@ -101,15 +109,73 @@ class InlineParagraphsWidget extends WidgetBase {
         $element['paragraph_bundle_title']['info'] = array(
           '#markup' => t('!title type: %bundle', array('!title' => t($this->getSelectionHandlerSetting('title')), '%bundle' => $bundle_info['label'])),
         );
+
+        $element['actions'] = array(
+          '#type' => 'actions',
+          '#weight' => 9999,
+        );
+
+        if ($item_mode == 'edit') {
+          $element['actions']['remove_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Remove !type paragraph', array('!type' => $bundle_info['label'])),
+            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'removeItemAjax'),
+              'wrapper' => $wrapper_id,
+              'effect' => 'fade',
+            ),
+          );
+        }
+        elseif ($item_mode == 'remove') {
+          $element['actions']['remove_button'] = array(
+            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSelectionHandlerSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save"!', array('!title' => $this->getSelectionHandlerSetting('title'), '!confirm' => t('Confirm Deletion'), '!save' => t('Save'))) . '</em></p>',
+          );
+          $element['actions']['restore_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Restore'),
+            '#name' => strtr($id_prefix, '-', '_') . '_restore',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'removeItemAjax'),
+              'wrapper' => $wrapper_id,
+              'effect' => 'fade',
+            ),
+          );
+          $element['actions']['confirm_remove_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Confirm Deletion'),
+            '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'removeItemAjax'),
+              'wrapper' => $wrapper_id,
+              'effect' => 'fade',
+            ),
+          );
+        }
       }
 
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
-      $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
 
+      if ($item_mode == 'edit') {
+        $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+      }
+      else {
+        $element['subform'] = array();
+      }
 
       $widget_state['paragraphs'][$delta] = array(
         'entity' => $paragraphs_entity,
         'display' => $display,
+        'mode' => $item_mode,
       );
 
       $widget_state['items'] = $items;
@@ -278,11 +344,45 @@ class InlineParagraphsWidget extends WidgetBase {
     $parents = $element['#field_parents'];
 
     // Increment the items count.
-    $field_state = static::getWidgetState($parents, $field_name, $form_state);
-    $field_state['items_count']++;
-    $field_state['selected_bundle'] = $values['add_more']['add_more_select'];
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+    $widget_state['items_count']++;
+    $widget_state['selected_bundle'] = $values['add_more']['add_more_select'];
 
-    static::setWidgetState($parents, $field_name, $form_state, $field_state);
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
+  }
+
+  public static function removeItemAjax(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+
+    drupal_debug($button);
+
+    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
+    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+
+    return $element;
+  }
+
+  public static function removeItemSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
+
+    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = $delta[0];
+
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    $widget_state['paragraphs'][$delta]['mode'] = 'remove';
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
     $form_state->setRebuild();
   }
