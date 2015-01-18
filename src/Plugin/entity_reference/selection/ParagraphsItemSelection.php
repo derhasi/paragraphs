@@ -80,7 +80,7 @@ class ParagraphsItemSelection extends SelectionBase {
       '#required' => TRUE,
     );
 
-    $element['edit_mode'] = array(
+    $form['edit_mode'] = array(
       '#type' => 'select',
       '#title' => t('Edit mode'),
       '#description' => t('The mode the paragraph item is in by default. Preview will render the paragraph in the preview view mode.'),

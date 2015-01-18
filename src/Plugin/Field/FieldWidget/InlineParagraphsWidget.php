@@ -66,6 +66,21 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($items[$delta]->entity) {
       $paragraphs_entity = $items[$delta]->entity;
+
+      // We don't have a widget state yet, get from selector settings.
+      if (!isset($widget_state['paragraphs'][$delta]['mode'])) {
+        $default_edit_mode = $this->getSelectionHandlerSetting('edit_mode');
+
+        if ($default_edit_mode == 'open') {
+          $item_mode = 'edit';
+        }
+        elseif ($default_edit_mode == 'closed') {
+          $item_mode = 'closed';
+        }
+        elseif ($default_edit_mode == 'preview') {
+          $item_mode = 'preview';
+        }
+      }
     }
     elseif (isset($widget_state['selected_bundle'])) {
 
@@ -76,6 +91,8 @@ class InlineParagraphsWidget extends WidgetBase {
         $bundle_key => $widget_state['selected_bundle'],
       ));
       $items->set($delta, $paragraphs_entity);
+
+      $item_mode = 'edit';
     }
 
     if ($paragraphs_entity) {
@@ -130,6 +147,21 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
           );
         }
+        elseif ($item_mode == 'preview' || $item_mode == 'closed') {
+          $element['actions']['edit_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Edit !type paragraph', array('!type' => $bundle_info['label'])),
+            '#name' => strtr($id_prefix, '-', '_') . '_edit',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'restoreItemAjax'),
+              'wrapper' => $wrapper_id,
+              'effect' => 'fade',
+            ),
+          );
+        }
         elseif ($item_mode == 'remove') {
           $element['actions']['remove_button'] = array(
             '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSelectionHandlerSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press or "!save" at the bottom of the page!', array('!title' => $this->getSelectionHandlerSetting('title'), '!save' => t('Save'))) . '</em></p>',
@@ -154,6 +186,13 @@ class InlineParagraphsWidget extends WidgetBase {
 
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+      }
+      elseif ($item_mode == 'preview') {
+        $element['subform'] = array();
+        $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
+      }
+      elseif ($item_mode == 'closed') {
+        $element['subform'] = array();
       }
       else {
         $element['subform'] = array();

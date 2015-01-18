@@ -1,6 +1,6 @@
 paragraphs.paragraphs_type.*:
   type: config_entity
-  label: 'ParagraphsType config'
+  label: 'Paragraphs type config'
   mapping:
     id:
       type: string

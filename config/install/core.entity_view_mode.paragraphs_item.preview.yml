@@ -1,0 +1,8 @@
+id: paragraphs_item.teaser
+label: Preview
+status: true
+cache: true
+targetEntityType: paragraphs_item
+dependencies:
+  module:
+    - paragraphs
