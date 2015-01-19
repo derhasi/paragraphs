@@ -6,10 +6,10 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Url;
 use Drupal\paragraphs\Entity\ParagraphsType;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Render\Element;
 
 define('PARAGRAPHS_DEFAULT_TITLE', 'Paragraph');
 define('PARAGRAPHS_DEFAULT_TITLE_PLURAL', 'Paragraphs');
@@ -80,4 +80,56 @@ function paragraphs_bundle_validate($element, FormStateInterface $form_state, $f
   // New value parents.
   $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
   NestedArray::setValue($values, $parents, $bundle_options);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function paragraphs_theme() {
+  return array(
+    'paragraphs_item' => array(
+      'render element' => 'elements',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function paragraphs_theme_suggestions_paragraphs_item(array $variables) {
+  $suggestions = array();
+  $paragraphs_item = $variables['elements']['#paragraphs_item'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'paragraphs_item__' . $sanitized_view_mode;
+  $suggestions[] = 'paragraphs_item__' . $paragraphs_item->bundle();
+  $suggestions[] = 'paragraphs_item__' . $paragraphs_item->bundle() . '__' . $sanitized_view_mode;
+
+  return $suggestions;
+}
+
+/**
+ * Prepares variables for paragraphs_item templates.
+ *
+ * Default template: paragraphs-item.html.twig.
+ *
+ * Most themes use their own copy of paragraphs-item.html.twig. The default is located
+ * inside "templates/paragraphs-item.html.twig". Look in there for the
+ * full list of variables.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An array of elements to display in view mode.
+ *   - paragraphs_item: The paragraphs_item object.
+ *   - view_mode: View mode; e.g., 'full', 'teaser'...
+ */
+function template_preprocess_paragraphs_item(&$variables) {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['paragraphs_item'] = $variables['elements']['#paragraphs_item'];
+
+  // Helpful $content variable for templates.
+  $variables += array('content' => array());
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
 }
