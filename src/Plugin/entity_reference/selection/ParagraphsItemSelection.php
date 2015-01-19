@@ -65,48 +65,6 @@ class ParagraphsItemSelection extends SelectionBase {
       '#description' => t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.')
     );
 
-    $form['title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Item Title'),
-      '#description' => t('Label to appear as title on the button as "Add new [title]", this label is translatable'),
-      '#default_value' => (!isset($selection_handler_settings['title'])) ? $selection_handler_settings['title'] : PARAGRAPHS_DEFAULT_TITLE,
-      '#required' => TRUE,
-    );
-
-    $form['title_plural'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Plural Item Title'),
-      '#description' => t('Title in its plural form.'),
-      '#default_value' => (!isset($selection_handler_settings['title_plural'])) ? $selection_handler_settings['title_plural'] : PARAGRAPHS_DEFAULT_TITLE_PLURAL,
-      '#required' => TRUE,
-    );
-
-    $form['edit_mode'] = array(
-      '#type' => 'select',
-      '#title' => t('Edit mode'),
-      '#description' => t('The mode the paragraph item is in by default. Preview will render the paragraph in the preview view mode.'),
-      '#options' => array(
-        'open' => t('Open'),
-        'closed' => t('Closed'),
-        'preview' => t('Preview'),
-      ),
-      '#default_value' => (!empty($selection_handler_settings['edit_mode'])) ? $selection_handler_settings['edit_mode'] : PARAGRAPHS_DEFAULT_EDIT_MODE,
-      '#required' => TRUE,
-    );
-
-    $form['add_mode'] = array(
-      '#type' => 'select',
-      '#title' => t('Add mode'),
-      '#description' => t('The way to add new paragraphs.'),
-      '#options' => array(
-        'select' => t('Select List'),
-        'button' => t('Buttons'),
-      ),
-      '#default_value' => (!empty($selection_handler_settings['add_mode'])) ? $selection_handler_settings['add_mode'] : PARAGRAPHS_DEFAULT_ADD_MODE,
-      '#required' => TRUE,
-    );
-
-
     if (!count($bundle_options)) {
       $form['allowed_bundles_explain'] = array(
         '#type' => 'markup',

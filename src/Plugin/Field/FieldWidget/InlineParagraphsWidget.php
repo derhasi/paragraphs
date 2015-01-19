@@ -35,9 +35,73 @@ class InlineParagraphsWidget extends WidgetBase {
   /**
    * {@inheritdoc}
    */
+  public static function defaultSettings() {
+    return array(
+      'title' => PARAGRAPHS_DEFAULT_TITLE,
+      'title_plural' => PARAGRAPHS_DEFAULT_TITLE_PLURAL,
+      'edit_mode' => PARAGRAPHS_DEFAULT_EDIT_MODE,
+      'add_mode' => PARAGRAPHS_DEFAULT_ADD_MODE,
+      'form_display_mode' => PARAGRAPHS_DEFAULT_FORM_DISPLAY_MODE,
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $element = array();
-    return $element;
+    $elements = array();
+
+    $elements['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Item Title'),
+      '#description' => t('Label to appear as title on the button as "Add new [title]", this label is translatable'),
+      '#default_value' => $this->getSetting('title'),
+      '#required' => TRUE,
+    );
+
+    $elements['title_plural'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Plural Item Title'),
+      '#description' => t('Title in its plural form.'),
+      '#default_value' => $this->getSetting('title_plural'),
+      '#required' => TRUE,
+    );
+
+    $elements['edit_mode'] = array(
+      '#type' => 'select',
+      '#title' => t('Edit mode'),
+      '#description' => t('The mode the paragraph item is in by default. Preview will render the paragraph in the preview view mode.'),
+      '#options' => array(
+        'open' => t('Open'),
+        'closed' => t('Closed'),
+        'preview' => t('Preview'),
+      ),
+      '#default_value' => $this->getSetting('edit_mode'),
+      '#required' => TRUE,
+    );
+
+    $elements['add_mode'] = array(
+      '#type' => 'select',
+      '#title' => t('Add mode'),
+      '#description' => t('The way to add new paragraphs.'),
+      '#options' => array(
+        'select' => t('Select List'),
+        'button' => t('Buttons'),
+      ),
+      '#default_value' => $this->getSetting('add_mode'),
+      '#required' => TRUE,
+    );
+
+    $elements['form_display_mode'] = array(
+      '#type' => 'select',
+      '#options' => \Drupal::entityManager()->getFormModeOptions($this->getFieldSetting('target_type')),
+      '#description' => t('The form display mode to use when rendering the paragraph items form.'),
+      '#title' => t('Form display mode'),
+      '#default_value' => $this->getSetting('form_display_mode'),
+      '#required' => TRUE,
+    );
+
+    return $elements;
   }
 
   /**
@@ -45,7 +109,11 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function settingsSummary() {
     $summary = array();
-
+    $summary[] = t('Title: @title', array('@title' => t($this->getSetting('title'))));
+    $summary[] = t('Plural title: @title_plural', array('@title_plural' => t($this->getSetting('title_plural'))));
+    $summary[] = t('Edit mode: @edit_mode', array('@edit_mode' => t(ucfirst($this->getSetting('edit_mode')))));
+    $summary[] = t('Add mode: @add_mode', array('@add_mode' => t(ucfirst($this->getSetting('add_mode')))));
+    $summary[] = t('Form display mode: @form_display_mode', array('@form_display_mode' => $this->getSetting('form_display_mode')));
     return $summary;
   }
 
@@ -69,7 +137,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
       // We don't have a widget state yet, get from selector settings.
       if (!isset($widget_state['paragraphs'][$delta]['mode'])) {
-        $default_edit_mode = $this->getSelectionHandlerSetting('edit_mode');
+        $default_edit_mode = $this->getSetting('edit_mode');
 
         if ($default_edit_mode == 'open') {
           $item_mode = 'edit';
@@ -124,7 +192,7 @@ class InlineParagraphsWidget extends WidgetBase {
           '#weight' => -1000,
         );
         $element['paragraph_bundle_title']['info'] = array(
-          '#markup' => t('!title type: %bundle', array('!title' => t($this->getSelectionHandlerSetting('title')), '%bundle' => $bundle_info['label'])),
+          '#markup' => t('!title type: %bundle', array('!title' => t($this->getSetting('title')), '%bundle' => $bundle_info['label'])),
         );
 
         $element['actions'] = array(
@@ -133,6 +201,8 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         if ($item_mode == 'edit') {
+          // @todo: access check.
+          // @todo: fix limit validation errors.
           $element['actions']['remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Remove !type paragraph', array('!type' => $bundle_info['label'])),
@@ -148,6 +218,9 @@ class InlineParagraphsWidget extends WidgetBase {
           );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
+
+          // @todo: access check.
+          // @todo: fix limit validation errors.
           $element['actions']['edit_button'] = array(
             '#type' => 'submit',
             '#value' => t('Edit !type paragraph', array('!type' => $bundle_info['label'])),
@@ -164,8 +237,10 @@ class InlineParagraphsWidget extends WidgetBase {
         }
         elseif ($item_mode == 'remove') {
           $element['actions']['remove_button'] = array(
-            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSelectionHandlerSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press or "!save" at the bottom of the page!', array('!title' => $this->getSelectionHandlerSetting('title'), '!save' => t('Save'))) . '</em></p>',
+            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!save' => t('Save'))) . '</em></p>',
           );
+
+          // @todo: fix limit validation errors.
           $element['actions']['restore_button'] = array(
             '#type' => 'submit',
             '#value' => t('Restore'),
@@ -179,16 +254,20 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
           );
+
+          // @todo: confirm delete button.
         }
       }
 
-      // @todo: being able to select a form display.
-      $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, 'default');
+      $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
 
       if ($item_mode == 'edit') {
+
+        // @todo: access check.
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
       }
       elseif ($item_mode == 'preview') {
+        // @todo: access check.
         $element['subform'] = array();
         $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
       }
@@ -306,8 +385,8 @@ class InlineParagraphsWidget extends WidgetBase {
       // @todo: properize this.
       $add_text = 'No !title_multiple have been added yet. Select a !title type and press the button below to add one.';
       $element_text = '<label>' . $title . "</label>";
-      $element_text .= '<p><em>' . t($add_text, array('!title_multiple' => t($this->getSelectionHandlerSetting('title_plural')), '!title' => t($this->getSelectionHandlerSetting('title')))) . '</em></p>';
-      $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
+      $element_text .= '<p><em>' . t($add_text, array('!title_multiple' => t($this->getSetting('title_plural')), '!title' => t($this->getSetting('title')))) . '</em></p>';
+      $element_text .= $description ? '<div class="description">' . implode('', $description->getAll()) . '</div>' : '';
 
       $elements += array(
         '#type' => 'container',
@@ -339,6 +418,10 @@ class InlineParagraphsWidget extends WidgetBase {
         '#label_display' => 'hidden',
       );
 
+
+      // @todo: access check.
+      // @todo: button mode.
+      // @todo: fix limit validation errors.
       $elements['add_more']['add_more_button'] = array(
         '#type' => 'submit',
         '#name' => strtr($id_prefix, '-', '_') . '_add_more',
