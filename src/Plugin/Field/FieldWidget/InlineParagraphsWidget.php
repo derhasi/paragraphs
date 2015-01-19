@@ -153,6 +153,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
+    $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
 
     $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
 
@@ -225,7 +226,8 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         if ($item_mode == 'edit') {
-          // @todo: access check.
+
+          // @todo: replace whole form?
           // @todo: fix limit validation errors.
           $element['actions']['remove_button'] = array(
             '#type' => 'submit',
@@ -239,11 +241,12 @@ class InlineParagraphsWidget extends WidgetBase {
               'wrapper' => $wrapper_id,
               'effect' => 'fade',
             ),
+            '#access' => $paragraphs_entity->access('delete'),
           );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
 
-          // @todo: access check.
+          // @todo: replace whole form?
           // @todo: fix limit validation errors.
           $element['actions']['edit_button'] = array(
             '#type' => 'submit',
@@ -257,6 +260,7 @@ class InlineParagraphsWidget extends WidgetBase {
               'wrapper' => $wrapper_id,
               'effect' => 'fade',
             ),
+            '#access' => $paragraphs_entity->access('update'),
           );
         }
         elseif ($item_mode == 'remove') {
@@ -286,12 +290,9 @@ class InlineParagraphsWidget extends WidgetBase {
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
 
       if ($item_mode == 'edit') {
-
-        // @todo: access check.
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
       }
       elseif ($item_mode == 'preview') {
-        // @todo: access check.
         $element['subform'] = array();
         $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
       }
@@ -301,6 +302,8 @@ class InlineParagraphsWidget extends WidgetBase {
       else {
         $element['subform'] = array();
       }
+
+      $element['subform']['#access'] = $paragraphs_entity->access('update');
 
       $widget_state['paragraphs'][$delta] = array(
         'entity' => $paragraphs_entity,
@@ -384,12 +387,19 @@ class InlineParagraphsWidget extends WidgetBase {
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
     $bundles = $entity_manager->getBundleInfo($target_type);
+    $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
+
     $options = array();
+    $access_options = array();
 
     foreach ($bundles as $machine_name => $bundle) {
       if (!count($this->getSelectionHandlerSetting('target_bundles'))
         || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
         $options[$machine_name] = $bundle['label'];
+
+        if ($access_control_handler->createAccess($machine_name)) {
+          $access_options[$machine_name] = $bundle['label'];
+        }
       }
     }
 
@@ -435,30 +445,44 @@ class InlineParagraphsWidget extends WidgetBase {
         '#type' => 'container',
       );
 
-      $elements['add_more']['add_more_select'] = array(
-        '#type'    => 'select',
-        '#options' => $options,
-        '#title'   => t('Paragraph type'),
-        '#label_display' => 'hidden',
-      );
+      if (count($access_options)) {
+        $elements['add_more']['add_more_select'] = array(
+          '#type'    => 'select',
+          '#options' => $options,
+          '#title'   => t('Paragraph type'),
+          '#label_display' => 'hidden',
+        );
 
-
-      // @todo: access check.
-      // @todo: button mode.
-      // @todo: fix limit validation errors.
-      $elements['add_more']['add_more_button'] = array(
-        '#type' => 'submit',
-        '#name' => strtr($id_prefix, '-', '_') . '_add_more',
-        '#value' => t('Add another item'),
-        '#attributes' => array('class' => array('field-add-more-submit')),
-        '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
-        '#submit' => array(array(get_class($this), 'addMoreSubmit')),
-        '#ajax' => array(
-          'callback' => array(get_class($this), 'addMoreAjax'),
-          'wrapper' => $wrapper_id,
-          'effect' => 'fade',
-        ),
-      );
+        // @todo: button mode.
+        // @todo: fix limit validation errors.
+        $elements['add_more']['add_more_button'] = array(
+          '#type' => 'submit',
+          '#name' => strtr($id_prefix, '-', '_') . '_add_more',
+          '#value' => t('Add another item'),
+          '#attributes' => array('class' => array('field-add-more-submit')),
+          '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+          '#submit' => array(array(get_class($this), 'addMoreSubmit')),
+          '#ajax' => array(
+            'callback' => array(get_class($this), 'addMoreAjax'),
+            'wrapper' => $wrapper_id,
+            'effect' => 'fade',
+          ),
+        );
+      }
+      else {
+        if (count($options)) {
+          $elements['add_more']['info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to add any of the !title types.', array('!title' => t($this->getSetting('title')))) . '</em>',
+          );
+        }
+        else {
+          $elements['add_more']['info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You did not add any !title types yet.', array('!title' => t($this->getSetting('title')))) . '</em>',
+          );
+        }
+      }
     }
 
     return $elements;
