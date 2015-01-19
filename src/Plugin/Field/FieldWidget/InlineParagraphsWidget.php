@@ -231,13 +231,13 @@ class InlineParagraphsWidget extends WidgetBase {
           // @todo: fix limit validation errors.
           $element['actions']['remove_button'] = array(
             '#type' => 'submit',
-            '#value' => t('Remove !type paragraph', array('!type' => $bundle_info['label'])),
+            '#value' => t('Remove !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
             '#delta' => $delta,
             '#ajax' => array(
-              'callback' => array(get_class($this), 'removeItemAjax'),
+              'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
@@ -256,13 +256,13 @@ class InlineParagraphsWidget extends WidgetBase {
           // @todo: fix limit validation errors.
           $element['actions']['edit_button'] = array(
             '#type' => 'submit',
-            '#value' => t('Edit !type paragraph', array('!type' => $bundle_info['label'])),
+            '#value' => t('Edit !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
             '#delta' => $delta,
             '#ajax' => array(
-              'callback' => array(get_class($this), 'restoreItemAjax'),
+              'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
@@ -271,13 +271,13 @@ class InlineParagraphsWidget extends WidgetBase {
 
           $element['actions']['remove_button'] = array(
             '#type' => 'submit',
-            '#value' => t('Remove !type paragraph', array('!type' => $bundle_info['label'])),
+            '#value' => t('Remove !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
             '#delta' => $delta,
             '#ajax' => array(
-              'callback' => array(get_class($this), 'removeItemAjax'),
+              'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
@@ -303,8 +303,8 @@ class InlineParagraphsWidget extends WidgetBase {
           );
         }
         elseif ($item_mode == 'remove') {
-          $element['actions']['remove_button'] = array(
-            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!save' => t('Save'))) . '</em></p>',
+          $element['remove_button_info'] = array(
+            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!confirm' => t('Confirm removal'), '!save' => t('Save'))) . '</em></p>',
           );
 
           // @todo: fix limit validation errors.
@@ -316,13 +316,26 @@ class InlineParagraphsWidget extends WidgetBase {
             '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
             '#delta' => $delta,
             '#ajax' => array(
-              'callback' => array(get_class($this), 'restoreItemAjax'),
+              'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
           );
 
-          // @todo: confirm delete button.
+          // @todo: fix limit validation errors.
+          $element['actions']['confirm_remove_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Confirm removal'),
+            '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'confirmRemoveItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+          );
         }
       }
 
@@ -357,6 +370,10 @@ class InlineParagraphsWidget extends WidgetBase {
       }
 
       $element['subform']['#access'] = $paragraphs_entity->access('update');
+
+      if ($item_mode == 'removed') {
+        $element['#access'] = FALSE;
+      }
 
       $widget_state['paragraphs'][$delta] = array(
         'entity' => $paragraphs_entity,
@@ -399,6 +416,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $field_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $max = $field_state['items_count'];
+    $real_item_count = $max;
     $is_multiple = TRUE;
 
     $title = String::checkPlain($this->fieldDefinition->getLabel());
@@ -411,7 +429,6 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['#suffix'] = '</div>';
 
     $field_state['ajax_wrapper_id'] = $wrapper_id;
-
     static::setWidgetState($parents, $field_name, $form_state, $field_state);
 
     if ($max > 0) {
@@ -440,10 +457,19 @@ class InlineParagraphsWidget extends WidgetBase {
             );
           }
 
-          $elements[$delta] = $element;
+          if (isset($element['#access']) && !$element['#access']) {
+            $real_item_count--;
+          }
+          else {
+            $elements[$delta] = $element;
+          }
         }
       }
     }
+
+    $field_state = static::getWidgetState($parents, $field_name, $form_state);
+    $field_state['real_item_count'] = $real_item_count;
+    static::setWidgetState($parents, $field_name, $form_state, $field_state);
 
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
@@ -464,7 +490,7 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    if ($max > 0) {
+    if ($real_item_count > 0) {
       $elements += array(
         '#theme' => 'field_multiple_value_form',
         '#field_name' => $field_name,
@@ -496,7 +522,7 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     // Add 'add more' button, if not working with a programmed form.
-    if (($max < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
+    if (($real_item_count < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $elements['add_more'] = array(
         '#type' => 'container',
       );
@@ -595,7 +621,7 @@ class InlineParagraphsWidget extends WidgetBase {
     // Increment the items count.
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
-    if ($widget_state['items_count'] < $element['#cardinality'] || $element['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+    if ($widget_state['real_item_count'] < $element['#cardinality'] || $element['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
       $widget_state['items_count']++;
     }
 
@@ -611,16 +637,6 @@ class InlineParagraphsWidget extends WidgetBase {
     $form_state->setRebuild();
   }
 
-  public static function removeItemAjax(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
-
-    return $element;
-  }
 
   public static function removeItemSubmit(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
@@ -643,15 +659,25 @@ class InlineParagraphsWidget extends WidgetBase {
     $form_state->setRebuild();
   }
 
-  public static function restoreItemAjax(array $form, FormStateInterface $form_state) {
+  public static function confirmRemoveItemSubmit(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
+
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
 
-    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = $delta[0];
 
-    return $element;
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    $widget_state['paragraphs'][$delta]['mode'] = 'removed';
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
   }
 
   public static function restoreItemSubmit(array $form, FormStateInterface $form_state) {
@@ -673,6 +699,17 @@ class InlineParagraphsWidget extends WidgetBase {
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
     $form_state->setRebuild();
+  }
+
+  public static function itemAjax(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+
+    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
+    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+
+    return $element;
   }
 
   /**
@@ -746,7 +783,7 @@ class InlineParagraphsWidget extends WidgetBase {
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
-      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove') {
+      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove' || $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'removed') {
         $item['target_id']  = NULL;
       }
     }
