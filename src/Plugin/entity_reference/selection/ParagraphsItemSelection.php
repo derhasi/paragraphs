@@ -40,6 +40,7 @@ class ParagraphsItemSelection extends SelectionBase {
     // Merge-in default values.
     $selection_handler_settings += array(
       'target_bundles' => array(),
+      'target_bundles_drag_drop' => array(),
       'add_mode' => PARAGRAPHS_DEFAULT_ADD_MODE,
       'edit_mode' => PARAGRAPHS_DEFAULT_EDIT_MODE,
       'title' => PARAGRAPHS_DEFAULT_TITLE,
@@ -47,23 +48,81 @@ class ParagraphsItemSelection extends SelectionBase {
     );
 
     $bundle_options = array();
+    $bundle_options_simple = array();
+
+    // Default weight for new items.
+    $weight = count($bundles) + 1;
+
     foreach ($bundles as $bundle_name => $bundle_info) {
-      $bundle_options[$bundle_name] = $bundle_info['label'];
+      $bundle_options_simple[$bundle_name] = $bundle_info['label'];
+      $bundle_options[$bundle_name] = array(
+        'label' => $bundle_info['label'],
+        'enabled' => isset($selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['enabled']) ? $selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['enabled'] : FALSE,
+        'weight' => isset($selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['weight']) ? $selection_handler_settings['target_bundles_drag_drop'][$bundle_name]['weight'] : $weight,
+      );
+      $weight++;
     }
 
-    $target_bundles_title = t('Paragraph types');
-
+    // Kept for compatibility with other entity reference widgets.
     $form['target_bundles'] = array(
       '#type' => 'checkboxes',
-      '#title' => $target_bundles_title,
-      '#options' => $bundle_options,
-      '#default_value' => (!empty($selection_handler_settings['target_bundles'])) ? $selection_handler_settings['target_bundles'] : array(),
-      '#required' => FALSE,
-      '#size' => 6,
-      '#multiple' => TRUE,
-      '#element_validate' => array('_entity_reference_element_validate_filter'),
-      '#description' => t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.')
+      '#options' => $bundle_options_simple,
+      '#default_value' => isset($selection_handler_settings['target_bundles']) ? $selection_handler_settings['target_bundles'] : array(),
+      '#access' => FALSE,
     );
+
+    $form['target_bundles_drag_drop'] = array(
+      '#element_validate' => array('paragraphs_bundle_validate'),
+      '#type' => 'table',
+      '#header' => array(
+        t('Bundle'),
+        t('Weight'),
+      ),
+      '#attributes' => array(
+        'id' => 'bundles',
+      ),
+      '#prefix' => '<h5>' . t('Paragraph types') . '</h5>',
+      '#suffix' => '<div class="description">' . t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.') .'</div>',
+    );
+
+    $form['target_bundles_drag_drop']['#tabledrag'][] = array(
+      'action' => 'order',
+      'relationship' => 'sibling',
+      'group' => 'bundle-weight',
+    );
+
+    uasort($bundle_options, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+
+    $weight_delta = $weight;
+
+    // Default weight for new items.
+    $weight = count($bundles) + 1;
+    foreach ($bundle_options as $bundle_name => $bundle_info) {
+      $form['target_bundles_drag_drop'][$bundle_name] = array(
+        '#attributes' => array(
+          'class' => array('draggable'),
+        ),
+      );
+
+      $form['target_bundles_drag_drop'][$bundle_name]['enabled'] = array(
+        '#type' => 'checkbox',
+        '#title' => $bundle_info['label'],
+        '#title_display' => 'after',
+        '#default_value' => $bundle_info['enabled'],
+      );
+
+      $form['target_bundles_drag_drop'][$bundle_name]['weight'] = array(
+        '#type' => 'weight',
+        '#default_value' => (int) $bundle_info['weight'],
+        '#delta' => $weight_delta,
+        '#title' => t('Weight for @bundle bundle', array('@bundle' => $bundle_info['label'])),
+        '#title_display' => 'invisible',
+        '#attributes' => array(
+          'class' => array('bundle-weight', 'bundle-weight-' . $bundle_name),
+        ),
+      );
+      $weight++;
+    }
 
     if (!count($bundle_options)) {
       $form['allowed_bundles_explain'] = array(
@@ -74,5 +133,4 @@ class ParagraphsItemSelection extends SelectionBase {
 
     return $form;
   }
-
 }

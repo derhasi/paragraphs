@@ -388,6 +388,64 @@ class InlineParagraphsWidget extends WidgetBase {
     return $element;
   }
 
+  public function getAllowedBundles() {
+
+    $return_bundles = array();
+
+    $entity_manager = \Drupal::entityManager();
+    $target_type = $this->getFieldSetting('target_type');
+    $bundles = $entity_manager->getBundleInfo($target_type);
+
+
+    // Support for the paragraphs reference type.
+    $dragdrop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
+    if ($dragdrop_settings) {
+      $drag_drop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
+      $enable_count = 0;
+
+      // Check how much bundles are enabled as none enabled = all enabled.
+      foreach($drag_drop_settings as $bundle_info) {
+        if (isset($bundle_info['enabled']) && $bundle_info['enabled']) {
+          $enable_count++;
+        }
+      }
+
+
+      // Default weight for new items.
+      $weight = count($bundles) + 1;
+      foreach ($bundles as $machine_name => $bundle) {
+
+        if ((isset($drag_drop_settings[$machine_name]['enabled']) && $drag_drop_settings[$machine_name]['enabled']) || $enable_count === 0) {
+          $return_bundles[$machine_name] = array(
+            'label' => $bundle['label'],
+            'weight' => isset($drag_drop_settings[$machine_name]['weight']) ? $drag_drop_settings[$machine_name]['weight'] : $weight,
+          );
+          $weight++;
+        }
+      }
+    }
+    // Support for other reference types.
+    else {
+      $weight = 0;
+      foreach ($bundles as $machine_name => $bundle) {
+        if (!count($this->getSelectionHandlerSetting('target_bundles'))
+          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
+
+          $return_bundles[$machine_name] = array(
+            'label' => $bundle['label'],
+            'weight' => $weight,
+          );
+
+          $weight++;
+        }
+      }
+    }
+
+    uasort($return_bundles, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+
+    return $return_bundles;
+  }
+
   /**
    * Builds an array of entity IDs for which to get the entity labels.
    *
@@ -473,7 +531,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
-    $bundles = $entity_manager->getBundleInfo($target_type);
+    $bundles = $this->getAllowedBundles();
     $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
 
     $options = array();
