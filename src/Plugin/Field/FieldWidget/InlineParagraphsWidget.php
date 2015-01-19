@@ -417,7 +417,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $max = $field_state['items_count'];
     $real_item_count = $max;
-    $is_multiple = TRUE;
+    $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     $title = String::checkPlain($this->fieldDefinition->getLabel());
     $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
@@ -495,7 +495,7 @@ class InlineParagraphsWidget extends WidgetBase {
         '#theme' => 'field_multiple_value_form',
         '#field_name' => $field_name,
         '#cardinality' => $cardinality,
-        '#cardinality_multiple' => TRUE,
+        '#cardinality_multiple' => $is_multiple,
         '#required' => $this->fieldDefinition->isRequired(),
         '#title' => $title,
         '#description' => $description,
