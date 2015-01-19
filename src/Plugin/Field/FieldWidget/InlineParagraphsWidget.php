@@ -472,28 +472,48 @@ class InlineParagraphsWidget extends WidgetBase {
       );
 
       if (count($access_options)) {
-        $elements['add_more']['add_more_select'] = array(
-          '#type'    => 'select',
-          '#options' => $options,
-          '#title'   => t('Paragraph type'),
-          '#label_display' => 'hidden',
-        );
+        if ($this->getSetting('add_mode') == 'button') {
 
-        // @todo: button mode.
-        // @todo: fix limit validation errors.
-        $elements['add_more']['add_more_button'] = array(
-          '#type' => 'submit',
-          '#name' => strtr($id_prefix, '-', '_') . '_add_more',
-          '#value' => t('Add another item'),
-          '#attributes' => array('class' => array('field-add-more-submit')),
-          '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
-          '#submit' => array(array(get_class($this), 'addMoreSubmit')),
-          '#ajax' => array(
-            'callback' => array(get_class($this), 'addMoreAjax'),
-            'wrapper' => $wrapper_id,
-            'effect' => 'fade',
-          ),
-        );
+          foreach ($access_options as $machine_name => $label) {
+            $elements['add_more']['add_more_button_' . $machine_name] = array(
+              '#type' => 'submit',
+              '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
+              '#value' => t('Add a !title item', array('!title' => $label)),
+              '#attributes' => array('class' => array('field-add-more-submit')),
+              '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+              '#submit' => array(array(get_class($this), 'addMoreSubmit')),
+              '#ajax' => array(
+                'callback' => array(get_class($this), 'addMoreAjax'),
+                'wrapper' => $wrapper_id,
+                'effect' => 'fade',
+              ),
+              '#bundle_machine_name' => $machine_name,
+            );
+          }
+        }
+        else {
+          $elements['add_more']['add_more_select'] = array(
+            '#type'    => 'select',
+            '#options' => $options,
+            '#title'   => t('Paragraph type'),
+            '#label_display' => 'hidden',
+          );
+
+          // @todo: fix limit validation errors.
+          $elements['add_more']['add_more_button'] = array(
+            '#type' => 'submit',
+            '#name' => strtr($id_prefix, '-', '_') . '_add_more',
+            '#value' => t('Add another item'),
+            '#attributes' => array('class' => array('field-add-more-submit')),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+            '#submit' => array(array(get_class($this), 'addMoreSubmit')),
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'addMoreAjax'),
+              'wrapper' => $wrapper_id,
+              'effect' => 'fade',
+            ),
+          );
+        }
       }
       else {
         if (count($options)) {
@@ -549,7 +569,12 @@ class InlineParagraphsWidget extends WidgetBase {
       $widget_state['items_count']++;
     }
 
-    $widget_state['selected_bundle'] = $values['add_more']['add_more_select'];
+    if (isset($button['#bundle_machine_name'])) {
+      $widget_state['selected_bundle'] = $button['#bundle_machine_name'];
+    }
+    else {
+      $widget_state['selected_bundle'] = $values['add_more']['add_more_select'];
+    }
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
