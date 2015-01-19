@@ -238,7 +238,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'removeItemAjax'),
-              'wrapper' => $wrapper_id,
+              'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('delete'),
@@ -263,16 +263,43 @@ class InlineParagraphsWidget extends WidgetBase {
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'restoreItemAjax'),
-              'wrapper' => $wrapper_id,
+              'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('update'),
+          );
+
+          $element['actions']['remove_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Remove !type paragraph', array('!type' => $bundle_info['label'])),
+            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'removeItemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#access' => $paragraphs_entity->access('delete'),
           );
 
           $element['actions']['edit_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update'),
+          );
+
+          $element['actions']['remove_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('delete'),
+          );
+
+          $element['actions']['edit_remove_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
         elseif ($item_mode == 'remove') {
@@ -290,7 +317,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'restoreItemAjax'),
-              'wrapper' => $wrapper_id,
+              'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
           );
@@ -378,6 +405,14 @@ class InlineParagraphsWidget extends WidgetBase {
     $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
+    $id_prefix = implode('-', array_merge($parents, array($field_name)));
+    $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
+    $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
+    $elements['#suffix'] = '</div>';
+
+    $field_state['ajax_wrapper_id'] = $wrapper_id;
+
+    static::setWidgetState($parents, $field_name, $form_state, $field_state);
 
     if ($max > 0) {
       for ($delta = 0; $delta < $max; $delta++) {
@@ -462,11 +497,6 @@ class InlineParagraphsWidget extends WidgetBase {
 
     // Add 'add more' button, if not working with a programmed form.
     if (($max < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
-      $id_prefix = implode('-', array_merge($parents, array($field_name)));
-      $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
-      $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
-      $elements['#suffix'] = '</div>';
-
       $elements['add_more'] = array(
         '#type' => 'container',
       );
@@ -584,12 +614,10 @@ class InlineParagraphsWidget extends WidgetBase {
   public static function removeItemAjax(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
     $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
     $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
-
-    unset($element['_weight']);
 
     return $element;
   }
@@ -618,12 +646,10 @@ class InlineParagraphsWidget extends WidgetBase {
   public static function restoreItemAjax(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
     $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
     $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
-
-    unset($element['_weight']);
 
     return $element;
   }
@@ -712,8 +738,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
 
     foreach ($values as $delta => &$item) {
-      if (isset($item['subform'])
-        && isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
+      if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
         && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
         $paragraphs_entity->save();
