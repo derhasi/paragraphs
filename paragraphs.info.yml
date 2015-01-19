@@ -1,8 +1,8 @@
 name: Paragraphs
 type: module
-description: Paragraphs
+description: Implements the Paragraphs entity types, Entity Reference selection type and Entity Reference field widget.
 core: 8.x
-package: Content
+package: Paragraphs
 
 dependencies:
   - entity_reference

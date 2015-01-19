@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\node\Plugin\Type\selection\NodeSelection.
+ * Contains \Drupal\paragraphs\Plugin\entity_reference\selection\ParagraphsItemSelection.
  */
 
 namespace Drupal\paragraphs\Plugin\entity_reference\selection;
