@@ -287,13 +287,13 @@ class InlineParagraphsWidget extends WidgetBase {
           $element['actions']['edit_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
-            '#access' => !$paragraphs_entity->access('update'),
+            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $element['actions']['remove_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
-            '#access' => !$paragraphs_entity->access('delete'),
+            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $element['actions']['edit_remove_button_info'] = array(
