@@ -29,4 +29,4 @@ entity.paragraphs_type.delete_form:
     _entity_form: 'paragraphs_type.delete'
     _title: 'Delete a Paragraphs type'
   requirements:
-    _entity_access: 'paragraphs_type.delete'
+    _permission: 'administer paragraphs types'

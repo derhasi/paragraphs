@@ -157,6 +157,10 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
     return $this;
   }
 
+  public function vid() {
+    return $this->getEntityKey('vid');
+  }
+
   /**
    * {@inheritdoc}
    */
