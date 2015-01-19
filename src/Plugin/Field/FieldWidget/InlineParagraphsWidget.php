@@ -85,7 +85,7 @@ class InlineParagraphsWidget extends WidgetBase {
       '#title' => t('Add mode'),
       '#description' => t('The way to add new paragraphs.'),
       '#options' => array(
-        'select' => t('Select List'),
+        'select' => t('Select list'),
         'button' => t('Buttons'),
       ),
       '#default_value' => $this->getSetting('add_mode'),
@@ -111,8 +111,32 @@ class InlineParagraphsWidget extends WidgetBase {
     $summary = array();
     $summary[] = t('Title: @title', array('@title' => t($this->getSetting('title'))));
     $summary[] = t('Plural title: @title_plural', array('@title_plural' => t($this->getSetting('title_plural'))));
-    $summary[] = t('Edit mode: @edit_mode', array('@edit_mode' => t(ucfirst($this->getSetting('edit_mode')))));
-    $summary[] = t('Add mode: @add_mode', array('@add_mode' => t(ucfirst($this->getSetting('add_mode')))));
+
+    switch($this->getSetting('edit_mode')) {
+      case 'open':
+      default:
+        $edit_mode = t('Open');
+        break;
+      case 'closed':
+        $edit_mode = t('Closed');
+        break;
+      case 'preview':
+        $edit_mode = t('Preview');
+        break;
+    }
+
+    switch($this->getSetting('add_mode')) {
+      case 'select':
+      default:
+        $add_mode = t('Select list');
+        break;
+      case 'button':
+        $add_mode = t('Buttons');
+        break;
+    }
+
+    $summary[] = t('Edit mode: @edit_mode', array('@edit_mode' => $edit_mode));
+    $summary[] = t('Add mode: @add_mode', array('@add_mode' => $add_mode));
     $summary[] = t('Form display mode: @form_display_mode', array('@form_display_mode' => $this->getSetting('form_display_mode')));
     return $summary;
   }
