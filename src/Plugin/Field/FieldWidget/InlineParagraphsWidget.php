@@ -243,6 +243,12 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
             '#access' => $paragraphs_entity->access('delete'),
           );
+
+          $element['actions']['remove_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('delete'),
+          );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
 
@@ -261,6 +267,12 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('update'),
+          );
+
+          $element['actions']['edit_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('update'),
           );
         }
         elseif ($item_mode == 'remove') {
@@ -291,10 +303,24 @@ class InlineParagraphsWidget extends WidgetBase {
 
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+
+        $element['subform_info'] = array(
+          '#type' => 'markup',
+          '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+          '#access' => !$paragraphs_entity->access('update'),
+        );
       }
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
         $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
+        $element['preview']['#access'] = $paragraphs_entity->access('view');
+
+        // Some helping text. Only display when access is false.
+        $element['preview_info'] = array(
+          '#type' => 'markup',
+          '#markup' => '<em>' . t('You are not allowed to view this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+          '#access' => !$paragraphs_entity->access('view'),
+        );
       }
       elseif ($item_mode == 'closed') {
         $element['subform'] = array();
