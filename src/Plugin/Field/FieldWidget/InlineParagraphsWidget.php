@@ -227,14 +227,13 @@ class InlineParagraphsWidget extends WidgetBase {
 
         if ($item_mode == 'edit') {
 
-          // @todo: replace whole form?
-          // @todo: fix limit validation errors.
           $element['actions']['remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Remove !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -252,14 +251,13 @@ class InlineParagraphsWidget extends WidgetBase {
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
 
-          // @todo: replace whole form?
-          // @todo: fix limit validation errors.
           $element['actions']['edit_button'] = array(
             '#type' => 'submit',
             '#value' => t('Edit !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -275,6 +273,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -307,13 +306,13 @@ class InlineParagraphsWidget extends WidgetBase {
             '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!confirm' => t('Confirm removal'), '!save' => t('Save'))) . '</em></p>',
           );
 
-          // @todo: fix limit validation errors.
           $element['actions']['restore_button'] = array(
             '#type' => 'submit',
             '#value' => t('Restore'),
             '#name' => strtr($id_prefix, '-', '_') . '_restore',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -322,13 +321,13 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
           );
 
-          // @todo: fix limit validation errors.
           $element['actions']['confirm_remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Confirm removal'),
             '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'confirmRemoveItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -594,7 +593,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
               '#value' => t('Add a !title item', array('!title' => $label)),
               '#attributes' => array('class' => array('field-add-more-submit')),
-              '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+              '#limit_validation_errors' => array_merge($parents, array($field_name)),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
               '#ajax' => array(
                 'callback' => array(get_class($this), 'addMoreAjax'),
@@ -613,13 +612,12 @@ class InlineParagraphsWidget extends WidgetBase {
             '#label_display' => 'hidden',
           );
 
-          // @todo: fix limit validation errors.
           $elements['add_more']['add_more_button'] = array(
             '#type' => 'submit',
             '#name' => strtr($id_prefix, '-', '_') . '_add_more',
             '#value' => t('Add another item'),
             '#attributes' => array('class' => array('field-add-more-submit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name))),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#submit' => array(array(get_class($this), 'addMoreSubmit')),
             '#ajax' => array(
               'callback' => array(get_class($this), 'addMoreAjax'),
