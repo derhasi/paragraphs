@@ -6,7 +6,7 @@
  * Available variables:
  * - paragraphs_item: Full paragraphs_item entity.
  *   - id: The paragraphs item ID.
- *   - bundle: The type of the paragraphs item, for example, "page" or "article".
+ *   - bundle: The type of the paragraphs item, for example, "image" or "text".
  *   - authorid: The user ID of the paragraphs item author.
  *   - createdtime: Formatted creation date. Preprocess functions can
  *     reformat it by calling format_date() with the desired parameters on
@@ -23,9 +23,9 @@
  *     "Image" it would result in "paragraphs-item--type--image". Note that the machine
  *     name will often be in a short form of the human readable label.
  *   - paragraphs-item--view-mode--[view_mode]: The View Mode of the paragraphs item; for example, a
- *     teaser would result in: "paragraphs-item--view--mode-teaser", and
- *     full: "paragraphs-item--view-mode--full".
- * - view_mode: View mode; for example, "teaser" or "full".
+ *     preview would result in: "paragraphs-item--view-mode--preview", and
+ *     default: "paragraphs-item--view-mode--default".
+ * - view_mode: View mode; for example, "preview" or "full".
  * - logged_in: Flag for authenticated user status. Will be true when the
  *   current user is a logged-in member.
  * - is_admin: Flag for admin user status. Will be true when the current user

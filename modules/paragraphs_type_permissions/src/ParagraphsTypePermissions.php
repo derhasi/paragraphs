@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\paragraphs_bundle_permissions\ParagraphsBundlePermissions.
+ * Contains \Drupal\paragraphs_type_permissions\ParagraphsTypePermissions.
  */
 
-namespace Drupal\paragraphs_bundle_permissions;
+namespace Drupal\paragraphs_type_permissions;
 
 use Drupal\Core\Routing\UrlGeneratorTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -14,7 +14,7 @@ use Drupal\paragraphs\Entity\ParagraphsType;
 /**
  * Defines a class containing permission callbacks.
  */
-class ParagraphsBundlePermissions {
+class ParagraphsTypePermissions {
 
   use StringTranslationTrait;
   use UrlGeneratorTrait;
@@ -26,19 +26,19 @@ class ParagraphsBundlePermissions {
    */
   public function globalPermissions() {
     return array(
-      'bypass paragraphs bundle content access' => array(
-        'title' => $this->t('Bypass paragraphs bundle content access control'),
-        'description' => $this->t('Is able to administer content for all paragraph bundles'),
+      'bypass paragraphs type content access' => array(
+        'title' => $this->t('Bypass paragraphs type content access control'),
+        'description' => $this->t('Is able to administer content for all paragraph types'),
       ),
     );
   }
 
   /**
-   * Returns an array of node type permissions.
+   * Returns an array of paragraphs type permissions.
    *
    * @return array
    */
-  public function paragraphBundlePermissions() {
+  public function paragraphTypePermissions() {
     $perms = array();
 
     // Generate paragraphs item permissions for all paragraphs types.
@@ -65,19 +65,19 @@ class ParagraphsBundlePermissions {
     return array(
       'view paragraph content ' .$type_id => array(
         'title' => $this->t('%type_name: View content', $type_params),
-        'description' => t('Is able to view paragraphs content of bundle %type_name', $type_params),
+        'description' => t('Is able to view paragraphs content of type %type_name', $type_params),
       ),
       'create paragraph content ' . $type_id => array(
         'title' => $this->t('%type_name: Create content', $type_params),
-        'description' => t('Is able to create paragraphs content of bundle %type_name', $type_params),
+        'description' => t('Is able to create paragraphs content of type %type_name', $type_params),
       ),
       'update paragraph content ' . $type_id => array(
         'title' => $this->t('%type_name: Edit content', $type_params),
-        'description' => t('Is able to update paragraphs content of bundle %type_name', $type_params),
+        'description' => t('Is able to update paragraphs content of type %type_name', $type_params),
       ),
       'delete paragraph content ' . $type_id => array(
         'title' => $this->t('%type_name: Delete content', $type_params),
-        'description' => t('Is able to delete paragraphs content of bundle %type_name', $type_params),
+        'description' => t('Is able to delete paragraphs content of type %type_name', $type_params),
       ),
     );
   }

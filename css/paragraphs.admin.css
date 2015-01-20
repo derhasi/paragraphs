@@ -1,4 +1,4 @@
-.field-widget-entity-reference-paragraphs .paragraph-bundle-title {
+.field-widget-entity-reference-paragraphs .paragraph-type-title {
     width: 80%;
     float: left;
 }
@@ -23,7 +23,7 @@
     margin-right: 0em;
 }
 
-.field-widget-entity-reference-paragraphs table .paragraph-bundle-top {
+.field-widget-entity-reference-paragraphs table .paragraph-type-top {
     clear: both;
     float: left;
     margin-bottom: 1em;

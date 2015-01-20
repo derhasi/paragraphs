@@ -1,3 +1,0 @@
-permission_callbacks:
-  - \Drupal\paragraphs_bundle_permissions\ParagraphsBundlePermissions::globalPermissions
-  - \Drupal\paragraphs_bundle_permissions\ParagraphsBundlePermissions::paragraphBundlePermissions

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Add view / create / update / delete permissions for all paragraph bundles.
+ * Add view / create / update / delete permissions for all paragraph types.
  */
 
 use Drupal\Core\Access\AccessResult;
@@ -32,25 +32,25 @@ use Drupal\Core\Language\LanguageInterface;
  * @return AccessResult
  *   AccessResult object with the result of the access check.
  */
-function paragraphs_bundle_permissions_paragraphs_item_access(EntityInterface $entity, $operation, AccountInterface $account, $langcode = LanguageInterface::LANGCODE_DEFAULT) {
+function paragraphs_type_permissions_paragraphs_item_access(EntityInterface $entity, $operation, AccountInterface $account, $langcode = LanguageInterface::LANGCODE_DEFAULT) {
   $permissions = &drupal_static(__FUNCTION__, array());
 
   if (!in_array($operation, array('view', 'update', 'delete'), TRUE)) {
-    // If there was no bundle to check against, or the $op was not one of the
+    // If there was no type to check against, or the $op was not one of the
     // supported ones, we return access denied.
     return AccessResult::neutral();
   }
 
-  // Set static cache id to use the bundle machine name.
+  // Set static cache id to use the type machine name.
   $cid = $entity->getType();
 
-  // If we've already checked access for this bundle, user and op, return from
+  // If we've already checked access for this type, user and op, return from
   // cache.
   if (isset($permissions[$account->id()][$cid][$operation])) {
     return $permissions[$account->id()][$cid][$operation];
   }
 
-  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs bundle content access')->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerRole()->isAllowed()) {
     $permissions[$account->id()][$cid][$operation] = AccessResult::allowed();
     return AccessResult::allowed();
   }
@@ -68,7 +68,7 @@ function paragraphs_bundle_permissions_paragraphs_item_access(EntityInterface $e
 /**
  * Implements hook_paragraphs_create_access().
  *
- * Check whether a user may perform a create operation on the paragraph bundle.
+ * Check whether a user may perform a create operation on the paragraph type.
  *
  * @param $account
  *   Optional, a user object representing the user for whom the operation is to
@@ -78,25 +78,25 @@ function paragraphs_bundle_permissions_paragraphs_item_access(EntityInterface $e
  *   Extra context for the access check.
  *
  * @param entity_bundle
- *   Machine name of the bundle to create.
+ *   Machine name of the type to create.
  *
  * @return AccessResult
  *   AccessResult object with the result of the access check.
  */
-function paragraphs_bundle_permissions_paragraphs_create_access(AccountInterface $account = NULL, array $context = array(), $entity_bundle = NULL) {
+function paragraphs_type_permissions_paragraphs_create_access(AccountInterface $account = NULL, array $context = array(), $entity_bundle = NULL) {
   $permissions = &drupal_static(__FUNCTION__, array());
 
-  // Set static cache id to use the bundle machine name.
+  // Set static cache id to use the type machine name.
   $cid = $entity_bundle;
   $op = 'create';
 
-  // If we've already checked access for this bundle, user and op, return from
+  // If we've already checked access for this type, user and op, return from
   // cache.
   if (isset($permissions[$account->id()][$cid][$op])) {
     return $permissions[$account->id()][$cid][$op];
   }
 
-  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs bundle content access')->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerRole()->isAllowed()) {
     $permissions[$account->id()][$cid][$op] = AccessResult::allowed();
     return AccessResult::allowed();
   }

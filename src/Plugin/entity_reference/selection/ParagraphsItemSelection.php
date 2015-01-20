@@ -74,10 +74,10 @@ class ParagraphsItemSelection extends SelectionBase {
     );
 
     $form['target_bundles_drag_drop'] = array(
-      '#element_validate' => array(array(__CLASS__, 'targetBundleValidate')),
+      '#element_validate' => array(array(__CLASS__, 'targetTypeValidate')),
       '#type' => 'table',
       '#header' => array(
-        t('Bundle'),
+        t('Type'),
         t('Weight'),
       ),
       '#attributes' => array(
@@ -117,7 +117,7 @@ class ParagraphsItemSelection extends SelectionBase {
         '#type' => 'weight',
         '#default_value' => (int) $bundle_info['weight'],
         '#delta' => $weight_delta,
-        '#title' => t('Weight for @bundle bundle', array('@bundle' => $bundle_info['label'])),
+        '#title' => t('Weight for type @type', array('@type' => $bundle_info['label'])),
         '#title_display' => 'invisible',
         '#attributes' => array(
           'class' => array('bundle-weight', 'bundle-weight-' . $bundle_name),
@@ -129,7 +129,7 @@ class ParagraphsItemSelection extends SelectionBase {
     if (!count($bundle_options)) {
       $form['allowed_bundles_explain'] = array(
         '#type' => 'markup',
-        '#markup' => t('You did not add any paragraph bundles yet, click !here to add one.', array('!here' => \Drupal::l(t('here'), new Url('paragraphs.type_add', array()))))
+        '#markup' => t('You did not add any paragraph types yet, click !here to add one.', array('!here' => \Drupal::l(t('here'), new Url('paragraphs.type_add', array()))))
       );
     }
 
@@ -143,7 +143,7 @@ class ParagraphsItemSelection extends SelectionBase {
    * @param FormStateInterface $form_state
    * @param $form
    */
-  public static function targetBundleValidate($element, FormStateInterface $form_state, $form) {
+  public static function targetTypeValidate($element, FormStateInterface $form_state, $form) {
     $values = &$form_state->getValues();
     $element_values = NestedArray::getValue($values, $element['#parents']);
     $bundle_options = array();

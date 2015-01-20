@@ -239,7 +239,7 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         $element['top']['paragraph_bundle_title']['info'] = array(
-          '#markup' => t('!title type: %bundle', array('!title' => t($this->getSetting('title')), '%bundle' => $bundle_info['label'])),
+          '#markup' => t('!title type: %type', array('!title' => t($this->getSetting('title')), '%type' => $bundle_info['label'])),
         );
 
         $actions = array();
@@ -484,7 +484,7 @@ class InlineParagraphsWidget extends WidgetBase {
     return $element;
   }
 
-  public function getAllowedBundles() {
+  public function getAllowedTypes() {
 
     $return_bundles = array();
 
@@ -499,7 +499,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $drag_drop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
       $enable_count = 0;
 
-      // Check how much bundles are enabled as none enabled = all enabled.
+      // Check how much types are enabled as none enabled = all enabled.
       foreach($drag_drop_settings as $bundle_info) {
         if (isset($bundle_info['enabled']) && $bundle_info['enabled']) {
           $enable_count++;
@@ -627,7 +627,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
-    $bundles = $this->getAllowedBundles();
+    $bundles = $this->getAllowedTypes();
     $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
 
     $options = array();
@@ -689,7 +689,7 @@ class InlineParagraphsWidget extends WidgetBase {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
               '#type' => 'submit',
               '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
-              '#value' => t('Add a !bundle !title', array('!bundle' => $label, '!title' => t($this->getSetting('title')))),
+              '#value' => t('Add a !type !title', array('!type' => $label, '!title' => t($this->getSetting('title')))),
               '#attributes' => array('class' => array('field-add-more-submit')),
               '#limit_validation_errors' => array_merge($parents, array($field_name)),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
@@ -707,7 +707,7 @@ class InlineParagraphsWidget extends WidgetBase {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
               '#type' => 'submit',
               '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
-              '#value' => t('Add a !bundle !title', array('!bundle' => $label, '!title' => t($this->getSetting('title')))),
+              '#value' => t('Add a !type !title', array('!type' => $label, '!title' => t($this->getSetting('title')))),
               '#attributes' => array('class' => array('field-add-more-submit')),
               '#limit_validation_errors' => array_merge($parents, array($field_name)),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
