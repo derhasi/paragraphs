@@ -88,6 +88,7 @@ class InlineParagraphsWidget extends WidgetBase {
       '#options' => array(
         'select' => t('Select list'),
         'button' => t('Buttons'),
+        'dropdown' => t('Dropdown button')
       ),
       '#default_value' => $this->getSetting('add_mode'),
       '#required' => TRUE,
@@ -133,6 +134,9 @@ class InlineParagraphsWidget extends WidgetBase {
         break;
       case 'button':
         $add_mode = t('Buttons');
+        break;
+      case 'dropdown':
+        $add_mode = t('Dropdown button');
         break;
     }
 
@@ -675,10 +679,11 @@ class InlineParagraphsWidget extends WidgetBase {
     if (($real_item_count < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
       $elements['add_more'] = array(
         '#type' => 'container',
+        '#theme_wrappers' => array('paragraphs_dropbutton_wrapper'),
       );
 
       if (count($access_options)) {
-        if ($this->getSetting('add_mode') == 'button') {
+        if ($this->getSetting('add_mode') == 'button' || ($this->getSetting('add_mode') == 'dropdown' && count($access_options) === 1)) {
 
           foreach ($access_options as $machine_name => $label) {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
@@ -696,6 +701,35 @@ class InlineParagraphsWidget extends WidgetBase {
               '#bundle_machine_name' => $machine_name,
             );
           }
+        }
+        elseif($this->getSetting('add_mode') == 'dropdown') {
+          foreach ($access_options as $machine_name => $label) {
+            $elements['add_more']['add_more_button_' . $machine_name] = array(
+              '#type' => 'submit',
+              '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
+              '#value' => t('Add a !bundle !title', array('!bundle' => $label, '!title' => t($this->getSetting('title')))),
+              '#attributes' => array('class' => array('field-add-more-submit')),
+              '#limit_validation_errors' => array_merge($parents, array($field_name)),
+              '#submit' => array(array(get_class($this), 'addMoreSubmit')),
+              '#ajax' => array(
+                'callback' => array(get_class($this), 'addMoreAjax'),
+                'wrapper' => $wrapper_id,
+                'effect' => 'fade',
+              ),
+              '#bundle_machine_name' => $machine_name,
+              '#prefix' => '<li>',
+              '#suffix' => '</li>',
+            );
+          }
+          $elements['add_more']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
+          $elements['add_more']['prefix'] = array(
+            '#markup' => '<ul class="dropbutton">',
+            '#weight' => 0,
+          );
+          $elements['add_more']['suffix'] = array(
+            '#markup' => '</li>',
+            '#weight' => 0,
+          );
         }
         else {
           $elements['add_more']['add_more_select'] = array(

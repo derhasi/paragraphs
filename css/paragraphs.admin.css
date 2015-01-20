@@ -1,36 +1,52 @@
-.paragraph-bundle-title {
+.field-widget-entity-reference-paragraphs .paragraph-bundle-title {
     width: 80%;
     float: left;
 }
 
-.paragraphs-dropbutton-wrapper {
+.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper {
     float:right;
     width: 20%;
     margin: 0em;
 }
 
-.paragraphs-dropbutton-wrapper > input {
+.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper > input {
     margin-right: 2em;
 }
 
-.paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
     padding-right: 0em;
     margin-right: 0em;
 }
 
-.js td .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+.js .field-widget-entity-reference-paragraphs  td .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
     padding-right: 0em;
     margin-right: 0em;
 }
 
-.paragraph-bundle-top {
+.field-widget-entity-reference-paragraphs table .paragraph-bundle-top {
     clear: both;
     float: left;
     margin-bottom: 1em;
     width: 100%;
 }
-.paragraphs-subform {
+.field-widget-entity-reference-paragraphs table .paragraphs-subform {
     clear: both;
     float: left;
     width: 100%;
+}
+
+.paragraphs-dropbutton-wrapper {
+    margin-top: 1em;
+    display: block;
+    position: relative;
+    min-height: 2em;
+}
+
+.paragraphs-dropbutton-wrapper .dropbutton-widget {
+    position: absolute;
+    display: block;
+}
+
+.paragraphs-dropbutton-wrapper .field-add-more-submit {
+    margin-right: 1em;
 }
