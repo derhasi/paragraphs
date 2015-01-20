@@ -7,8 +7,6 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\paragraphs\Entity\ParagraphsType;
-use Drupal\Core\Form\FormStateInterface;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Render\Element;
 
 define('PARAGRAPHS_DEFAULT_TITLE', 'Paragraph');
@@ -46,40 +44,6 @@ function paragraphs_type_get_names() {
 
 function paragraphs_type_load($name) {
   return ParagraphsType::load($name);
-}
-
-/**
- * Validate helper to have support for other entity reference widgets.
- *
- * @param $element
- * @param FormStateInterface $form_state
- * @param $form
- */
-function paragraphs_bundle_validate($element, FormStateInterface $form_state, $form) {
-  $values = &$form_state->getValues();
-  $element_values = NestedArray::getValue($values, $element['#parents']);
-  $bundle_options = array();
-
-  if ($element_values) {
-    $enabled = 0;
-    foreach ($element_values as $machine_name => $bundle_info) {
-      if (isset($bundle_info['enabled']) && $bundle_info['enabled']) {
-        $bundle_options[$machine_name] = $machine_name;
-        $enabled++;
-      }
-    }
-
-    // All disabled = all enabled.
-    if ($enabled === 0) {
-      foreach ($element_values as $machine_name => $bundle_info) {
-        $bundle_options[$machine_name] = $machine_name;
-      }
-    }
-  }
-
-  // New value parents.
-  $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
-  NestedArray::setValue($values, $parents, $bundle_options);
 }
 
 /**

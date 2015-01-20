@@ -10,6 +10,8 @@ namespace Drupal\paragraphs\Plugin\entity_reference\selection;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\entity_reference\Plugin\entity_reference\selection\SelectionBase;
 use Drupal\Core\Url;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Component\Utility\NestedArray;
 
 /**
  * Default plugin implementation of the Entity Reference Selection plugin.
@@ -72,7 +74,7 @@ class ParagraphsItemSelection extends SelectionBase {
     );
 
     $form['target_bundles_drag_drop'] = array(
-      '#element_validate' => array('paragraphs_bundle_validate'),
+      '#element_validate' => array(array(__CLASS__, 'targetBundleValidate')),
       '#type' => 'table',
       '#header' => array(
         t('Bundle'),
@@ -132,5 +134,40 @@ class ParagraphsItemSelection extends SelectionBase {
     }
 
     return $form;
+  }
+
+  /**
+   * Validate helper to have support for other entity reference widgets.
+   *
+   * @param $element
+   * @param FormStateInterface $form_state
+   * @param $form
+   */
+  public static function targetBundleValidate($element, FormStateInterface $form_state, $form) {
+    $values = &$form_state->getValues();
+    $element_values = NestedArray::getValue($values, $element['#parents']);
+    $bundle_options = array();
+
+    if ($element_values) {
+      $enabled = 0;
+      foreach ($element_values as $machine_name => $bundle_info) {
+        if (isset($bundle_info['enabled']) && $bundle_info['enabled']) {
+          $bundle_options[$machine_name] = $machine_name;
+          $enabled++;
+        }
+      }
+
+      // All disabled = all enabled.
+      if ($enabled === 0) {
+        foreach ($element_values as $machine_name => $bundle_info) {
+          $bundle_options[$machine_name] = $machine_name;
+        }
+      }
+    }
+
+    // New value parents.
+    $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
+    NestedArray::setValue($values, $parents, $bundle_options);
+    dpm($values);
   }
 }

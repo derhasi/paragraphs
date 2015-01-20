@@ -5,34 +5,26 @@
  *
  * Available variables:
  * - paragraphs_item: Full paragraphs_item entity.
- *   - id: The node ID.
- *   - bundle: The type of the node, for example, "page" or "article".
- *   - authorid: The user ID of the node author.
+ *   - id: The paragraphs item ID.
+ *   - bundle: The type of the paragraphs item, for example, "page" or "article".
+ *   - authorid: The user ID of the paragraphs item author.
  *   - createdtime: Formatted creation date. Preprocess functions can
  *     reformat it by calling format_date() with the desired parameters on
  *     $variables['paragraphs_item']->getCreatedTime().
- * - content: All paragraphs_item items. Use {{ content }} to print them all,
+ * - content: All paragraphs item items. Use {{ content }} to print them all,
  *   or print a subset such as {{ content.field_example }}. Use
  *   {{ content|without('field_example') }} to temporarily suppress the printing
  *   of a given child element.
- * - author_picture: The node author user entity, rendered using the "compact"
- *   view mode.
  * - attributes: HTML attributes for the containing element.
  *   The attributes.class element may contain one or more of the following
  *   classes:
- *   - paragraphs_item: The current template type (also known as a "theming hook").
- *   - paragraphs_item--type-[type]: The current node type. For example, if the node is an
- *     "Article" it would result in "node--type-article". Note that the machine
+ *   - paragraphs-item: The current template type (also known as a "theming hook").
+ *   - paragraphs-item--type-[type]: The current paragraphs type. For example, if the paragraph is an
+ *     "Image" it would result in "paragraphs-item--type--image". Note that the machine
  *     name will often be in a short form of the human readable label.
- *   - node--view-mode-[view_mode]: The View Mode of the node; for example, a
- *     teaser would result in: "node--view-mode-teaser", and
- *     full: "node--view-mode-full".
- *   The following are controlled through the node publishing options.
- *   - node--promoted: Appears on nodes promoted to the front page.
- *   - node--sticky: Appears on nodes ordered above other non-sticky nodes in
- *     teaser listings.
- *   - node--unpublished: Appears on unpublished nodes visible only to site
- *     admins.
+ *   - paragraphs-item--view-mode--[view_mode]: The View Mode of the paragraphs item; for example, a
+ *     teaser would result in: "paragraphs-item--view--mode-teaser", and
+ *     full: "paragraphs-item--view-mode--full".
  * - view_mode: View mode; for example, "teaser" or "full".
  * - logged_in: Flag for authenticated user status. Will be true when the
  *   current user is a logged-in member.
@@ -41,23 +33,19 @@
  *
  * @see template_preprocess_paragraphs_item()
  *
- * @todo Remove the id attribute (or make it a class), because if that gets
- *   rendered twice on a page this is invalid CSS for example: two lists
- *   in different view modes.
- *
  * @ingroup themeable
  */
 #}
 {%
 set classes = [
-'paragraphs_item',
-'paragraphs_item--type-' ~ paragraphs_item.bundle|clean_class,
-view_mode ? 'paragraphs_item--view-mode-' ~ view_mode|clean_class,
+'paragraphs-item',
+'paragraphs-item--type--' ~ paragraphs_item.bundle|clean_class,
+view_mode ? 'paragraphs-item--view-mode--' ~ view_mode|clean_class,
 ]
 %}
 <article{{ attributes.addClass(classes) }}>
 
-    <div{{ content_attributes.addClass('paragraphs_item__content') }}>
+    <div{{ content_attributes.addClass('paragraphs-item--content') }}>
         {{ content }}
     </div>
 
