@@ -228,17 +228,17 @@ class InlineParagraphsWidget extends WidgetBase {
           ),
         );
 
-        $element['top']['paragraph_bundle_title'] = array(
+        $element['top']['paragraph_type_title'] = array(
           '#type' => 'container',
           '#weight' => 0,
           '#attributes' => array(
             'class' => array(
-              'paragraph-bundle-title',
+              'paragraph-type-title',
             ),
           ),
         );
 
-        $element['top']['paragraph_bundle_title']['info'] = array(
+        $element['top']['paragraph_type_title']['info'] = array(
           '#markup' => t('!title type: %type', array('!title' => t($this->getSetting('title')), '%type' => $bundle_info['label'])),
         );
 
