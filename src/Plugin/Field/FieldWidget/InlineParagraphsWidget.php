@@ -223,7 +223,7 @@ class InlineParagraphsWidget extends WidgetBase {
           '#weight' => -1000,
           '#attributes' => array(
             'class' => array(
-              'paragraph-bundle-top',
+              'paragraph-type-top',
             ),
           ),
         );
