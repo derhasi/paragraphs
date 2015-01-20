@@ -1,0 +1,36 @@
+.paragraph-bundle-title {
+    width: 80%;
+    float: left;
+}
+
+.paragraphs-dropbutton-wrapper {
+    float:right;
+    width: 20%;
+    margin: 0em;
+}
+
+.paragraphs-dropbutton-wrapper > input {
+    margin-right: 2em;
+}
+
+.paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+    padding-right: 0em;
+    margin-right: 0em;
+}
+
+.js td .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+    padding-right: 0em;
+    margin-right: 0em;
+}
+
+.paragraph-bundle-top {
+    clear: both;
+    float: left;
+    margin-bottom: 1em;
+    width: 100%;
+}
+.paragraphs-subform {
+    clear: both;
+    float: left;
+    width: 100%;
+}

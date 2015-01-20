@@ -1,0 +1,5 @@
+drupal.paragraphs.admin:
+  version: VERSION
+  css:
+    theme:
+      css/paragraphs.admin.css: {}

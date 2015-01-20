@@ -16,6 +16,7 @@ use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\paragraphs;
+use Drupal\Core\Url;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
@@ -212,24 +213,40 @@ class InlineParagraphsWidget extends WidgetBase {
       $item_bundles = $entity_manager->getBundleInfo($target_type);
       if (isset($item_bundles[$paragraphs_entity->bundle()])) {
         $bundle_info = $item_bundles[$paragraphs_entity->bundle()];
-        $element['paragraph_bundle_title'] = array(
+
+        $element['top'] = array(
           '#type' => 'container',
           '#weight' => -1000,
+          '#attributes' => array(
+            'class' => array(
+              'paragraph-bundle-top',
+            ),
+          ),
         );
-        $element['paragraph_bundle_title']['info'] = array(
+
+        $element['top']['paragraph_bundle_title'] = array(
+          '#type' => 'container',
+          '#weight' => 0,
+          '#attributes' => array(
+            'class' => array(
+              'paragraph-bundle-title',
+            ),
+          ),
+        );
+
+        $element['top']['paragraph_bundle_title']['info'] = array(
           '#markup' => t('!title type: %bundle', array('!title' => t($this->getSetting('title')), '%bundle' => $bundle_info['label'])),
         );
 
-        $element['actions'] = array(
-          '#type' => 'actions',
-          '#weight' => 9999,
-        );
+        $actions = array();
+        $links = array();
+        $info = array();
 
         if ($item_mode == 'edit') {
 
-          $element['actions']['remove_button'] = array(
+          $links['remove_button'] = array(
             '#type' => 'submit',
-            '#value' => t('Remove !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
+            '#value' => t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
@@ -241,22 +258,54 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('delete'),
+            '#prefix' => '<li class="remove">',
+            '#suffix' => '</li>',
           );
 
-          $element['actions']['remove_button_info'] = array(
+          $info['edit_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
+          );
+
+          $info['remove_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
-            '#access' => !$paragraphs_entity->access('delete'),
+            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
+          );
+
+          $info['edit_remove_button_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
 
-          $element['actions']['edit_button'] = array(
+          $links['remove_button'] = array(
             '#type' => 'submit',
-            '#value' => t('Edit !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
+            '#value' => t('Remove'),
+            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#weight' => 999,
+            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#access' => $paragraphs_entity->access('delete'),
+            '#prefix' => '<li class="remove">',
+            '#suffix' => '</li>',
+          );
+
+          $links['edit_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Edit'),
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#submit' => array(array(get_class($this), 'editItemSubmit')),
             '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#delta' => $delta,
             '#ajax' => array(
@@ -265,48 +314,40 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('update'),
+            '#prefix' => '<li class="edit">',
+            '#suffix' => '</li>',
           );
 
-          $element['actions']['remove_button'] = array(
-            '#type' => 'submit',
-            '#value' => t('Remove !type !title', array('!type' => $bundle_info['label'], '!title' => t($this->getSetting('title')))),
-            '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#access' => $paragraphs_entity->access('delete'),
+          $info['preview_info'] = array(
+            '#type' => 'markup',
+            '#markup' => '<em>' . t('You are not allowed to view this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#access' => !$paragraphs_entity->access('view'),
           );
 
-          $element['actions']['edit_button_info'] = array(
+          $info['edit_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
-          $element['actions']['remove_button_info'] = array(
+          $info['remove_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
-          $element['actions']['edit_remove_button_info'] = array(
+          $info['edit_remove_button_info'] = array(
             '#type' => 'markup',
             '#markup' => '<em>' . t('You are not allowed to edit or remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
         elseif ($item_mode == 'remove') {
-          $element['remove_button_info'] = array(
+          $info['remove_button_info'] = array(
             '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!confirm' => t('Confirm removal'), '!save' => t('Save'))) . '</em></p>',
           );
 
-          $element['actions']['restore_button'] = array(
+          $actions['restore_button'] = array(
             '#type' => 'submit',
             '#value' => t('Restore'),
             '#name' => strtr($id_prefix, '-', '_') . '_restore',
@@ -321,7 +362,7 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
           );
 
-          $element['actions']['confirm_remove_button'] = array(
+          $actions['confirm_remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Confirm removal'),
             '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
@@ -336,30 +377,81 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
           );
         }
+
+        if (count($links)) {
+          $show_links = 0;
+          foreach($links as $link_item) {
+            if (!isset($link_item['#access']) || $link_item['#access']) {
+              $show_links++;
+            }
+          }
+
+          if ($show_links > 0) {
+
+            $element['top']['links'] = $links;
+            if ($show_links > 1) {
+              $element['top']['links']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
+              $element['top']['links']['prefix'] = array(
+                '#markup' => '<ul class="dropbutton">',
+                '#weight' => 0,
+              );
+              $element['top']['links']['suffix'] = array(
+                '#markup' => '</li>',
+                '#weight' => 0,
+              );
+            }
+            else {
+              $element['top']['links']['#theme_wrappers'] = array('paragraphs_dropbutton_wrapper');
+              foreach($links as $key => $link_item) {
+                unset($element['top']['links'][$key]['#prefix']);
+                unset($element['top']['links'][$key]['#suffix']);
+              }
+            }
+            $element['top']['links']['#weight'] = 1;
+          }
+        }
+
+        if (count($info)) {
+          $show_info = FALSE;
+          foreach($info as $info_item) {
+            if (!isset($info_item['#access']) || $info_item['#access']) {
+              $show_info = TRUE;
+              break;
+            }
+          }
+
+          if ($show_info) {
+            $element['info'] = $info;
+            $element['info']['#weight'] = 998;
+          }
+        }
+
+        if (count($actions)) {
+          $show_actions = FALSE;
+          foreach($actions as $action_item) {
+            if (!isset($action_item['#access']) || $action_item['#access']) {
+              $show_actions = TRUE;
+              break;
+            }
+          }
+
+          if ($show_actions) {
+            $element['actions'] = $actions;
+            $element['actions']['#type'] = 'actions';
+            $element['actions']['#weight'] = 999;
+          }
+        }
       }
 
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
 
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
-
-        $element['subform_info'] = array(
-          '#type' => 'markup',
-          '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
-          '#access' => !$paragraphs_entity->access('update'),
-        );
       }
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
         $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
         $element['preview']['#access'] = $paragraphs_entity->access('view');
-
-        // Some helping text. Only display when access is false.
-        $element['preview_info'] = array(
-          '#type' => 'markup',
-          '#markup' => '<em>' . t('You are not allowed to view this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
-          '#access' => !$paragraphs_entity->access('view'),
-        );
       }
       elseif ($item_mode == 'closed') {
         $element['subform'] = array();
@@ -368,6 +460,7 @@ class InlineParagraphsWidget extends WidgetBase {
         $element['subform'] = array();
       }
 
+      $element['subform']['#attributes']['class'][] = 'paragraphs-subform';
       $element['subform']['#access'] = $paragraphs_entity->access('update');
 
       if ($item_mode == 'removed') {
@@ -649,6 +742,8 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
+    $elements['#attached']['library'][] = 'paragraphs/drupal.paragraphs.admin';
+
     return $elements;
   }
 
@@ -704,9 +799,9 @@ class InlineParagraphsWidget extends WidgetBase {
     $button = $form_state->getTriggeringElement();
 
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
-    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = array_slice($button['#array_parents'], -4, -3);
     $delta = $delta[0];
 
     $field_name = $element['#field_name'];
@@ -736,6 +831,27 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $widget_state['paragraphs'][$delta]['mode'] = 'removed';
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
+  }
+
+  public static function editItemSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+
+    $delta = array_slice($button['#array_parents'], -4, -3);
+    $delta = $delta[0];
+
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    $widget_state['paragraphs'][$delta]['mode'] = 'edit';
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 

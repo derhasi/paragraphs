@@ -54,6 +54,9 @@ function paragraphs_theme() {
     'paragraphs_item' => array(
       'render element' => 'elements',
     ),
+    'paragraphs_dropbutton_wrapper' => array(
+      'variables' => array('children' => NULL),
+    ),
   );
 }
 
