@@ -36,7 +36,7 @@ use Drupal\user\UserInterface;
  *     "id" = "id",
  *     "uuid" = "uuid",
  *     "bundle" = "type",
- *     "revision" = "vid"
+ *     "revision" = "revision_id"
  *   },
  *   bundle_entity_type = "paragraphs_type",
  *   field_ui_base_route = "entity.paragraphs_type.edit_form"
@@ -186,7 +186,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setDescription(t('The UUID of the paragraphs entity.'))
       ->setReadOnly(TRUE);
 
-    $fields['vid'] = BaseFieldDefinition::create('integer')
+    $fields['revision_id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Revision ID'))
       ->setDescription(t('The paragraphs entity revision ID.'))
       ->setReadOnly(TRUE)
