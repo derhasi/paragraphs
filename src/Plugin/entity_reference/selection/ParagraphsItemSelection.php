@@ -168,6 +168,5 @@ class ParagraphsItemSelection extends SelectionBase {
     // New value parents.
     $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
     NestedArray::setValue($values, $parents, $bundle_options);
-    dpm($values);
   }
 }
