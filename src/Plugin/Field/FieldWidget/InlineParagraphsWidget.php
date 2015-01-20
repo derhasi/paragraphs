@@ -591,7 +591,7 @@ class InlineParagraphsWidget extends WidgetBase {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
               '#type' => 'submit',
               '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
-              '#value' => t('Add a !title item', array('!title' => $label)),
+              '#value' => t('Add a !bundle !title', array('!bundle' => $label, '!title' => t($this->getSetting('title')))),
               '#attributes' => array('class' => array('field-add-more-submit')),
               '#limit_validation_errors' => array_merge($parents, array($field_name)),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
@@ -608,14 +608,20 @@ class InlineParagraphsWidget extends WidgetBase {
           $elements['add_more']['add_more_select'] = array(
             '#type'    => 'select',
             '#options' => $options,
-            '#title'   => t('Paragraph type'),
+            '#title'   => t('!title type', array('!title' => t($this->getSetting('title')))),
             '#label_display' => 'hidden',
           );
+
+          $text = t('Add a !title', array('!title' => t($this->getSetting('title'))));
+
+          if ($real_item_count > 0) {
+            $text = t('Add another !title', array('!title' => t($this->getSetting('title'))));
+          }
 
           $elements['add_more']['add_more_button'] = array(
             '#type' => 'submit',
             '#name' => strtr($id_prefix, '-', '_') . '_add_more',
-            '#value' => t('Add another item'),
+            '#value' => $text,
             '#attributes' => array('class' => array('field-add-more-submit')),
             '#limit_validation_errors' => array_merge($parents, array($field_name)),
             '#submit' => array(array(get_class($this), 'addMoreSubmit')),
