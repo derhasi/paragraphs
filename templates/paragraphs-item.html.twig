@@ -43,10 +43,6 @@ set classes = [
 view_mode ? 'paragraphs-item--view-mode--' ~ view_mode|clean_class,
 ]
 %}
-<article{{ attributes.addClass(classes) }}>
-
-    <div{{ content_attributes.addClass('paragraphs-item--content') }}>
-        {{ content }}
-    </div>
-
-</article>
+<div{{ attributes.addClass(classes) }}>
+    {{ content }}
+</div>
