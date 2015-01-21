@@ -254,7 +254,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -292,7 +292,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -310,7 +310,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'editItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -357,7 +357,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_restore',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -372,7 +372,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
             '#weight' => 999,
             '#submit' => array(array(get_class($this), 'confirmRemoveItemSubmit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -688,10 +688,10 @@ class InlineParagraphsWidget extends WidgetBase {
           foreach ($access_options as $machine_name => $label) {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
               '#type' => 'submit',
-              '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
+              '#name' => strtr($id_prefix, '-', '_') . '_' . $machine_name . '_add_more',
               '#value' => t('Add a !type !title', array('!type' => $label, '!title' => t($this->getSetting('title')))),
               '#attributes' => array('class' => array('field-add-more-submit')),
-              '#limit_validation_errors' => array_merge($parents, array($field_name)),
+              '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
               '#ajax' => array(
                 'callback' => array(get_class($this), 'addMoreAjax'),
@@ -706,10 +706,10 @@ class InlineParagraphsWidget extends WidgetBase {
           foreach ($access_options as $machine_name => $label) {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
               '#type' => 'submit',
-              '#name' => strtr($id_prefix, '-', '_') . $machine_name . '_add_more',
+              '#name' => strtr($id_prefix, '-', '_') . '_' . $machine_name . '_add_more',
               '#value' => t('Add a !type !title', array('!type' => $label, '!title' => t($this->getSetting('title')))),
               '#attributes' => array('class' => array('field-add-more-submit')),
-              '#limit_validation_errors' => array_merge($parents, array($field_name)),
+              '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
               '#submit' => array(array(get_class($this), 'addMoreSubmit')),
               '#ajax' => array(
                 'callback' => array(get_class($this), 'addMoreAjax'),
@@ -750,7 +750,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_add_more',
             '#value' => $text,
             '#attributes' => array('class' => array('field-add-more-submit')),
-            '#limit_validation_errors' => array_merge($parents, array($field_name)),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#submit' => array(array(get_class($this), 'addMoreSubmit')),
             '#ajax' => array(
               'callback' => array(get_class($this), 'addMoreAjax'),
