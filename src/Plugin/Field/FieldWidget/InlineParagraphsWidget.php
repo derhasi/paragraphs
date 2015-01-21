@@ -54,7 +54,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $elements['title'] = array(
       '#type' => 'textfield',
-      '#title' => t('Item Title'),
+      '#title' => t('Paragraph Title'),
       '#description' => t('Label to appear as title on the button as "Add new [title]", this label is translatable'),
       '#default_value' => $this->getSetting('title'),
       '#required' => TRUE,
@@ -62,7 +62,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $elements['title_plural'] = array(
       '#type' => 'textfield',
-      '#title' => t('Plural Item Title'),
+      '#title' => t('Plural Paragraph Title'),
       '#description' => t('Title in its plural form.'),
       '#default_value' => $this->getSetting('title_plural'),
       '#required' => TRUE,
@@ -71,7 +71,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['edit_mode'] = array(
       '#type' => 'select',
       '#title' => t('Edit mode'),
-      '#description' => t('The mode the paragraph item is in by default. Preview will render the paragraph in the preview view mode.'),
+      '#description' => t('The mode the paragrap is in by default. Preview will render the paragraph in the preview view mode.'),
       '#options' => array(
         'open' => t('Open'),
         'closed' => t('Closed'),
@@ -97,7 +97,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['form_display_mode'] = array(
       '#type' => 'select',
       '#options' => \Drupal::entityManager()->getFormModeOptions($this->getFieldSetting('target_type')),
-      '#description' => t('The form display mode to use when rendering the paragraph items form.'),
+      '#description' => t('The form display mode to use when rendering the paragraph form.'),
       '#title' => t('Form display mode'),
       '#default_value' => $this->getSetting('form_display_mode'),
       '#required' => TRUE,
@@ -268,19 +268,19 @@ class InlineParagraphsWidget extends WidgetBase {
 
           $info['edit_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to edit this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to remove this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
@@ -324,25 +324,25 @@ class InlineParagraphsWidget extends WidgetBase {
 
           $info['preview_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to view this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to view this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('view'),
           );
 
           $info['edit_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to edit this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to edit this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to remove this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            '#markup' => '<em>' . t('You are not allowed to edit or remove this !title.', array('!title' => t($this->getSetting('title')))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }

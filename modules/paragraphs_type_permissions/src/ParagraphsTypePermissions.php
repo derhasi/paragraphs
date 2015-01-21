@@ -41,7 +41,7 @@ class ParagraphsTypePermissions {
   public function paragraphTypePermissions() {
     $perms = array();
 
-    // Generate paragraphs item permissions for all paragraphs types.
+    // Generate paragraph permissions for all paragraphs types.
     foreach (ParagraphsType::loadMultiple() as $type) {
       $perms += $this->buildPermissions($type);
     }

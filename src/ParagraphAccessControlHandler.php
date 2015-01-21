@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\account/ParagraphsItemAccessController.
+ * Contains Drupal\account/ParagraphAccessController.
  */
 
 namespace Drupal\paragraphs;
@@ -11,14 +11,14 @@ use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Access\AccessResult;
-use Drupal\paragraphs\Entity\ParagraphsItem;
+use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Access controller for the paragraphs entity.
  *
- * @see \Drupal\paragraphs\Entity\ParagraphsItem.
+ * @see \Drupal\paragraphs\Entity\Paragraph.
  */
-class ParagraphsItemAccessControlHandler extends EntityAccessControlHandler
+class ParagraphAccessControlHandler extends EntityAccessControlHandler
 {
 
   /**

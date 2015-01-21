@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\paragraphs\Entity\ParagraphsItem.
+ * Contains Drupal\paragraphs\Entity\Paragraph.
  */
 
 namespace Drupal\paragraphs\Entity;
@@ -11,21 +11,21 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\paragraphs\ParagraphsItemInterface;
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\user\UserInterface;
 
 /**
- * Defines the Paragraphs entity.
+ * Defines the Paragraph entity.
  *
  * @ingroup paragraphs
  *
  * @ContentEntityType(
- *   id = "paragraphs_item",
- *   label = @Translation("Paragraphs"),
- *   bundle_label = @Translation("Paragraphs type"),
+ *   id = "paragraph",
+ *   label = @Translation("Paragraph"),
+ *   bundle_label = @Translation("Paragraph type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "access" = "Drupal\paragraphs\ParagraphsItemAccessControlHandler"
+ *     "access" = "Drupal\paragraphs\ParagraphAccessControlHandler"
  *   },
  *   base_table = "paragraphs_item",
  *   data_table = "paragraphs_item_field_data",
@@ -42,7 +42,7 @@ use Drupal\user\UserInterface;
  *   field_ui_base_route = "entity.paragraphs_type.edit_form"
  * )
  */
-class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterface {
+class Paragraph extends ContentEntityBase implements ParagraphInterface {
 
   /**
    * {@inheritdoc}
@@ -209,7 +209,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
-      ->setDefaultValueCallback('Drupal\paragraphs\Entity\ParagraphsItem::getCurrentUserId')
+      ->setDefaultValueCallback('Drupal\paragraphs\Entity\Paragraph::getCurrentUserId')
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
         'label' => 'hidden',
@@ -225,7 +225,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
-      ->setDescription(t('The time that the ParagraphsItem was created.'))
+      ->setDescription(t('The time that the Paragraph was created.'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setDisplayOptions('view', array(
@@ -241,7 +241,7 @@ class ParagraphsItem extends ContentEntityBase implements ParagraphsItemInterfac
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the ParagraphsItem was last edited.'))
+      ->setDescription(t('The time that the Paragraph was last edited.'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE);
 

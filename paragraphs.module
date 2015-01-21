@@ -51,7 +51,7 @@ function paragraphs_type_load($name) {
  */
 function paragraphs_theme() {
   return array(
-    'paragraphs_item' => array(
+    'paragraph' => array(
       'render element' => 'elements',
     ),
     'paragraphs_dropbutton_wrapper' => array(
@@ -63,36 +63,36 @@ function paragraphs_theme() {
 /**
  * Implements hook_theme_suggestions_HOOK().
  */
-function paragraphs_theme_suggestions_paragraphs_item(array $variables) {
+function paragraphs_theme_suggestions_paragraph(array $variables) {
   $suggestions = array();
-  $paragraphs_item = $variables['elements']['#paragraphs_item'];
+  $paragraph = $variables['elements']['#paragraph'];
   $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
 
-  $suggestions[] = 'paragraphs_item__' . $sanitized_view_mode;
-  $suggestions[] = 'paragraphs_item__' . $paragraphs_item->bundle();
-  $suggestions[] = 'paragraphs_item__' . $paragraphs_item->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'paragraph__' . $sanitized_view_mode;
+  $suggestions[] = 'paragraph__' . $paragraph->bundle();
+  $suggestions[] = 'paragraph__' . $paragraph->bundle() . '__' . $sanitized_view_mode;
 
   return $suggestions;
 }
 
 /**
- * Prepares variables for paragraphs_item templates.
+ * Prepares variables for paragraph templates.
  *
- * Default template: paragraphs-item.html.twig.
+ * Default template: paragraph.html.twig.
  *
- * Most themes use their own copy of paragraphs-item.html.twig. The default is located
- * inside "templates/paragraphs-item.html.twig". Look in there for the
+ * Most themes use their own copy of paragraph.html.twig. The default is located
+ * inside "templates/paragraph.html.twig". Look in there for the
  * full list of variables.
  *
  * @param array $variables
  *   An associative array containing:
  *   - elements: An array of elements to display in view mode.
- *   - paragraphs_item: The paragraphs_item object.
+ *   - paragraph: The paragraph object.
  *   - view_mode: View mode; e.g., 'full', 'teaser'...
  */
-function template_preprocess_paragraphs_item(&$variables) {
+function template_preprocess_paragraph(&$variables) {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
-  $variables['paragraphs_item'] = $variables['elements']['#paragraphs_item'];
+  $variables['paragraph'] = $variables['elements']['#paragraph'];
 
   // Helpful $content variable for templates.
   $variables += array('content' => array());

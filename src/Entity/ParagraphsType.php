@@ -30,7 +30,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     "id" = "id",
  *     "label" = "label",
  *   },
- *   bundle_of = "paragraphs_item",
+ *   bundle_of = "paragraph",
  *   links = {
  *     "edit-form" = "entity.paragraphs_type.edit_form",
  *     "delete-form" = "entity.paragraphs_type.delete_form"

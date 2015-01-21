@@ -7,19 +7,19 @@
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\paragraphs\Entity\ParagraphsItem;
+use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\Core\Language\LanguageInterface;
 
 /**
- * Implements hook_paragraphs_item_access().
+ * Implements hook_paragraph_access().
  *
- * Check whether a user may perform the operation on the paragraph item.
+ * Check whether a user may perform the operation on the paragraph.
  *
- * @param ParagraphsItem $entity
+ * @param Paragraph $entity
  *   The entity to check access on. Is a string when op is create.
  *
  * @param $op
- *   The operation to be performed on the paragraph item. Possible values are:
+ *   The operation to be performed on the paragraph. Possible values are:
  *   - "view"
  *   - "update"
  *   - "delete"
@@ -32,7 +32,7 @@ use Drupal\Core\Language\LanguageInterface;
  * @return AccessResult
  *   AccessResult object with the result of the access check.
  */
-function paragraphs_type_permissions_paragraphs_item_access(EntityInterface $entity, $operation, AccountInterface $account, $langcode = LanguageInterface::LANGCODE_DEFAULT) {
+function paragraphs_type_permissions_paragraph_access(EntityInterface $entity, $operation, AccountInterface $account, $langcode = LanguageInterface::LANGCODE_DEFAULT) {
   $permissions = &drupal_static(__FUNCTION__, array());
 
   if (!in_array($operation, array('view', 'update', 'delete'), TRUE)) {
@@ -66,7 +66,7 @@ function paragraphs_type_permissions_paragraphs_item_access(EntityInterface $ent
 }
 
 /**
- * Implements hook_paragraphs_create_access().
+ * Implements hook_paragraph_create_access().
  *
  * Check whether a user may perform a create operation on the paragraph type.
  *
@@ -83,7 +83,7 @@ function paragraphs_type_permissions_paragraphs_item_access(EntityInterface $ent
  * @return AccessResult
  *   AccessResult object with the result of the access check.
  */
-function paragraphs_type_permissions_paragraphs_item_create_access(AccountInterface $account = NULL, array $context = array(), $entity_bundle = NULL) {
+function paragraphs_type_permissions_paragraph_create_access(AccountInterface $account = NULL, array $context = array(), $entity_bundle = NULL) {
   $permissions = &drupal_static(__FUNCTION__, array());
 
   // Set static cache id to use the type machine name.

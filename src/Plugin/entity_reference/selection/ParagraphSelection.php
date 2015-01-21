@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\paragraphs\Plugin\entity_reference\selection\ParagraphsItemSelection.
+ * Contains \Drupal\paragraphs\Plugin\entity_reference\selection\ParagraphsSelection.
  */
 
 namespace Drupal\paragraphs\Plugin\entity_reference\selection;
@@ -20,12 +20,12 @@ use Drupal\Component\Utility\NestedArray;
  *   id = "paragraphs",
  *   label = @Translation("Paragraphs"),
  *   group = "paragraphs",
- *   entity_types = {"paragraphs_item"},
+ *   entity_types = {"paragraph"},
  *   weight = 0,
  *   deriver = "Drupal\entity_reference\Plugin\Derivative\SelectionBase"
  * )
  */
-class ParagraphsItemSelection extends SelectionBase {
+class ParagraphSelection extends SelectionBase {
 
   /**
    * {@inheritdoc}

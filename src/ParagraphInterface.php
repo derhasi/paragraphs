@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\paragraphs\ParagraphsItemInterface.
+ * Contains Drupal\paragraphs\ParagraphInterface.
  */
 
 namespace Drupal\paragraphs;
@@ -15,7 +15,7 @@ use Drupal\user\EntityOwnerInterface;
  * Provides an interface defining a paragraphs entity.
  * @ingroup account
  */
-interface ParagraphsItemInterface extends ContentEntityInterface, EntityOwnerInterface
+interface ParagraphInterface extends ContentEntityInterface, EntityOwnerInterface
 {
 
   // Add get/set methods for your configuration properties here.

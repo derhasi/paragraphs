@@ -1,8 +1,8 @@
-id: paragraphs_item.preview
+id: paragraph.preview
 label: Preview
 status: true
 cache: true
-targetEntityType: paragraphs_item
+targetEntityType: paragraph
 dependencies:
   module:
     - paragraphs
