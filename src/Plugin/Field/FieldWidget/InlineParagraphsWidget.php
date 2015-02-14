@@ -177,6 +177,9 @@ class InlineParagraphsWidget extends WidgetBase {
         }
       }
     }
+    elseif (isset($widget_state['paragraphs'][$delta]['entity'])) {
+      $paragraphs_entity = $widget_state['paragraphs'][$delta]['entity'];
+    }
     elseif (isset($widget_state['selected_bundle'])) {
 
       $entity_type = $entity_manager->getDefinition($target_type);
@@ -393,11 +396,11 @@ class InlineParagraphsWidget extends WidgetBase {
               $element['top']['links']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
               $element['top']['links']['prefix'] = array(
                 '#markup' => '<ul class="dropbutton">',
-                '#weight' => 0,
+                '#weight' => -999,
               );
               $element['top']['links']['suffix'] = array(
                 '#markup' => '</li>',
-                '#weight' => 0,
+                '#weight' => 999,
               );
             }
             else {
@@ -720,11 +723,11 @@ class InlineParagraphsWidget extends WidgetBase {
           $elements['add_more']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
           $elements['add_more']['prefix'] = array(
             '#markup' => '<ul class="dropbutton">',
-            '#weight' => 0,
+            '#weight' => -999,
           );
           $elements['add_more']['suffix'] = array(
-            '#markup' => '</li>',
-            '#weight' => 0,
+            '#markup' => '</ul>',
+            '#weight' => 999,
           );
         }
         else {
