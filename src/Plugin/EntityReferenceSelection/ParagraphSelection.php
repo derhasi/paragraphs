@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Contains \Drupal\paragraphs\Plugin\entity_reference\selection\ParagraphsSelection.
+ * Contains \Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphsSelection.
  */
 
-namespace Drupal\paragraphs\Plugin\entity_reference\selection;
+namespace Drupal\paragraphs\Plugin\EntityReferenceSelection;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase;
@@ -17,9 +17,9 @@ use Drupal\Component\Utility\NestedArray;
  * Default plugin implementation of the Entity Reference Selection plugin.
  *
  * @EntityReferenceSelection(
- *   id = "paragraphs",
+ *   id = "default:paragraph",
  *   label = @Translation("Paragraphs"),
- *   group = "paragraphs",
+ *   group = "default",
  *   entity_types = {"paragraph"},
  *   weight = 0
  * )
@@ -29,12 +29,10 @@ class ParagraphSelection extends SelectionBase {
   /**
    * {@inheritdoc}
    */
-  public static function settingsForm(FieldDefinitionInterface $field_definition) {
-    $form = array();
-
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $entity_manager = \Drupal::entityManager();
-    $entity_type_id = $field_definition->getSetting('target_type');
-    $selection_handler_settings = $field_definition->getSetting('handler_settings') ?: array();
+    $entity_type_id = $this->configuration['target_type'];
+    $selection_handler_settings = $this->configuration['handler_settings'] ?: array();
     $entity_type = $entity_manager->getDefinition($entity_type_id);
     $bundles = $entity_manager->getBundleInfo($entity_type_id);
 
