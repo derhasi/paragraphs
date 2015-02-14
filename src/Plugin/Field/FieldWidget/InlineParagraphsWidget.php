@@ -9,14 +9,13 @@ namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\String;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\paragraphs;
-use Drupal\Core\Url;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 /**
@@ -152,13 +151,11 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $parents = $element['#field_parents'];
-    $host_entity = $items->getEntity();
-    $paragraphs_entity = FALSE;
+    $paragraphs_entity = NULL;
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $entity_manager = \Drupal::entityManager();
     $target_type = $this->getFieldSetting('target_type');
-    $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
 
     $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
 
@@ -200,7 +197,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $element_parents[] = 'subform';
 
       $id_prefix = implode('-', array_merge($parents, array($field_name, $delta)));
-      $wrapper_id = drupal_html_id($id_prefix . '-item-wrapper');
+      $wrapper_id = Html::getUniqueId($id_prefix . '-item-wrapper');
 
       $element += array(
         '#type' => 'container',
@@ -578,7 +575,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $elements = array();
     $id_prefix = implode('-', array_merge($parents, array($field_name)));
-    $wrapper_id = drupal_html_id($id_prefix . '-add-more-wrapper');
+    $wrapper_id = Html::getUniqueId($id_prefix . '-add-more-wrapper');
     $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
     $elements['#suffix'] = '</div>';
 
