@@ -158,13 +158,18 @@ class InlineParagraphsWidget extends WidgetBase {
     $target_type = $this->getFieldSetting('target_type');
 
     $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
+    $default_edit_mode = $this->getSetting('edit_mode');
 
-    if ($items[$delta]->entity) {
+    $show_must_be_saved_warning = FALSE;
+
+    if (isset($widget_state['paragraphs'][$delta]['entity'])) {
+      $paragraphs_entity = $widget_state['paragraphs'][$delta]['entity'];
+    }
+    elseif ($items[$delta]->entity) {
       $paragraphs_entity = $items[$delta]->entity;
 
       // We don't have a widget state yet, get from selector settings.
       if (!isset($widget_state['paragraphs'][$delta]['mode'])) {
-        $default_edit_mode = $this->getSetting('edit_mode');
 
         if ($default_edit_mode == 'open') {
           $item_mode = 'edit';
@@ -177,9 +182,6 @@ class InlineParagraphsWidget extends WidgetBase {
         }
       }
     }
-    elseif (isset($widget_state['paragraphs'][$delta]['entity'])) {
-      $paragraphs_entity = $widget_state['paragraphs'][$delta]['entity'];
-    }
     elseif (isset($widget_state['selected_bundle'])) {
 
       $entity_type = $entity_manager->getDefinition($target_type);
@@ -190,6 +192,11 @@ class InlineParagraphsWidget extends WidgetBase {
       ));
 
       $item_mode = 'edit';
+    }
+
+    if ($item_mode == 'collapsed') {
+      $item_mode = $default_edit_mode;
+      $show_must_be_saved_warning = TRUE;
     }
 
     if ($paragraphs_entity) {
@@ -247,11 +254,31 @@ class InlineParagraphsWidget extends WidgetBase {
 
         if ($item_mode == 'edit') {
 
+          if (isset($items[$delta]->entity) && ($default_edit_mode == 'preview' || $default_edit_mode == 'closed')) {
+            $links['collapse_button'] = array(
+              '#type' => 'submit',
+              '#value' => t('Collapse'),
+              '#name' => strtr($id_prefix, '-', '_') . '_collapse',
+              '#weight' => 499,
+              '#submit' => array(array(get_class($this), 'collapseItemSubmit')),
+              '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+              '#delta' => $delta,
+              '#ajax' => array(
+                'callback' => array(get_class($this), 'itemAjax'),
+                'wrapper' => $widget_state['ajax_wrapper_id'],
+                'effect' => 'fade',
+              ),
+              '#access' => $paragraphs_entity->access('update'),
+              '#prefix' => '<li class="collapse">',
+              '#suffix' => '</li>',
+            );
+          }
+
           $links['remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 999,
+            '#weight' => 500,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
@@ -284,12 +311,29 @@ class InlineParagraphsWidget extends WidgetBase {
           );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
+          $links['edit_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Edit'),
+            '#name' => strtr($id_prefix, '-', '_') . '_edit',
+            '#weight' => 501,
+            '#submit' => array(array(get_class($this), 'editItemSubmit')),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#access' => $paragraphs_entity->access('update'),
+            '#prefix' => '<li class="edit">',
+            '#suffix' => '</li>',
+          );
 
           $links['remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 999,
+            '#weight' => 502,
             '#submit' => array(array(get_class($this), 'removeItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
@@ -303,23 +347,12 @@ class InlineParagraphsWidget extends WidgetBase {
             '#suffix' => '</li>',
           );
 
-          $links['edit_button'] = array(
-            '#type' => 'submit',
-            '#value' => t('Edit'),
-            '#name' => strtr($id_prefix, '-', '_') . '_edit',
-            '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'editItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#access' => $paragraphs_entity->access('update'),
-            '#prefix' => '<li class="edit">',
-            '#suffix' => '</li>',
-          );
+          if ($show_must_be_saved_warning) {
+            $info['must_be_saved_info'] = array(
+              '#type' => 'markup',
+              '#markup' => '<em>' . t('Warning: this content must be saved to reflect changes on this !title item.', array('!title' => t($this->getSetting('title')))) . '</em>',
+            );
+          }
 
           $info['preview_info'] = array(
             '#type' => 'markup',
@@ -346,30 +379,16 @@ class InlineParagraphsWidget extends WidgetBase {
           );
         }
         elseif ($item_mode == 'remove') {
-          $info['remove_button_info'] = array(
-            '#markup' => '<p>' . t('This !title has been removed, press the button below to restore.', array('!title' => t($this->getSetting('title')))) . ' </p><p><em>' . t('Warning: this !title will actually be deleted when you press "!confirm" or "!save" at the bottom of the page!', array('!title' => $this->getSetting('title'), '!confirm' => t('Confirm removal'), '!save' => t('Save'))) . '</em></p>',
+
+          $element['top']['paragraph_type_title']['info'] = array(
+            '#markup' => t('Deleted !title type: %type', array('!title' => t($this->getSetting('title')), '%type' => $bundle_info['label'])),
           );
 
-          $actions['restore_button'] = array(
-            '#type' => 'submit',
-            '#value' => t('Restore'),
-            '#name' => strtr($id_prefix, '-', '_') . '_restore',
-            '#weight' => 999,
-            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-          );
-
-          $actions['confirm_remove_button'] = array(
+          $links['confirm_remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Confirm removal'),
             '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
-            '#weight' => 999,
+            '#weight' => 503,
             '#submit' => array(array(get_class($this), 'confirmRemoveItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
@@ -378,6 +397,25 @@ class InlineParagraphsWidget extends WidgetBase {
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
+            '#prefix' => '<li class="confirm-remove">',
+            '#suffix' => '</li>',
+          );
+
+          $links['restore_button'] = array(
+            '#type' => 'submit',
+            '#value' => t('Restore'),
+            '#name' => strtr($id_prefix, '-', '_') . '_restore',
+            '#weight' => 504,
+            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#prefix' => '<li class="restore">',
+            '#suffix' => '</li>',
           );
         }
 
@@ -827,6 +865,26 @@ class InlineParagraphsWidget extends WidgetBase {
     $form_state->setRebuild();
   }
 
+  public static function collapseItemSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+
+    $delta = array_slice($button['#array_parents'], -4, -3);
+    $delta = $delta[0];
+
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    $widget_state['paragraphs'][$delta]['mode'] = 'collapsed';
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
+  }
 
   public static function removeItemSubmit(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
@@ -853,9 +911,9 @@ class InlineParagraphsWidget extends WidgetBase {
     $button = $form_state->getTriggeringElement();
 
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
-    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = array_slice($button['#array_parents'], -4, -3);
     $delta = $delta[0];
 
     $field_name = $element['#field_name'];
@@ -895,9 +953,9 @@ class InlineParagraphsWidget extends WidgetBase {
     $button = $form_state->getTriggeringElement();
 
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -3));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
 
-    $delta = array_slice($button['#array_parents'], -3, -2);
+    $delta = array_slice($button['#array_parents'], -4, -3);
     $delta = $delta[0];
 
     $field_name = $element['#field_name'];
@@ -966,11 +1024,12 @@ class InlineParagraphsWidget extends WidgetBase {
     $entity = $widget_state['paragraphs'][$delta]['entity'];
     $display = $widget_state['paragraphs'][$delta]['display'];
 
-    // Only extract/validate values when we are in edit mode.
-    if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
+    if ($widget_state['paragraphs'][$delta]['mode'] != 'remove' && $widget_state['paragraphs'][$delta]['mode'] != 'removed') {
       $display->extractFormValues($entity, $element['subform'], $form_state);
       $display->validateFormValues($entity, $element['subform'], $form_state);
     }
+
+    static::setWidgetState($form['#parents'], $field_name, $form_state, $widget_state);
   }
 
   /**
