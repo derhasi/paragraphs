@@ -702,6 +702,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
       $elements += array(
         '#type' => 'container',
+        '#theme_wrappers' => array('container'),
         '#field_name' => $field_name,
         '#cardinality' => $cardinality,
         '#cardinality_multiple' => TRUE,

@@ -1,35 +1,35 @@
-.field-widget-entity-reference-paragraphs .paragraph-type-title {
+.field-widget-entity-reference-paragraphs .paragraph-type-top .paragraph-type-title {
     width: 80%;
     float: left;
 }
 
-.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper {
+.field-widget-entity-reference-paragraphs .paragraph-type-top .paragraphs-dropbutton-wrapper {
     float:right;
     width: 20%;
     margin: 0em;
 }
 
-.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper > input {
+.field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper > input {
     margin-right: 2em;
 }
 
-.field-widget-entity-reference-paragraphs table .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+.field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
     padding-right: 0em;
     margin-right: 0em;
 }
 
-.js .field-widget-entity-reference-paragraphs  td .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
+.js .field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
     padding-right: 0em;
     margin-right: 0em;
 }
 
-.field-widget-entity-reference-paragraphs table .paragraph-type-top {
+.field-widget-entity-reference-paragraphs .paragraph-type-top {
     clear: both;
     float: left;
     margin-bottom: 1em;
     width: 100%;
 }
-.field-widget-entity-reference-paragraphs table .paragraphs-subform {
+.field-widget-entity-reference-paragraphs .paragraphs-subform {
     clear: both;
     float: left;
     width: 100%;
