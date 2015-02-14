@@ -185,7 +185,6 @@ class InlineParagraphsWidget extends WidgetBase {
       $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
         $bundle_key => $widget_state['selected_bundle'],
       ));
-      $items->set($delta, $paragraphs_entity);
 
       $item_mode = 'edit';
     }
