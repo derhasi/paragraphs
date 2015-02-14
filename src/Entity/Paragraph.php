@@ -25,7 +25,12 @@ use Drupal\user\UserInterface;
  *   bundle_label = @Translation("Paragraph type"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "access" = "Drupal\paragraphs\ParagraphAccessControlHandler"
+ *     "access" = "Drupal\paragraphs\ParagraphAccessControlHandler",
+ *     "form" = {
+ *       "default" = "Drupal\Core\Entity\ContentEntityForm",
+ *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
+ *       "edit" = "Drupal\Core\Entity\ContentEntityForm"
+ *     }
  *   },
  *   base_table = "paragraphs_item",
  *   data_table = "paragraphs_item_field_data",
