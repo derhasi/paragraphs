@@ -41,6 +41,7 @@ use Drupal\user\UserInterface;
  *     "id" = "id",
  *     "uuid" = "uuid",
  *     "bundle" = "type",
+ *     "langcode" = "langcode",
  *     "revision" = "revision_id"
  *   },
  *   bundle_entity_type = "paragraphs_type",
