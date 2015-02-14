@@ -11,7 +11,7 @@ paragraphs.type_add:
   path: '/admin/structure/paragraphs_type/add'
   defaults:
     _entity_form: 'paragraphs_type.add'
-    _title: 'Add a Paragraphs type'
+    _title: 'Add paragraphs type'
   requirements:
     _permission: 'administer paragraphs types'
 
@@ -19,7 +19,6 @@ entity.paragraphs_type.edit_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}'
   defaults:
     _entity_form: 'paragraphs_type.edit'
-    _title: 'Edit a Paragraphs type'
   requirements:
     _permission: 'administer paragraphs types'
 
@@ -27,6 +26,6 @@ entity.paragraphs_type.delete_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}/delete'
   defaults:
     _entity_form: 'paragraphs_type.delete'
-    _title: 'Delete a Paragraphs type'
+    _title: 'Delete'
   requirements:
     _permission: 'administer paragraphs types'
