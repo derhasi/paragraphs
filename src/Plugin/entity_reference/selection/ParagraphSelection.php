@@ -8,7 +8,7 @@
 namespace Drupal\paragraphs\Plugin\entity_reference\selection;
 
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\entity_reference\Plugin\entity_reference\selection\SelectionBase;
+use Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
@@ -21,8 +21,7 @@ use Drupal\Component\Utility\NestedArray;
  *   label = @Translation("Paragraphs"),
  *   group = "paragraphs",
  *   entity_types = {"paragraph"},
- *   weight = 0,
- *   deriver = "Drupal\entity_reference\Plugin\Derivative\SelectionBase"
+ *   weight = 0
  * )
  */
 class ParagraphSelection extends SelectionBase {
