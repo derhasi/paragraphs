@@ -26,7 +26,7 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
  *   label = @Translation("Paragraphs"),
  *   description = @Translation("An paragraphs inline form widget."),
  *   field_types = {
- *     "entity_reference"
+ *     "entity_reference_revisions"
  *   }
  * )
  */
@@ -151,6 +151,7 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $parents = $element['#field_parents'];
+
     $paragraphs_entity = NULL;
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
@@ -517,6 +518,9 @@ class InlineParagraphsWidget extends WidgetBase {
       $widget_state['items'] = $items;
       static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
+    else {
+      $element['#access'] = FALSE;
+    }
 
     return $element;
   }
@@ -535,17 +539,21 @@ class InlineParagraphsWidget extends WidgetBase {
     if ($dragdrop_settings) {
       $drag_drop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
       $enable_count = 0;
+      $max_weight = count($bundles);
 
       // Check how much types are enabled as none enabled = all enabled.
       foreach($drag_drop_settings as $bundle_info) {
         if (isset($bundle_info['enabled']) && $bundle_info['enabled']) {
           $enable_count++;
         }
+        if (isset($bundle_info['weight']) && $bundle_info['weight'] && $bundle_info['weight'] > $max_weight) {
+          $max_weight = $bundle_info['weight'];
+        }
       }
 
 
       // Default weight for new items.
-      $weight = count($bundles) + 1;
+      $weight = $max_weight + 1;
       foreach ($bundles as $machine_name => $bundle) {
 
         if ((isset($drag_drop_settings[$machine_name]['enabled']) && $drag_drop_settings[$machine_name]['enabled']) || $enable_count === 0) {
@@ -579,27 +587,6 @@ class InlineParagraphsWidget extends WidgetBase {
     return $return_bundles;
   }
 
-  /**
-   * Builds an array of entity IDs for which to get the entity labels.
-   *
-   * @param \Drupal\Core\Field\FieldItemListInterface $items
-   *   Array of default values for this field.
-   * @param int $delta
-   *   The order of a field item in the array of subelements (0, 1, 2, etc).
-   *
-   * @return array
-   *   An array of entity IDs.
-   */
-  protected function getEntityIds(FieldItemListInterface $items, $delta) {
-    $entity_ids = array();
-
-    foreach ($items as $item) {
-      $entity_ids[] = $item->target_id;
-    }
-
-    return $entity_ids;
-  }
-
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
@@ -624,6 +611,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($max > 0) {
       for ($delta = 0; $delta < $max; $delta++) {
+
         // For multiple fields, title and description are handled by the wrapping
         // table.
         $element = array(
@@ -670,9 +658,12 @@ class InlineParagraphsWidget extends WidgetBase {
     $options = array();
     $access_options = array();
 
+    $dragdrop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
+
     foreach ($bundles as $machine_name => $bundle) {
-      if (!count($this->getSelectionHandlerSetting('target_bundles'))
-        || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
+
+      if ($dragdrop_settings || (!count($this->getSelectionHandlerSetting('target_bundles'))
+        || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
         $options[$machine_name] = $bundle['label'];
 
         if ($access_control_handler->createAccess($machine_name)) {
@@ -1019,15 +1010,17 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function elementValidate($element, FormStateInterface $form_state, $form) {
     $field_name = $this->fieldDefinition->getName();
-    $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+    $widget_state = static::getWidgetState($element['#field_parents'], $field_name, $form_state);
     $delta = $element['#delta'];
 
-    $entity = $widget_state['paragraphs'][$delta]['entity'];
-    $display = $widget_state['paragraphs'][$delta]['display'];
+    if (isset($widget_state['paragraphs'][$delta]['entity'])) {
+      $entity = $widget_state['paragraphs'][$delta]['entity'];
+      $display = $widget_state['paragraphs'][$delta]['display'];
 
-    if ($widget_state['paragraphs'][$delta]['mode'] != 'remove' && $widget_state['paragraphs'][$delta]['mode'] != 'removed') {
-      $display->extractFormValues($entity, $element['subform'], $form_state);
-      $display->validateFormValues($entity, $element['subform'], $form_state);
+      if ($widget_state['paragraphs'][$delta]['mode'] != 'remove' && $widget_state['paragraphs'][$delta]['mode'] != 'removed') {
+        $display->extractFormValues($entity, $element['subform'], $form_state);
+        $display->validateFormValues($entity, $element['subform'], $form_state);
+      }
     }
 
     static::setWidgetState($form['#parents'], $field_name, $form_state, $widget_state);
@@ -1038,24 +1031,26 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
     // Don't do entity saving when we have validation erors.
-    if (count($form_state->getErrors())) {
+    if (count($form_state->getErrors()) || !$form_state->isValidationComplete()) {
       return $values;
     }
 
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
-
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
         && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
+        $paragraphs_entity->setNewRevision(TRUE);
         $paragraphs_entity->save();
         $item['target_id'] = $paragraphs_entity->id();
+        $item['target_revision_id'] = $paragraphs_entity->getRevisionId();
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
       elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove' || $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'removed') {
-        $item['target_id']  = NULL;
+        $item['target_id'] = NULL;
+        $item['target_revision_id'] = NULL;
       }
     }
     return $values;

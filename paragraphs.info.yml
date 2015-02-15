@@ -5,4 +5,4 @@ core: 8.x
 package: Paragraphs
 
 dependencies:
-  - entity_reference
+  - entity_reference_revisions

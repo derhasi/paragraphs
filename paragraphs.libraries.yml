@@ -1,5 +1,15 @@
 drupal.paragraphs.admin:
   version: VERSION
+  js:
+      js/ajax.js: {}
+  dependencies:
+      - core/jquery
+      - core/drupal
+      - core/drupalSettings
+      - core/jquery.once
+      - core/jquery.form
+      - core/drupal.ajax
+      - core/drupal.dropbutton
   css:
     theme:
       css/paragraphs.admin.css: {}
