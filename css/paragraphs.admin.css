@@ -1,16 +1,14 @@
 .field-widget-entity-reference-paragraphs .paragraph-type-top .paragraph-type-title {
-    width: 80%;
     float: left;
 }
 
 .field-widget-entity-reference-paragraphs .paragraph-type-top .paragraphs-dropbutton-wrapper {
     float:right;
-    width: 20%;
     margin: 0em;
 }
 
 .field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper > input {
-    margin-right: 2em;
+    margin-right: 0em;
 }
 
 .field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
@@ -21,6 +19,11 @@
 .js .field-widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .dropbutton-wrapper {
     padding-right: 0em;
     margin-right: 0em;
+}
+
+.js .field-widget-entity-reference-paragraphs td .paragraph-type-top .paragraphs-dropbutton-wrapper .dropbutton-wrapper .dropbutton-widget,
+.js .field-widget-entity-reference-paragraphs .paragraph-type-top .paragraphs-dropbutton-wrapper .dropbutton-wrapper .dropbutton-widget {
+    position: relative;
 }
 
 .field-widget-entity-reference-paragraphs .paragraph-type-top {
