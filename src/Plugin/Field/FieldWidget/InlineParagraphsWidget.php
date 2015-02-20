@@ -166,7 +166,7 @@ class InlineParagraphsWidget extends WidgetBase {
     if (isset($widget_state['paragraphs'][$delta]['entity'])) {
       $paragraphs_entity = $widget_state['paragraphs'][$delta]['entity'];
     }
-    elseif ($items[$delta]->entity) {
+    elseif (isset($items[$delta]->entity)) {
       $paragraphs_entity = $items[$delta]->entity;
 
       // We don't have a widget state yet, get from selector settings.
@@ -611,6 +611,11 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($max > 0) {
       for ($delta = 0; $delta < $max; $delta++) {
+
+        // Add a new empty item if it doesn't exist yet at this delta.
+        if (!isset($items[$delta])) {
+          $items->appendItem();
+        }
 
         // For multiple fields, title and description are handled by the wrapping
         // table.
