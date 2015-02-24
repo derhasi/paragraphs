@@ -38,4 +38,4 @@ features[variable][] = node_preview_paragraph_test
 features[variable][] = node_submitted_paragraph_test
 features[variable][] = panelizer_defaults_paragraphs_item_ptest
 features[variable][] = panelizer_paragraphs_item:ptest:default_selection
-hidden = TRUE
+hidden = 1
