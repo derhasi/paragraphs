@@ -57,25 +57,32 @@ class ParagraphsWebTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, array(), t('Add new Paragraph'));
 
     $title = $this->randomString(20);
+    $value1 = $this->randomString(20);
     $create_edit = array(
       'title' => $title,
-      'field_paragraphs[und][0][field_ptest_text][und][0][value]' => $this->randomString(20),
+      'field_paragraphs[und][0][field_ptest_text][und][0][value]' => $value1,
     );
     $this->drupalPost(NULL, $create_edit, t('Save'));
 
     $this->assertRaw(t('!post %title has been created.', array('!post' => 'Paragraph Test', '%title' => $title)), 'Paragraph test node created.');
+    $this->assertText(check_plain($value1), 'First value of paragraph was rendered.');
 
     // Update the created node.
     $node_url = $this->getUrl();
     $this->drupalGet($node_url . '/edit');
 
     $this->drupalPost(NULL, array(), t('Add another Paragraph'));
+
+    $value2 = $this->randomString(20);
     $update_edit = array(
-      'field_paragraphs[und][1][field_ptest_text][und][0][value]' => $this->randomString(20),
+      'field_paragraphs[und][1][field_ptest_text][und][0][value]' => $value2,
     );
-    $this->drupalPost(NULL, $create_edit, t('Save'));
+    $this->drupalPost(NULL, $update_edit, t('Save'));
 
     $this->assertRaw(t('!post %title has been updated.', array('!post' => 'Paragraph Test', '%title' => $title)), 'Paragraph test node updated.');
+    $this->assertText(check_plain($value1), 'First value of paragraph was rendered.');
+    $this->assertText(check_plain($value2), 'Second value of paragraph was rendered.');
+
   }
 
   /**
