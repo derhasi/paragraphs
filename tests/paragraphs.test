@@ -45,6 +45,10 @@ class ParagraphsWebTestCase extends DrupalWebTestCase {
     );
     parent::setUp($modules);
 
+    $this->assertTrue(module_exists('features'), 'Features module is available');
+
+    debug(system_get_info('module', 'features'), 'Features info');
+
     // Make sure the base configuration is set up.
     features_revert_module('paragraphs_test');
 
