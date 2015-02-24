@@ -33,6 +33,14 @@ class ParagraphsWebTestCase extends DrupalWebTestCase {
    */
   public function setUp() {
     $modules = array(
+      'features',
+      'ctools',
+      'entity',
+      'node',
+      'text',
+      'strongarm',
+      'panelizer',
+      'paragraphs',
       'paragraphs_test',
     );
     parent::setUp($modules);
