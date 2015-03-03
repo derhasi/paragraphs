@@ -1,0 +1,8 @@
+description: Demo module for paragraphs.
+core: 8.x
+dependencies:
+  - paragraphs
+hidden: false
+name: Paragraphs demo
+package: paragraphs
+type: module

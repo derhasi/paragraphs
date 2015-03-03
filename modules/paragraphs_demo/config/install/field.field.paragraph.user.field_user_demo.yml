@@ -1,0 +1,27 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.paragraph.field_user_demo
+    - paragraphs.paragraphs_type.user
+  module:
+    - entity_reference
+id: paragraph.user.field_user_demo
+field_name: field_user_demo
+entity_type: paragraph
+bundle: user
+label: user_demo
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: default
+  handler_settings:
+    filter:
+      type: _none
+    target_bundles: {  }
+    sort:
+      field: _none
+field_type: entity_reference
