@@ -19,10 +19,6 @@ use Drupal\simpletest\WebTestBase;
 class ParagraphsAdministrationTest extends WebTestBase {
 
   use FieldUiTestTrait;
-  /**
-   * Disabled config schema checking temporarily until all errors are resolved.
-   */
-  protected $strictConfigSchema = FALSE;
 
   /**
    * Modules to enable.
@@ -111,7 +107,13 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertLink('Manage display');
 
     // Create an article with paragraphs field.
-    static::fieldUIAddNewField('admin/structure/types/manage/article', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array('field_storage[settings][target_type]' => 'paragraph', 'field_storage[cardinality]' => '-1'), array());
+    static::fieldUIAddNewField('admin/structure/types/manage/article', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
+      'field_storage[settings][target_type]' => 'paragraph',
+      'field_storage[cardinality]' => '-1'
+    ), array(
+      'field[settings][handler_settings][target_bundles][image]' => TRUE,
+      'field[settings][handler_settings][target_bundles][text_image]' => TRUE,
+    ));
     // Configure article fields.
     $this->drupalGet('admin/structure/types/manage/article/fields');
     $this->clickLink(t('Edit'), 2);
