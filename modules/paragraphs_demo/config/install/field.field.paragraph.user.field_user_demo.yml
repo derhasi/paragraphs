@@ -10,7 +10,7 @@ id: paragraph.user.field_user_demo
 field_name: field_user_demo
 entity_type: paragraph
 bundle: user
-label: user_demo
+label: User
 description: ''
 required: false
 translatable: false

@@ -10,7 +10,7 @@ id: node.paragraphed_content_demo.field_paragraphs_demo
 field_name: field_paragraphs_demo
 entity_type: node
 bundle: paragraphed_content_demo
-label: 'Paragraphs demo'
+label: 'Paragraphs'
 description: ''
 required: false
 translatable: false

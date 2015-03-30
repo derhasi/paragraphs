@@ -12,13 +12,13 @@ bundle: images
 mode: default
 content:
   field_images_demo:
-    weight: 0
-    label: above
-    settings:
-      image_style: ''
-      image_link: ''
-    third_party_settings: {  }
     type: image
+    weight: 0
+    settings:
+      image_style: medium
+      image_link: file
+    third_party_settings: {  }
+    label: hidden
 hidden:
-  uid: true
   created: true
+  uid: true

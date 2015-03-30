@@ -3,19 +3,15 @@ status: true
 dependencies:
   config:
     - core.entity_view_mode.node.teaser
-    - field.field.node.paragraphed_content_demo.body
     - field.field.node.paragraphed_content_demo.field_paragraphs_demo
     - node.type.paragraphed_content_demo
   module:
-    - text
     - user
 id: node.paragraphed_content_demo.teaser
 targetEntityType: node
 bundle: paragraphed_content_demo
 mode: teaser
 content:
-  links:
-    weight: 100
   body:
     label: hidden
     type: text_summary_or_trimmed
@@ -23,5 +19,7 @@ content:
     settings:
       trim_length: 600
     third_party_settings: {  }
+  links:
+    weight: 100
 hidden:
   field_paragraphs_demo: true

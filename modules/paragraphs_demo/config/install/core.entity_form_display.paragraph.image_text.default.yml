@@ -28,5 +28,5 @@ content:
     third_party_settings: {  }
     type: text_textarea
 hidden:
-  uid: true
   created: true
+  uid: true

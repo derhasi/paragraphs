@@ -13,20 +13,20 @@ targetEntityType: paragraph
 bundle: text_image
 mode: default
 content:
-  field_text_demo:
-    weight: 0
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: text_default
   field_image_demo:
+    type: image
     weight: 1
-    label: above
     settings:
       image_style: ''
       image_link: ''
     third_party_settings: {  }
-    type: image
+    label: hidden
+  field_text_demo:
+    type: text_default
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    label: hidden
 hidden:
-  uid: true
   created: true
+  uid: true

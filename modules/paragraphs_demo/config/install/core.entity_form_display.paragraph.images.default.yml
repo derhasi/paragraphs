@@ -19,5 +19,5 @@ content:
     third_party_settings: {  }
     type: image_image
 hidden:
-  uid: true
   created: true
+  uid: true

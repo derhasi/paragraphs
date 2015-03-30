@@ -2,22 +2,16 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.paragraphed_content_demo.body
     - field.field.node.paragraphed_content_demo.field_paragraphs_demo
     - node.type.paragraphed_content_demo
   module:
     - entity_reference_revisions
-    - text
     - user
 id: node.paragraphed_content_demo.default
 targetEntityType: node
 bundle: paragraphed_content_demo
 mode: default
 content:
-  links:
-    weight: 100
-    settings: {  }
-    third_party_settings: {  }
   body:
     type: text_default
     weight: 101
@@ -29,7 +23,11 @@ content:
     weight: 102
     settings:
       view_mode: default
-      link: false
+      link: ''
     third_party_settings: {  }
-    label: above
+    label: hidden
+  links:
+    weight: 100
+    settings: {  }
+    third_party_settings: {  }
 hidden: {  }

@@ -10,7 +10,7 @@ id: paragraph.text_image.field_text_demo
 field_name: field_text_demo
 entity_type: paragraph
 bundle: text_image
-label: Text_demo
+label: Text
 description: ''
 required: false
 translatable: false

@@ -18,5 +18,5 @@ content:
     third_party_settings: {  }
     label: above
 hidden:
-  uid: true
   created: true
+  uid: true
