@@ -80,7 +80,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Create field types for text and image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'text', 'Text', 'text_long', array(), array());
     $this->assertText('Saved Text configuration.');
-    static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'image', 'Image', 'image', array(), array());
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'image', 'Image', 'image', array(), array('field[settings][alt_field_required]' => FALSE));
     $this->assertText('Saved Image configuration.');
 
     // Create paragraph type image.
@@ -140,6 +140,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'files[field_paragraphs_1_subform_field_image_0]' => drupal_realpath('temporary://myImage2.jpg'),
     );
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+
     $node = $this->drupalGetNodeByTitle('Test article');
     $img1_url = file_create_url('public://myImage1.jpg');
     $img2_url = file_create_url('public://myImage2.jpg');
