@@ -80,7 +80,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Create field types for text and image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'text', 'Text', 'text_long', array(), array());
     $this->assertText('Saved Text configuration.');
-    static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'image', 'Image', 'image', array(), array('field[settings][alt_field_required]' => FALSE));
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'image', 'Image', 'image', array(), array('settings[alt_field_required]' => FALSE));
     $this->assertText('Saved Image configuration.');
 
     // Create paragraph type image.
@@ -108,11 +108,11 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     // Create an article with paragraphs field.
     static::fieldUIAddNewField('admin/structure/types/manage/article', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
-      'field_storage[settings][target_type]' => 'paragraph',
-      'field_storage[cardinality]' => '-1'
+      'settings[target_type]' => 'paragraph',
+      'cardinality' => '-1'
     ), array(
-      'field[settings][handler_settings][target_bundles][image]' => TRUE,
-      'field[settings][handler_settings][target_bundles][text_image]' => TRUE,
+      'settings[handler_settings][target_bundles][image]' => TRUE,
+      'settings[handler_settings][target_bundles][text_image]' => TRUE,
     ));
     // Configure article fields.
     $this->drupalGet('admin/structure/types/manage/article/fields');

@@ -15,12 +15,12 @@ entity_reference_selection.default:paragraph:
     target_bundles_drag_drop:
       type: sequence
       sequence:
-        - type: mapping
-          mapping:
-            weight:
-              type: integer
-            enabled:
-              type: boolean
+        type: mapping
+        mapping:
+          weight:
+            type: integer
+          enabled:
+            type: boolean
     add_mode:
       type: string
     edit_mode:
