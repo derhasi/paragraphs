@@ -45,7 +45,8 @@ use Drupal\user\UserInterface;
  *     "revision" = "revision_id"
  *   },
  *   bundle_entity_type = "paragraphs_type",
- *   field_ui_base_route = "entity.paragraphs_type.edit_form"
+ *   field_ui_base_route = "entity.paragraphs_type.edit_form",
+ *   common_reference_target = TRUE
  * )
  */
 class Paragraph extends ContentEntityBase implements ParagraphInterface {
