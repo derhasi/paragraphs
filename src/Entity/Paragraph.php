@@ -46,7 +46,21 @@ use Drupal\user\UserInterface;
  *   },
  *   bundle_entity_type = "paragraphs_type",
  *   field_ui_base_route = "entity.paragraphs_type.edit_form",
- *   common_reference_target = TRUE
+ *   common_reference_revisions_target = TRUE,
+ *   default_reference_revision_settings = {
+ *     "field_storage_config" = {
+ *       "cardinality" = -1,
+ *       "settings" = {
+ *         "target_type" = "paragraph"
+ *       }
+ *     },
+ *     "entity_form_display" = {
+ *       "type" = "entity_reference_paragraphs"
+ *     },
+ *     "entity_view_display" = {
+ *       "type" = "entity_reference_revisions_entity_view"
+ *     }
+ *   }
  * )
  */
 class Paragraph extends ContentEntityBase implements ParagraphInterface {
