@@ -2,4 +2,4 @@ paragraphs.type_add:
   route_name: 'paragraphs.type_add'
   title: 'Add a Paragraphs type'
   appears_on:
-    - paragraphs.type_list
+    - entity.paragraphs_type.collection

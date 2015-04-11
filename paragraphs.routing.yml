@@ -1,5 +1,5 @@
 # ParagraphsType routing definition
-paragraphs.type_list:
+entity.paragraphs_type.collection:
   path: '/admin/structure/paragraphs_type'
   defaults:
     _entity_list: 'paragraphs_type'

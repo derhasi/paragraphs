@@ -21,7 +21,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     "form" = {
  *       "add" = "Drupal\paragraphs\Form\ParagraphsTypeForm",
  *       "edit" = "Drupal\paragraphs\Form\ParagraphsTypeForm",
- *       "delete" = "Drupal\paragraphs\Form\ParagraphsTypeDeleteForm"
+ *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     }
  *   },
  *   config_prefix = "paragraphs_type",
@@ -32,8 +32,9 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   },
  *   bundle_of = "paragraph",
  *   links = {
- *     "edit-form" = "entity.paragraphs_type.edit_form",
- *     "delete-form" = "entity.paragraphs_type.delete_form"
+ *     "edit-form" = "/admin/structure/paragraphs_type/{paragraphs_type}",
+ *     "delete-form" = "/admin/structure/paragraphs_type/{paragraphs_type}/delete",
+ *     "collection" = "/admin/structure/paragraphs_type",
  *   }
  * )
  */
