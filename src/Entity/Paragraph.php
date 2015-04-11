@@ -54,6 +54,11 @@ use Drupal\user\UserInterface;
  *         "target_type" = "paragraph"
  *       }
  *     },
+ *     "field_config" = {
+ *       "settings" = {
+ *         "handler" = "default:paragraph"
+ *       }
+ *     },
  *     "entity_form_display" = {
  *       "type" = "entity_reference_paragraphs"
  *     },
