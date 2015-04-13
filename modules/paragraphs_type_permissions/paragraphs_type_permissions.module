@@ -50,12 +50,12 @@ function paragraphs_type_permissions_paragraph_access(EntityInterface $entity, $
     return $permissions[$account->id()][$cid][$operation];
   }
 
-  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerPermissions()->isAllowed()) {
     $permissions[$account->id()][$cid][$operation] = AccessResult::allowed();
     return AccessResult::allowed();
   }
 
-  if (AccessResult::allowedIfHasPermission($account, $operation . ' paragraph content ' . $cid)->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, $operation . ' paragraph content ' . $cid)->cachePerPermissions()->isAllowed()) {
     $permissions[$account->id()][$cid][$operation] = AccessResult::allowed();
     return AccessResult::allowed();
   }
@@ -96,12 +96,12 @@ function paragraphs_type_permissions_paragraph_create_access(AccountInterface $a
     return $permissions[$account->id()][$cid][$op];
   }
 
-  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, 'bypass paragraphs type content access')->cachePerPermissions()->isAllowed()) {
     $permissions[$account->id()][$cid][$op] = AccessResult::allowed();
     return AccessResult::allowed();
   }
 
-  if (AccessResult::allowedIfHasPermission($account, $op . ' paragraph content ' . $entity_bundle)->cachePerRole()->isAllowed()) {
+  if (AccessResult::allowedIfHasPermission($account, $op . ' paragraph content ' . $entity_bundle)->cachePerPermissions()->isAllowed()) {
     $permissions[$account->id()][$cid][$op] = AccessResult::allowed();
     return AccessResult::allowed();
   }
