@@ -8,8 +8,8 @@
 namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
@@ -597,7 +597,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $real_item_count = $max;
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
-    $title = String::checkPlain($this->fieldDefinition->getLabel());
+    $title = SafeMarkup::checkPlain($this->fieldDefinition->getLabel());
     $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
