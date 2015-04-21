@@ -21,6 +21,9 @@ use Symfony\Component\Validator\ConstraintViolationInterface;
 /**
  * Plugin implementation of the 'entity_reference paragraphs' widget.
  *
+ * We hide add / remove buttons when translating to avoid accidental loss of
+ * data because these actions effect all languages.
+ *
  * @FieldWidget(
  *   id = "entity_reference_paragraphs",
  *   label = @Translation("Paragraphs"),
@@ -202,10 +205,8 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($paragraphs_entity) {
 
-      // Since the paragraph item is not set as translatable, the item language
-      // code is currently set to the source language. Let's switch.
-      $langcode = $form_state->get('langcode') ?: $items->getEntity()->language()->getId();
-      $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+      // Initiate the paragraph with the correct translation.
+      $paragraphs_entity = $paragraphs_entity->getTranslation($this->getCurrentLangcode($form_state, $items));
 
       $element_parents = $parents;
       $element_parents[] = $field_name;
@@ -281,6 +282,8 @@ class InlineParagraphsWidget extends WidgetBase {
             );
           }
 
+          // Hide the button when translating.
+          $button_access = $paragraphs_entity->access('delete') && $paragraphs_entity->language()->getId() == $paragraphs_entity->getUntranslated()->language()->getId();
           $links['remove_button'] = array(
             '#type' => 'submit',
             '#value' => t('Remove'),
@@ -294,7 +297,7 @@ class InlineParagraphsWidget extends WidgetBase {
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
             ),
-            '#access' => $paragraphs_entity->access('delete'),
+            '#access' => $button_access,
             '#prefix' => '<li class="remove">',
             '#suffix' => '</li>',
           );
@@ -717,9 +720,12 @@ class InlineParagraphsWidget extends WidgetBase {
 
     // Add 'add more' button, if not working with a programmed form.
     if (($real_item_count < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
+      // Hide the button when translating.
+      $add_more_access = $this->getCurrentLangcode($form_state, $items) == $items->getEntity()->getUntranslated()->language()->getId();
       $elements['add_more'] = array(
         '#type' => 'container',
         '#theme_wrappers' => array('paragraphs_dropbutton_wrapper'),
+        '#access' => $add_more_access,
       );
 
       if (count($access_options)) {
@@ -819,6 +825,21 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['#attached']['library'][] = 'paragraphs/drupal.paragraphs.admin';
 
     return $elements;
+  }
+
+  /**
+   * Gets current language code from the form state or item.
+   *
+   * Since the paragraph field is not set as translatable, the item language
+   * code is set to the source language. The intended translation language
+   * is only accessibly through the form state.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   * @return string
+   */
+  protected function getCurrentLangcode(FormStateInterface $form_state, FieldItemListInterface $items) {
+    return $form_state->get('langcode') ?: $items->getEntity()->language()->getId();
   }
 
   /**

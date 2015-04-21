@@ -103,9 +103,11 @@ class ParagraphsTranslationTest extends WebTestBase {
       'title[0][value]' => 'Title in english',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Text in english',
     );
+    // The button to remove a paragraph is present.
+    $this->assertRaw(t('Remove'));
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $node = $this->drupalGetNodeByTitle('Title in english');
-
+    // The text is present when editing again.
     $this->clickLink(t('Edit'));
     $this->assertText('Title in english');
     $this->assertText('Text in english');
@@ -113,6 +115,9 @@ class ParagraphsTranslationTest extends WebTestBase {
     // Add french translation.
     $this->clickLink(t('Translate'));
     $this->clickLink(t('Add'));
+    // Make sure the Add / Remove paragraph buttons are hidden.
+    $this->assertNoRaw(t('Remove'));
+    $this->assertNoRaw(t('Add Text + Image'));
     $edit = array(
       'title[0][value]' => 'Title in french',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Text in french',
@@ -125,12 +130,13 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertText('Text in english');
     $this->assertNoText('Title in french');
     $this->assertNoText('Text in french');
+
     // Check the french translation.
     $this->drupalGet('fr/node/' . $node->id());
     $this->assertText('Title in french');
     $this->assertText('Text in french');
     $this->assertNoText('Title in english');
-
+    // The translation is still present when editing again.
     $this->clickLink(t('Edit'));
     $this->assertText('Title in french');
     $this->assertText('Text in french');
@@ -141,6 +147,7 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertText('Title in french');
     $this->assertText('New text in french');
 
+    // Back to the source language.
     $this->drupalGet('node/' . $node->id());
     $this->clickLink(t('Edit'));
     $this->assertText('Title in english');
