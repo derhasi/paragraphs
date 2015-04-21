@@ -47,6 +47,7 @@ use Drupal\user\UserInterface;
  *   bundle_entity_type = "paragraphs_type",
  *   field_ui_base_route = "entity.paragraphs_type.edit_form",
  *   common_reference_revisions_target = TRUE,
+ *   content_translation_ui_skip = TRUE,
  *   default_reference_revision_settings = {
  *     "field_storage_config" = {
  *       "cardinality" = -1,

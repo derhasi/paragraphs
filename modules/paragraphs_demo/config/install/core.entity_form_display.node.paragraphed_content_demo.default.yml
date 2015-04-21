@@ -6,7 +6,6 @@ dependencies:
     - node.type.paragraphed_content_demo
   module:
     - paragraphs
-    - path
 id: node.paragraphed_content_demo.default
 targetEntityType: node
 bundle: paragraphed_content_demo
@@ -34,11 +33,6 @@ content:
       edit_mode: open
       add_mode: dropdown
       form_display_mode: default
-    third_party_settings: {  }
-  path:
-    type: path
-    weight: 30
-    settings: {  }
     third_party_settings: {  }
   promote:
     type: boolean_checkbox

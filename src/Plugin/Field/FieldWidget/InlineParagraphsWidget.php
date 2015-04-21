@@ -201,6 +201,12 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     if ($paragraphs_entity) {
+
+      // Since the paragraph item is not set as translatable, the item language
+      // code is currently set to the source language. Let's switch.
+      $langcode = $form_state->get('langcode') ?: $items->getEntity()->language()->getId();
+      $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+
       $element_parents = $parents;
       $element_parents[] = $field_name;
       $element_parents[] = $delta;
