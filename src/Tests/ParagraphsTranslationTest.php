@@ -90,11 +90,9 @@ class ParagraphsTranslationTest extends WebTestBase {
     \Drupal::entityManager()->clearCachedBundles();
 
     // Check the settings are saved correctly.
-    // @todo Uncomment these lines once core is fixed https://www.drupal.org/node/2449457
-    // https://www.drupal.org/node/2473721
-    // $this->assertFieldChecked('edit-entity-types-paragraph');
+    $this->assertFieldChecked('edit-entity-types-paragraph');
     $this->assertFieldChecked('edit-settings-node-paragraphed-content-demo-translatable');
-    // $this->assertFieldChecked('edit-settings-paragraph-text-image-translatable');
+    $this->assertFieldChecked('edit-settings-paragraph-text-image-translatable');
 
     // Add paragraphed content.
     $this->drupalGet('node/add/paragraphed_content_demo');
