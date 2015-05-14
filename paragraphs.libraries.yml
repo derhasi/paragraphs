@@ -1,7 +1,5 @@
 drupal.paragraphs.admin:
   version: VERSION
-  js:
-      js/ajax.js: {}
   dependencies:
       - core/jquery
       - core/drupal
