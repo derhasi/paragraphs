@@ -30,6 +30,10 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     "id" = "id",
  *     "label" = "label",
  *   },
+ *   config_export = {
+ *     "id",
+ *     "label",
+ *   },
  *   bundle_of = "paragraph",
  *   links = {
  *     "edit-form" = "/admin/structure/paragraphs_type/{paragraphs_type}",
