@@ -123,8 +123,30 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->clickLink(t('Manage form display'));
     $this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_paragraphs'), t('Save'));
 
+    // Test for "Add mode" setting.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $field_name = 'field_paragraphs';
+
+    // Click on the widget settings button to open the widget settings form.
+    $this->drupalPostAjaxForm(NULL, array(), $field_name . "_settings_edit");
+
+    // Enable setting.
+    $edit = array('fields[' . $field_name . '][settings_edit_form][settings][add_mode]' => 'button');
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+
+    // Check if the setting is stored.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $this->assertText('Add mode: Buttons', 'Checking the settings value.');
+
+    $this->drupalPostAjaxForm(NULL, array(), $field_name . "_settings_edit");
+    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-add-mode', 'button', 'Updated value is correct!.');
+
     // Add two Text + Image paragraphs in article.
     $this->drupalGet('node/add/article');
+
+    // Checking changes on article.
+    $this->assertRaw('<div class="paragraphs-dropbutton-wrapper"><input', 'Updated value in article.');
+
     $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
     $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
     // Create an 'image' file, upload it.
