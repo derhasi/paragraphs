@@ -6,3 +6,5 @@ package: Paragraphs
 
 dependencies:
   - entity_reference_revisions
+test_dependencies:
+  - diff
