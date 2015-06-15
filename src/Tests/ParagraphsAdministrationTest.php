@@ -173,6 +173,50 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertText('Test text 2');
     $this->assertRaw('<img src="' . $img2_url);
 
+    // Tests for "Edit mode" settings.
+    // Test for closed setting.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    // Click on the widget settings button to open the widget settings form.
+    $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    // Enable setting.
+    $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed');
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    // Check if the setting is stored.
+    $this->assertText('Edit mode: Closed', 'Checking the settings value.');
+    $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'closed', 'Updated value correctly.');
+    $this->drupalGet('node/1/edit');
+    // The textareas for paragraphs should not be visible.
+    $this->assertNoRaw('field_paragraphs[0][subform][field_text][0][value]');
+    $this->assertNoRaw('field_paragraphs[1][subform][field_text][0][value]');
+    $this->assertNoText('Test text 1');
+    $this->assertNoText('Test text 2');
+
+    // Test for preview option.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'preview');
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertText('Edit mode: Preview', 'Checking the settings value.');
+    $this->drupalGet('node/1/edit');
+    // The texts in the paragraphs should be visible.
+    $this->assertNoRaw('field_paragraphs[0][subform][field_text][0][value]');
+    $this->assertNoRaw('field_paragraphs[1][subform][field_text][0][value]');
+    $this->assertText('Test text 1');
+    $this->assertText('Test text 2');
+
+    // Test for open option.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'preview', 'Updated value correctly.');
+    // Restore the value to Open for next test.
+    $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'open');
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalGet('node/1/edit');
+    // The textareas for paragraphs should be visible.
+    $this->assertRaw('field_paragraphs[0][subform][field_text][0][value]');
+    $this->assertRaw('field_paragraphs[1][subform][field_text][0][value]');
+
     $paragraphs = Paragraph::loadMultiple();
     $this->assertEqual(count($paragraphs), 2, 'Two paragraphs in article');
 
