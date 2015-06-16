@@ -9,5 +9,5 @@ dependencies:
   - block
 hidden: false
 name: Paragraphs demo
-package: paragraphs
+package: Paragraphs
 type: module
