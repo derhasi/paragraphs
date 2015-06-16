@@ -46,6 +46,89 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Place the breadcrumb, tested in fieldUIAddNewField().
     $this->drupalPlaceBlock('system_breadcrumb_block');
   }
+  /**
+   * Tests the revision of paragraphs.
+   */
+  public function testParagraphsRevisions() {
+    $admin_user = $this->drupalCreateUser(array(
+      'administer nodes',
+      'create paragraphs content',
+      'administer content types',
+      'administer node fields',
+      'administer node display',
+      'administer paragraphs types',
+      'administer paragraph fields',
+      'administer node form display',
+      'edit any paragraphs content',
+    ));
+    $this->drupalLogin($admin_user);
+
+    $this->drupalGet('admin/structure/paragraphs_type');
+    $this->clickLink(t('Add a Paragraphs type'));
+    // Create paragraph type Headline + Block.
+    $edit = array(
+      'label' => 'Text',
+      'id' => 'text',
+    );
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    // Create field types for the text.
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/text', 'text', 'Text', 'text', array(), array());
+    $this->assertText('Saved Text configuration.');
+
+    // Create an article with paragraphs field.
+    static::fieldUIAddNewField('admin/structure/types/manage/paragraphs', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
+      'settings[target_type]' => 'paragraph',
+      'cardinality' => '-1',
+    ), array(
+      'settings[handler_settings][target_bundles][text]' => TRUE,
+    ));
+    // Configure article fields.
+    $this->drupalGet('admin/structure/types/manage/paragraphs/fields');
+    $this->clickLink(t('Manage form display'));
+    $this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_paragraphs'), t('Save'));
+
+    // Create node with our paragraphs.
+    $this->drupalGet('node/add/paragraphs');
+    $this->drupalPostForm(NULL, NULL, t('Add Text'));
+    $this->drupalPostForm(NULL, NULL, t('Add Text'));
+    $edit = [
+      'title[0][value]' => 'TEST TITEL',
+      'field_paragraphs[0][subform][field_text][0][value]' => 'Test text 1',
+      'field_paragraphs[1][subform][field_text][0][value]' => 'Test text 2',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+
+    // Edit the just created node. Create new revision.
+    $this->drupalGet('node/1/edit');
+    $edit = [
+      'title[0][value]' => 'TEST TITLE',
+      'field_paragraphs[0][subform][field_text][0][value]' => 'Foo Bar 2',
+      'revision' => TRUE,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+
+    // Assert the paragraphs have been changed.
+    $this->assertNoText('Test text 1');
+    $this->assertText('Test text 2');
+    $this->assertText('Foo Bar 2');
+    $this->assertText('TEST TITLE');
+
+    // Check out the revisions page and assert there are 2 revisions.
+    $this->drupalGet('node/1/revisions');
+    $rows = $this->xpath('//tbody/tr');
+    // Make sure two revisions available.
+    $this->assertEqual(count($rows), 2);
+    // Revert to the old version.
+    $this->clickLink(t('Revert'));
+    $this->drupalPostForm(NULL, [], t('Revert'));
+    $this->drupalGet('node/1');
+    // Assert the node has been reverted.
+    $this->assertNoText('Foo Bar 2');
+    $this->assertText('Test text 2');
+    $this->assertText('Test text 1');
+    $this->assertText('TEST TITEL');
+  }
+
 
   /**
    * Tests the paragraph creation.
