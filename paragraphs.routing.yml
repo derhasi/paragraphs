@@ -19,6 +19,7 @@ entity.paragraphs_type.edit_form:
   path: '/admin/structure/paragraphs_type/{paragraphs_type}'
   defaults:
     _entity_form: 'paragraphs_type.edit'
+    _title: 'Edit paragraph type'
   requirements:
     _permission: 'administer paragraphs types'
 
