@@ -703,7 +703,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $add_text = 'No !title_multiple have been added yet. Select a !title type and press the button below to add one.';
       $element_text = '<label>' . $title . "</label>";
       $element_text .= '<p><em>' . t($add_text, array('!title_multiple' => t($this->getSetting('title_plural')), '!title' => t($this->getSetting('title')))) . '</em></p>';
-      $element_text .= $description ? '<div class="description">' . implode('', $description->getAll()) . '</div>' : '';
+      $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
 
       $elements += array(
         '#type' => 'container',

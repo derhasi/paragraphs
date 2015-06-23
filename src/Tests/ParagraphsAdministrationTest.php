@@ -197,6 +197,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ), array(
       'settings[handler_settings][target_bundles][image]' => TRUE,
       'settings[handler_settings][target_bundles][text_image]' => TRUE,
+      'description' => 'Help text.',
     ));
     // Configure article fields.
     $this->drupalGet('admin/structure/types/manage/article/fields');
@@ -227,6 +228,9 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     // Add two Text + Image paragraphs in article.
     $this->drupalGet('node/add/article');
+
+    // Check if help text is saved correctly.
+    $this->assertText('Help text.');
 
     // Checking changes on article.
     $this->assertRaw('<div class="paragraphs-dropbutton-wrapper"><input', 'Updated value in article.');
