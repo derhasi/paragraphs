@@ -342,4 +342,31 @@ class ParagraphsAdministrationTest extends WebTestBase {
 //    $this->assertTrue(empty($current_paragraphs));
   }
 
+  /**
+   * Asserts that a select option in the current page is checked.
+   *
+   * @param string $id
+   *   ID of select field to assert.
+   * @param string $option
+   *   Option to assert.
+   * @param string $message
+   *   (optional) A message to display with the assertion. Do not translate
+   *   messages: use format_string() to embed variables in the message text, not
+   *   t(). If left blank, a default message will be displayed.
+   * @param string $group
+   *   (optional) The group this message is in, which is displayed in a column
+   *   in test output. Use 'Debug' to indicate this is debugging output. Do not
+   *   translate this string. Defaults to 'Browser'; most tests do not override
+   *   this default.
+   *
+   * @return bool
+   *   TRUE on pass, FALSE on fail.
+   *
+   * @todo Remove function once core issue is resolved: https://www.drupal.org/node/2530092
+   */
+  protected function assertOptionSelected($id, $option, $message = '', $group = 'Browser') {
+    $elements = $this->xpath('//select[contains(@id, :id)]//option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertTrue(isset($elements[0]) && !empty($elements[0]['selected']), $message ? $message : SafeMarkup::format('Option @option for field @id is selected.', array('@option' => $option, '@id' => $id)), $group);
+  }
+
 }
