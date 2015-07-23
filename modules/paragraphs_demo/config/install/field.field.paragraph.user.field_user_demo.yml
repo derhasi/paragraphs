@@ -13,11 +13,11 @@ bundle: user
 label: User
 description: ''
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings:
-  handler: default
+  handler: 'default:user'
   handler_settings:
     filter:
       type: _none

@@ -224,6 +224,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertText('Add mode: Buttons', 'Checking the settings value.');
 
     $this->drupalPostAjaxForm(NULL, array(), $field_name . "_settings_edit");
+    // Assert the 'Buttons' option is selected.
     $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-add-mode', 'button', 'Updated value is correct!.');
 
     // Add two Text + Image paragraphs in article.
@@ -272,6 +273,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Check if the setting is stored.
     $this->assertText('Edit mode: Closed', 'Checking the settings value.');
     $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    // Assert the 'Closed' option is selected.
     $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'closed', 'Updated value correctly.');
     $this->drupalGet('node/1/edit');
     // The textareas for paragraphs should not be visible.
@@ -296,6 +298,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Test for open option.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
     $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
+    // Assert the 'Preview' option is selected.
     $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'preview', 'Updated value correctly.');
     // Restore the value to Open for next test.
     $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'open');

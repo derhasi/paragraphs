@@ -18,11 +18,6 @@ use Drupal\simpletest\WebTestBase;
 class ParagraphsTranslationTest extends WebTestBase {
 
   /**
-   * Disabled config schema checking temporarily until all errors are resolved.
-   */
-  protected $strictConfigSchema = FALSE;
-
-  /**
    * Modules to enable.
    *
    * @var array
@@ -38,10 +33,6 @@ class ParagraphsTranslationTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $language = ConfigurableLanguage::createFromLangcode('de');
-    $language->save();
-    $language = ConfigurableLanguage::createFromLangcode('fr');
-    $language->save();
   }
 
   /**
@@ -63,31 +54,6 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/config/regional/content-language');
-
-    // Enable translation for paragraphs and it's bundles.
-    $edit = array(
-      'entity_types[node]' => TRUE,
-      'entity_types[paragraph]' => TRUE,
-      'settings[paragraph][images][translatable]' => TRUE,
-      'settings[paragraph][image_text][translatable]' => TRUE,
-      'settings[node][paragraphed_content_demo][settings][language][language_alterable]' => TRUE,
-      'settings[paragraph][user][translatable]' => TRUE,
-      'settings[paragraph][text_image][translatable]' => TRUE,
-      'settings[paragraph][text_image][fields][field_text_demo]' => TRUE,
-      'settings[node][paragraphed_content_demo][translatable]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][title]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][uid]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][status]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][created]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][changed]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][promote]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][sticky]' => TRUE,
-      'settings[node][paragraphed_content_demo][fields][revision_log]' => TRUE,
-    );
-    $this->drupalPostForm(NULL, $edit, t('Save configuration'));
-
-    // Clear cached bundles refer 2450251.
-    \Drupal::entityManager()->clearCachedBundles();
 
     // Check the settings are saved correctly.
     $this->assertFieldChecked('edit-entity-types-paragraph');
@@ -112,7 +78,7 @@ class ParagraphsTranslationTest extends WebTestBase {
 
     // Add french translation.
     $this->clickLink(t('Translate'));
-    $this->clickLink(t('Add'));
+    $this->clickLink(t('Add'), 1);
     // Make sure the Add / Remove paragraph buttons are hidden.
     $this->assertNoRaw(t('Remove'));
     $this->assertNoRaw(t('Add Text + Image'));
@@ -121,6 +87,7 @@ class ParagraphsTranslationTest extends WebTestBase {
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Text in french',
     );
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
+    $this->assertText('Paragraphed article Title in french has been updated.');
 
     // Check the english translation.
     $this->drupalGet('node/' . $node->id());

@@ -5,7 +5,14 @@ dependencies:
     - field.storage.paragraph.field_image_demo
     - paragraphs.paragraphs_type.text_image
   module:
+    - content_translation
     - image
+third_party_settings:
+  content_translation:
+    translation_sync:
+      alt: alt
+      title: title
+      file: '0'
 id: paragraph.text_image.field_image_demo
 field_name: field_image_demo
 entity_type: paragraph
@@ -13,7 +20,7 @@ bundle: text_image
 label: Image
 description: ''
 required: false
-translatable: false
+translatable: true
 default_value: {  }
 default_value_callback: ''
 settings:
@@ -33,4 +40,5 @@ settings:
     width: null
     height: null
   handler: default
+  handler_settings: {  }
 field_type: image
