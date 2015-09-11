@@ -1047,6 +1047,8 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if (isset($widget_state['paragraphs'][$delta]['entity'])) {
       $entity = $widget_state['paragraphs'][$delta]['entity'];
+
+      /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
       $display = $widget_state['paragraphs'][$delta]['display'];
 
       if ($widget_state['paragraphs'][$delta]['mode'] != 'remove' && $widget_state['paragraphs'][$delta]['mode'] != 'removed') {
@@ -1055,7 +1057,7 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    static::setWidgetState($form['#parents'], $field_name, $form_state, $widget_state);
+    static::setWidgetState($element['#field_parents'], $field_name, $form_state, $widget_state);
   }
 
   /**
@@ -1069,10 +1071,19 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+    $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents']);
+
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
         && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
+
+
+        /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
+        $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
+        $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
+        $display->validateFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
+
         $paragraphs_entity->setNewRevision(TRUE);
         $paragraphs_entity->save();
         $item['target_id'] = $paragraphs_entity->id();
