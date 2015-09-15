@@ -45,6 +45,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
     // Place the breadcrumb, tested in fieldUIAddNewField().
     $this->drupalPlaceBlock('system_breadcrumb_block');
+    $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('local_actions_block');
   }
   /**
    * Tests the revision of paragraphs.
@@ -201,7 +203,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ));
     // Configure article fields.
     $this->drupalGet('admin/structure/types/manage/article/fields');
-    $this->clickLink(t('Edit'), 2);
+    $this->clickLink(t('Edit'), 1);
     $this->drupalPostForm(NULL, NULL, t('Save settings'));
     $this->clickLink(t('Manage display'));
     $this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_revisions_entity_view'), t('Save'));

@@ -26,6 +26,7 @@ class ParagraphsTranslationTest extends WebTestBase {
     'node',
     'paragraphs_demo',
     'content_translation',
+    'block',
   );
 
   /**
@@ -33,6 +34,7 @@ class ParagraphsTranslationTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    $this->drupalPlaceBlock('local_tasks_block');
   }
 
   /**

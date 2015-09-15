@@ -22,6 +22,7 @@ class ParagraphsDemoTest extends WebTestBase {
    */
   public static $modules = array(
     'paragraphs_demo',
+    'block',
   );
 
   /**
@@ -29,6 +30,8 @@ class ParagraphsDemoTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('local_actions_block');
   }
 
   /**
@@ -105,7 +108,7 @@ class ParagraphsDemoTest extends WebTestBase {
     $this->assertText('Paragraphs');
 
     // Check that all paragraphs types are enabled (disabled).
-    $this->clickLink('Edit', 1);
+    $this->clickLink('Edit', 0);
     $this->assertNoFieldChecked('edit-settings-handler-settings-target-bundles-drag-drop-image-text-enabled');
     $this->assertNoFieldChecked('edit-settings-handler-settings-target-bundles-drag-drop-images-enabled');
     $this->assertNoFieldChecked('edit-settings-handler-settings-target-bundles-drag-drop-text-image-enabled');
