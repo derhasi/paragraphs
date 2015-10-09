@@ -47,6 +47,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPlaceBlock('system_breadcrumb_block');
     $this->drupalPlaceBlock('local_tasks_block');
     $this->drupalPlaceBlock('local_actions_block');
+    $this->drupalPlaceBlock('page_title_block');
   }
   /**
    * Tests the revision of paragraphs.
@@ -82,7 +83,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'settings[target_type]' => 'paragraph',
       'cardinality' => '-1',
     ), array(
-      'settings[handler_settings][target_bundles][text]' => TRUE,
+      'settings[handler_settings][target_bundles_drag_drop][text][enabled]' => TRUE,
     ));
     // Configure article fields.
     $this->drupalGet('admin/structure/types/manage/paragraphs/fields');
@@ -91,8 +92,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     // Create node with our paragraphs.
     $this->drupalGet('node/add/paragraphs');
-    $this->drupalPostForm(NULL, NULL, t('Add Text'));
-    $this->drupalPostForm(NULL, NULL, t('Add Text'));
+    $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_add_more');
+    $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_add_more');
     $edit = [
       'title[0][value]' => 'TEST TITEL',
       'field_paragraphs[0][subform][field_text][0][value]' => 'Test text 1',
@@ -197,8 +198,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'settings[target_type]' => 'paragraph',
       'cardinality' => '-1'
     ), array(
-      'settings[handler_settings][target_bundles][image]' => TRUE,
-      'settings[handler_settings][target_bundles][text_image]' => TRUE,
+      'settings[handler_settings][target_bundles_drag_drop][image][enabled]' => TRUE,
+      'settings[handler_settings][target_bundles_drag_drop][text_image][enabled]' => TRUE,
       'description' => 'Help text.',
     ));
     // Configure article fields.
@@ -238,8 +239,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Checking changes on article.
     $this->assertRaw('<div class="paragraphs-dropbutton-wrapper"><input', 'Updated value in article.');
 
-    $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
-    $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
+    $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_image_add_more');
+    $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_image_add_more');
     // Create an 'image' file, upload it.
     $text = 'Trust me I\'m an image';
     file_put_contents('temporary://myImage1.jpg', $text);

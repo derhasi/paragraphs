@@ -11,6 +11,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Field\FieldFilteredMarkup;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -206,7 +207,11 @@ class InlineParagraphsWidget extends WidgetBase {
     if ($paragraphs_entity) {
 
       // Initiate the paragraph with the correct translation.
-      $paragraphs_entity = $paragraphs_entity->getTranslation($this->getCurrentLangcode($form_state, $items));
+      if ($paragraphs_entity->hasTranslation($this->getCurrentLangcode($form_state, $items))) {
+        $paragraphs_entity = $paragraphs_entity->getTranslation($this->getCurrentLangcode($form_state, $items));
+      } else {
+        $paragraphs_entity = $paragraphs_entity->addTranslation($this->getCurrentLangcode($form_state, $items));
+      }
 
       $element_parents = $parents;
       $element_parents[] = $field_name;
@@ -606,8 +611,8 @@ class InlineParagraphsWidget extends WidgetBase {
     $real_item_count = $max;
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
-    $title = SafeMarkup::checkPlain($this->fieldDefinition->getLabel());
-    $description = $this->fieldFilterXss(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
+    $title = $this->fieldDefinition->getLabel();
+    $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
     $id_prefix = implode('-', array_merge($parents, array($field_name)));

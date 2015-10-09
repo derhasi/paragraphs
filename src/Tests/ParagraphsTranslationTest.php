@@ -35,6 +35,7 @@ class ParagraphsTranslationTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
     $this->drupalPlaceBlock('local_tasks_block');
+    $this->drupalPlaceBlock('page_title_block');
   }
 
   /**
