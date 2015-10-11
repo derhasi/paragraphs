@@ -151,6 +151,9 @@ class InlineParagraphsWidget extends WidgetBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @see \Drupal\content_translation\Controller\ContentTranslationController::prepareTranslation()
+   *   Uses a similar approach to populate a new translation.
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
@@ -205,6 +208,11 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     if ($paragraphs_entity) {
+      // If target translation is not yet available, populate it with data from the original paragraph.
+      $target_langcode = $this->getCurrentLangcode($form_state, $items);
+      if ($paragraphs_entity->language()->getId() != $target_langcode && !$paragraphs_entity->hasTranslation($target_langcode)) {
+        $paragraphs_entity->addTranslation($target_langcode, $paragraphs_entity->toArray());
+      }
 
       // Initiate the paragraph with the correct translation.
       if ($paragraphs_entity->hasTranslation($this->getCurrentLangcode($form_state, $items))) {

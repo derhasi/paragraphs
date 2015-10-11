@@ -85,6 +85,9 @@ class ParagraphsTranslationTest extends WebTestBase {
     // Make sure the Add / Remove paragraph buttons are hidden.
     $this->assertNoRaw(t('Remove'));
     $this->assertNoRaw(t('Add Text + Image'));
+    // Make sure that the original paragraph text is displayed.
+    $this->assertText('Text in english');
+
     $edit = array(
       'title[0][value]' => 'Title in french',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Text in french',
