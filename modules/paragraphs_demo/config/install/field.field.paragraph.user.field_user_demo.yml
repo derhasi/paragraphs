@@ -4,8 +4,6 @@ dependencies:
   config:
     - field.storage.paragraph.field_user_demo
     - paragraphs.paragraphs_type.user
-  module:
-    - entity_reference
 id: paragraph.user.field_user_demo
 field_name: field_user_demo
 entity_type: paragraph

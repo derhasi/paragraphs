@@ -5,7 +5,6 @@ dependencies:
   - field
   - image
   - field_ui
-  - entity_reference
   - block
   - language
   - content_translation

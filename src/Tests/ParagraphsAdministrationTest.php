@@ -31,7 +31,6 @@ class ParagraphsAdministrationTest extends WebTestBase {
     'field',
     'image',
     'field_ui',
-    'entity_reference',
     'block',
   );
 
