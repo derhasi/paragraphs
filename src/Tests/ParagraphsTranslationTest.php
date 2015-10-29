@@ -123,5 +123,9 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->clickLink(t('Edit'));
     $this->assertText('Title in english');
     $this->assertText('Text in english');
+    // Save the original content on second request.
+    $this->drupalPostForm(NULL, NULL, t('Save and keep published (this translation)'));
+    $this->assertText('Paragraphed article Title in english has been updated.');
   }
+
 }
