@@ -255,8 +255,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
 
     $node = $this->drupalGetNodeByTitle('Test article');
-    $img1_url = file_create_url('public://myImage1.jpg');
-    $img2_url = file_create_url('public://myImage2.jpg');
+    $img1_url = file_create_url(\Drupal::token()->replace('public://[date:custom:Y]-[date:custom:m]/myImage1.jpg'));
+    $img2_url = file_create_url(\Drupal::token()->replace('public://[date:custom:Y]-[date:custom:m]/myImage2.jpg'));
 
     // Check the text and image after publish.
     $this->assertText('Test text 1');
