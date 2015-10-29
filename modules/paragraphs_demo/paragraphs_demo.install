@@ -27,7 +27,7 @@ function paragraphs_demo_install() {
   $paragraph2 = Paragraph::create([
     'title' => 'Paragraph 2',
     'type' => 'text',
-    'field_text_demo' => 'This demo creates some default Paragraph types from which you can easily create some content (Text, Image + Text, Text + Image, Image and User). It also includes some basic styling and assures that the content is responsive on any device.',
+    'field_text_demo' => 'This demo creates some default Paragraph types from which you can easily create some content (Nested Paragraph, Text, Image + Text, Text + Image, Image and User). It also includes some basic styling and assures that the content is responsive on any device.',
   ]);
   $paragraph2->save();
 
