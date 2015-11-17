@@ -74,7 +74,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['edit_mode'] = array(
       '#type' => 'select',
       '#title' => t('Edit mode'),
-      '#description' => t('The mode the paragrap is in by default. Preview will render the paragraph in the preview view mode.'),
+      '#description' => t('The mode the paragraph is in by default. Preview will render the paragraph in the preview view mode.'),
       '#options' => array(
         'open' => t('Open'),
         'closed' => t('Closed'),
