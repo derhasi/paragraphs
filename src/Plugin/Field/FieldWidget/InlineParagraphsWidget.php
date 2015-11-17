@@ -537,7 +537,6 @@ class InlineParagraphsWidget extends WidgetBase {
         'mode' => $item_mode,
       );
 
-      $widget_state['items'] = $items;
       static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
     else {
