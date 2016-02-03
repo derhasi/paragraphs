@@ -48,6 +48,7 @@ class ParagraphsTranslationTest extends WebTestBase {
       'create paragraphed_content_demo content',
       'edit any paragraphed_content_demo content',
       'delete any paragraphed_content_demo content',
+      'administer paragraph form display',
       'administer content translation',
       'translate any entity',
       'create content translations',
@@ -62,6 +63,29 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertFieldChecked('edit-entity-types-paragraph');
     $this->assertFieldChecked('edit-settings-node-paragraphed-content-demo-translatable');
     $this->assertFieldChecked('edit-settings-paragraph-text-image-translatable');
+
+    // Check if the publish/unpublish option works.
+    $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
+    $edit = array(
+      'fields[status][type]' => 'boolean_checkbox',
+    );
+
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalGet('node/add/paragraphed_content_demo');
+    $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
+    $this->assertRaw('edit-field-paragraphs-demo-0-subform-status-value');
+    $edit = [
+      'title[0][value]' => 'Example publish/unpublish',
+      'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Example published and unpublished',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->assertText(t('Example published and unpublished'));
+    $this->clickLink(t('Edit'));
+    $edit = [
+      'field_paragraphs_demo[0][subform][status][value]' => FALSE,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->assertNoText(t('Example published and unpublished'));
 
     // Add paragraphed content.
     $this->drupalGet('node/add/paragraphed_content_demo');
