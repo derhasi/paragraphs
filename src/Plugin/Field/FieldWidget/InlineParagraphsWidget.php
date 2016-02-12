@@ -266,7 +266,7 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         $element['top']['paragraph_type_title']['info'] = array(
-          '#markup' => t('@title type: %type', array('@title' => $this->getSetting('title'), '%type' => $bundle_info['label'])),
+          '#markup' => '<strong>' . $bundle_info['label'] . '</strong>',
         );
 
         $actions = array();
@@ -713,8 +713,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
       // @todo: properize this.
       $add_text = 'No @title_multiple have been added yet. Select a @title type and press the button below to add one.';
-      $element_text = '<label>' . $title . "</label>";
-      $element_text .= '<p><em>' . t($add_text, array('@title_multiple' => $this->getSetting('title_plural'), '@title' => $this->getSetting('title'))) . '</em></p>';
+      $element_text = '<p><em>' . t($add_text, array('@title_multiple' => $this->getSetting('title_plural'), '@title' => $this->getSetting('title'))) . '</em></p>';
       $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
 
       $elements += array(
@@ -754,6 +753,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#markup' => '</ul>',
               '#weight' => 999,
             );
+            $elements['add_more']['#suffix'] = $this->t(' to %type', array('%type' => $title));
           }
           foreach ($access_options as $machine_name => $label) {
             $elements['add_more']['add_more_button_' . $machine_name] = array(
@@ -803,6 +803,7 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
           );
+          $elements['add_more']['add_more_button']['#suffix'] = $this->t(' to %type', array('%type' => $title));
         }
       }
       else {

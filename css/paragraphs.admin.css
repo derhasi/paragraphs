@@ -55,3 +55,27 @@
 .js .field--widget-entity-reference-paragraphs .field-multiple-table {
     margin: 0 0 10px 0px;
 }
+
+.js .field--widget-entity-reference-paragraphs td {
+    padding: 10px 0px 10px 0px;
+}
+
+.js .field--widget-entity-reference-paragraphs .draggable a.tabledrag-handle {
+    float: none;
+    padding-right: 0;
+    margin: 0;
+}
+
+.js .field--widget-entity-reference-paragraphs a.tabledrag-handle .handle {
+    margin: -0.4em 0em 0;
+}
+
+.js .field--widget-entity-reference-paragraphs td.field-multiple-drag {
+    vertical-align: top;
+    float: none;
+    top: 0;
+}
+
+.js .field--widget-entity-reference-paragraphs .field-multiple-table .field-multiple-drag .tabledrag-handle {
+    padding-right: 0;
+}
