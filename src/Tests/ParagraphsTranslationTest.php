@@ -7,7 +7,6 @@
 namespace Drupal\paragraphs\Tests;
 
 use Drupal\Core\Entity\Entity;
-use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\simpletest\WebTestBase;
 
 /**

@@ -7,7 +7,6 @@
 
 namespace Drupal\paragraphs\Plugin\EntityReferenceSelection;
 
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
