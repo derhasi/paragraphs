@@ -345,6 +345,29 @@ class ParagraphsAdministrationTest extends WebTestBase {
 //    // Make sure two paragraph entities have been deleted.
 //    $current_paragraphs = Paragraph::loadMultiple();
 //    $this->assertTrue(empty($current_paragraphs));
+
+    // Check if the publish/unpublish option works.
+    $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
+    $edit = [
+      'fields[status][type]' => 'boolean_checkbox',
+    ];
+
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalGet('node/add/article');
+    $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
+    $this->assertRaw('edit-field-paragraphs-0-subform-status-value');
+    $edit = [
+      'title[0][value]' => 'Example publish/unpublish',
+      'field_paragraphs[0][subform][field_text][0][value]' => 'Example published and unpublished',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->assertText(t('Example published and unpublished'));
+    $this->clickLink(t('Edit'));
+    $edit = [
+      'field_paragraphs[0][subform][status][value]' => FALSE,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->assertNoText(t('Example published and unpublished'));
   }
 
   /**
