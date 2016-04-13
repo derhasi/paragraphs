@@ -85,6 +85,16 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
+  public function getParentEntity() {
+    if (!isset($this->get('parent_type')->value) || !isset($this->get('parent_id')->value)) {
+      return NULL;
+    }
+    return \Drupal::entityManager()->getStorage($this->get('parent_type')->value)->load($this->get('parent_id')->value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
 
