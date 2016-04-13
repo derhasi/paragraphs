@@ -1084,9 +1084,8 @@ class InlineParagraphsWidget extends WidgetBase {
         $display->validateFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
 
         $paragraphs_entity->setNewRevision(TRUE);
-        $paragraphs_entity->save();
-        $item['target_id'] = $paragraphs_entity->id();
-        $item['target_revision_id'] = $paragraphs_entity->getRevisionId();
+        $paragraphs_entity->setNeedsSave(TRUE);
+        $item['entity'] = $paragraphs_entity;
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
