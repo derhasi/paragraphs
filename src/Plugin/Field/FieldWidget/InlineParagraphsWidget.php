@@ -12,6 +12,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldFilteredMarkup;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
@@ -1082,9 +1083,25 @@ class InlineParagraphsWidget extends WidgetBase {
       return $values;
     }
 
+    $entity = $form_state->getFormObject()->getEntity();
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
     $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents']);
+
+    $new_revision = FALSE;
+    if ($entity instanceof RevisionableInterface) {
+      if ($entity->isNewRevision()) {
+        $new_revision = TRUE;
+      }
+      // Most of the time we don't know yet if the host entity is going to be
+      // saved as a new revision using RevisionableInterface::isNewRevision().
+      // Most entity types (at least nodes) however use a boolean property named
+      // "revision" to indicate whether a new revision should be saved. Use that
+      // property.
+      elseif ($entity->getEntityType()->hasKey('revision') && $form_state->getValue('revision')) {
+        $new_revision = TRUE;
+      }
+    }
 
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
@@ -1097,7 +1114,7 @@ class InlineParagraphsWidget extends WidgetBase {
         $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
         $display->validateFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
 
-        $paragraphs_entity->setNewRevision(TRUE);
+        $paragraphs_entity->setNewRevision($new_revision);
         // A content entity form saves without any rebuild. It needs to set the
         // language to update it in case of language change.
         $paragraphs_entity->set('langcode', $form_state->get('langcode'));

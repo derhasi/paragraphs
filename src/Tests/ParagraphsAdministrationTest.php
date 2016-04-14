@@ -100,34 +100,52 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
 
-    // Edit the just created node. Create new revision.
-    $this->drupalGet('node/1/edit');
+    $node = $this->drupalGetNodeByTitle('TEST TITEL');
+    $paragraph1 = $node->field_paragraphs[0]->target_id;
+    $paragraph2 = $node->field_paragraphs[1]->target_id;
+
+    $this->countRevisions($node, $paragraph1, $paragraph2, 1);
+
+    // Edit the node without creating a revision. There should still be only 1
+    // revision for nodes and paragraphs.
+    $edit = [
+      'field_paragraphs[0][subform][field_text][0][value]' => 'Foo Bar 1',
+      'revision' => FALSE,
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    $this->countRevisions($node, $paragraph1, $paragraph2, 1);
+
+    // Edit the just created node. Create new revision. Now we should have 2
+    // revisions for nodes and paragraphs.
     $edit = [
       'title[0][value]' => 'TEST TITLE',
       'field_paragraphs[0][subform][field_text][0][value]' => 'Foo Bar 2',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+
+    $this->countRevisions($node, $paragraph1, $paragraph2, 2);
 
     // Assert the paragraphs have been changed.
-    $this->assertNoText('Test text 1');
+    $this->assertNoText('Foo Bar 1');
     $this->assertText('Test text 2');
     $this->assertText('Foo Bar 2');
     $this->assertText('TEST TITLE');
 
     // Check out the revisions page and assert there are 2 revisions.
-    $this->drupalGet('node/1/revisions');
+    $this->drupalGet('node/' . $node->id() . '/revisions');
     $rows = $this->xpath('//tbody/tr');
     // Make sure two revisions available.
     $this->assertEqual(count($rows), 2);
     // Revert to the old version.
     $this->clickLink(t('Revert'));
     $this->drupalPostForm(NULL, [], t('Revert'));
-    $this->drupalGet('node/1');
+    $this->drupalGet('node/' . $node->id());
     // Assert the node has been reverted.
     $this->assertNoText('Foo Bar 2');
     $this->assertText('Test text 2');
-    $this->assertText('Test text 1');
+    $this->assertText('Foo Bar 1');
     $this->assertText('TEST TITEL');
   }
 
@@ -395,6 +413,16 @@ class ParagraphsAdministrationTest extends WebTestBase {
   protected function assertOptionSelected($id, $option, $message = '', $group = 'Browser') {
     $elements = $this->xpath('//select[contains(@id, :id)]//option[@value=:option]', array(':id' => $id, ':option' => $option));
     return $this->assertTrue(isset($elements[0]) && !empty($elements[0]['selected']), $message ? $message : SafeMarkup::format('Option @option for field @id is selected.', array('@option' => $option, '@id' => $id)), $group);
+  }
+
+  /**
+   * Helper function for revision counting.
+   */
+  private function countRevisions($node, $paragraph1, $paragraph2, $revisions_count) {
+    $node_revisions_count = \Drupal::entityQuery('node')->condition('nid', $node->id())->allRevisions()->count()->execute();
+    $this->assertEqual($node_revisions_count, $revisions_count);
+    $this->assertEqual(\Drupal::entityQuery('paragraph')->condition('id', $paragraph1)->allRevisions()->count()->execute(), $revisions_count);
+    $this->assertEqual(\Drupal::entityQuery('paragraph')->condition('id', $paragraph2)->allRevisions()->count()->execute(), $revisions_count);
   }
 
 }
