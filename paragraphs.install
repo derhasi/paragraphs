@@ -103,12 +103,16 @@ function paragraphs_update_8003(&$sandbox) {
         ->load($entity_id);
     }
     foreach ($host_entity->get($field_storage->getName()) as $field_item) {
-      // Set the parent fields and save, ensure that no new revision is created.
-      $field_item->entity->parent_type = $field_storage->getTargetEntityTypeId();
-      $field_item->entity->parent_id = $host_entity->id();
-      $field_item->entity->parent_field_name = $field_storage->getName();
-      $field_item->entity->setNewRevision(FALSE);
-      $field_item->entity->save();
+      // Skip broken and already updated references (e.g. Nested paragraphs).
+      if ($field_item->entity && empty($field_item->entity->parent_type->value)) {
+        // Set the parent fields and save, ensure that no new revision is
+        // created.
+        $field_item->entity->parent_type = $field_storage->getTargetEntityTypeId();
+        $field_item->entity->parent_id = $host_entity->id();
+        $field_item->entity->parent_field_name = $field_storage->getName();
+        $field_item->entity->setNewRevision(FALSE);
+        $field_item->entity->save();
+      }
     }
   }
   // Continue with the next paragraph_field_id when the loaded entities are less
