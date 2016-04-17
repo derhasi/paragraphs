@@ -71,7 +71,7 @@ class ParagraphsPreviewTest extends WebTestBase {
       'label' => 'Text',
       'id' => 'text',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
     // Create field types for the text.
     $this->fieldUIAddNewField('admin/structure/paragraphs_type/text', 'text', 'Text', 'text', array(), array());
     $this->assertText('Saved Text configuration.');

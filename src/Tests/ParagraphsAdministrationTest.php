@@ -6,7 +6,6 @@
 
 namespace Drupal\paragraphs\Tests;
 
-use Drupal\Core\Entity\Entity;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\simpletest\WebTestBase;
@@ -72,7 +71,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'label' => 'Text',
       'id' => 'text',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
+    $this->assertUrl('admin/structure/paragraphs_type/text/fields');
     // Create field types for the text.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text', 'text', 'Text', 'text', array(), array());
     $this->assertText('Saved Text configuration.');
@@ -168,7 +168,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'administer paragraph form display',
       'administer node form display',
       'edit any article content',
-      'delete any article content'
+      'delete any article content',
     ));
     $this->drupalLogin($admin_user);
 
@@ -177,9 +177,10 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Create paragraph type text + image.
     $edit = array(
       'label' => 'Text + Image',
-      'id' => 'text_image'
+      'id' => 'text_image',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
+    $this->assertUrl('admin/structure/paragraphs_type/text_image/fields');
     // Create field types for text and image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'text', 'Text', 'text_long', array(), array());
     $this->assertText('Saved Text configuration.');
@@ -189,9 +190,10 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Create paragraph type image.
     $edit = array(
       'label' => 'Image only',
-      'id' => 'image'
+      'id' => 'image',
     );
-    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save'));
+    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+    $this->assertUrl('admin/structure/paragraphs_type/image/fields');
     // Create field types for image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/image', 'image_only', 'Image only', 'image', array(), array());
     $this->assertText('Saved Image only configuration.');
@@ -213,7 +215,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Create an article with paragraphs field.
     static::fieldUIAddNewField('admin/structure/types/manage/article', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
       'settings[target_type]' => 'paragraph',
-      'cardinality' => '-1'
+      'cardinality' => '-1',
     ), array(
       'settings[handler_settings][target_bundles_drag_drop][image][enabled]' => TRUE,
       'settings[handler_settings][target_bundles_drag_drop][text_image][enabled]' => TRUE,
