@@ -8,6 +8,7 @@ namespace Drupal\paragraphs\Tests;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Entity\Entity;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\node\Entity\Node;
 use Drupal\simpletest\WebTestBase;
@@ -191,6 +192,12 @@ class ParagraphsTranslationTest extends WebTestBase {
     // Save the original content on second request.
     $this->drupalPostForm(NULL, NULL, t('Save and keep published (this translation)'));
     $this->assertText('Paragraphed article Title in english has been updated.');
+
+    //Add paragraphed content with untranslatable language
+    $this->drupalGet('node/add/paragraphed_content_demo');
+    $edit = array('langcode[0][value]' => LanguageInterface::LANGCODE_NOT_SPECIFIED);
+    $this->drupalPostForm(NULL, $edit, t('Add Text + Image'));
+    $this->assertResponse(200);
   }
 
   /**
