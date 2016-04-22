@@ -54,6 +54,7 @@ class ParagraphsTranslationTest extends WebTestBase {
       'edit any paragraphed_content_demo content',
       'delete any paragraphed_content_demo content',
       'administer paragraph form display',
+      'administer paragraph fields',
       'administer content translation',
       'translate any entity',
       'create content translations',
@@ -66,6 +67,7 @@ class ParagraphsTranslationTest extends WebTestBase {
     $edit = [
       'settings[paragraph][nested_paragraph][translatable]' => TRUE,
       'settings[paragraph][nested_paragraph][settings][language][language_alterable]' => TRUE,
+      'settings[paragraph][images][fields][field_images_demo]' => TRUE,
     ];
     // @todo Remove ONLY the following line after #2698529 is committed.
     $edit['settings[paragraph][text][settings][language][langcode]'] = 'site_default';
@@ -82,6 +84,8 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertFieldChecked('edit-entity-types-paragraph');
     $this->assertFieldChecked('edit-settings-node-paragraphed-content-demo-translatable');
     $this->assertFieldChecked('edit-settings-paragraph-text-image-translatable');
+    $this->assertFieldChecked('edit-settings-paragraph-images-columns-field-images-demo-alt');
+    $this->assertFieldChecked('edit-settings-paragraph-images-columns-field-images-demo-title');
 
     // Check if the publish/unpublish option works.
     $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
@@ -198,6 +202,43 @@ class ParagraphsTranslationTest extends WebTestBase {
     $edit = array('langcode[0][value]' => LanguageInterface::LANGCODE_NOT_SPECIFIED);
     $this->drupalPostForm(NULL, $edit, t('Add Text + Image'));
     $this->assertResponse(200);
+
+    // Make 'Images' paragraph field translatable, enable alt and title fields.
+    $this->drupalGet('admin/structure/paragraphs_type/images/fields');
+    $this->clickLink('Edit');
+    $edit = [
+      'translatable' => 1,
+      'settings[alt_field]' => 1,
+      'settings[title_field]' => 1,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save settings'));
+
+    // Create a node with an image paragraph, its alt and title text.
+    $text = 'Trust me I\'m an image';
+    file_put_contents('temporary://Image.jpg', $text);
+    $file_path = $this->container->get('file_system')->realpath('temporary://Image.jpg');
+    $this->drupalGet('node/add/paragraphed_content_demo');
+    $this->drupalPostForm(NULL, [], t('Add Images'));
+    $this->drupalPostForm(NULL, ['files[field_paragraphs_demo_0_subform_field_images_demo_0][]' => $file_path], t('Upload'));
+    $edit = [
+      'title[0][value]' => 'Title EN',
+      'field_paragraphs_demo[0][subform][field_images_demo][0][alt]' => 'Image alt',
+      'field_paragraphs_demo[0][subform][field_images_demo][0][title]' => 'Image title',
+      'field_paragraphs_demo[0][subform][field_images_demo][0][width]' => 100,
+      'field_paragraphs_demo[0][subform][field_images_demo][0][height]' => 100,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+
+    // Translate the node with the image paragraph.
+    $this->clickLink('Translate');
+    $this->clickLink(t('Add'), 1);
+    $edit = [
+      'title[0][value]' => 'Title FR',
+      'field_paragraphs_demo[0][subform][field_images_demo][0][alt]' => 'Image alt FR',
+      'field_paragraphs_demo[0][subform][field_images_demo][0][title]' => 'Image title FR',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
+    $this->assertRaw('Title FR');
   }
 
   /**

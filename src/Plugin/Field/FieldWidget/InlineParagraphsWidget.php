@@ -231,6 +231,9 @@ class InlineParagraphsWidget extends WidgetBase {
         if (!$paragraphs_entity->hasTranslation($langcode)) {
           // Initialise the translation with source language values.
           $paragraphs_entity->addTranslation($langcode, $paragraphs_entity->toArray());
+          $translation = $paragraphs_entity->getTranslation($langcode);
+          $manager = \Drupal::service('content_translation.manager');
+          $manager->getTranslationMetadata($translation)->setSource($paragraphs_entity->language()->getId());
         }
         // Switch the paragraph to the translation.
         $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
