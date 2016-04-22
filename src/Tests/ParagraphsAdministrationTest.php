@@ -187,6 +187,24 @@ class ParagraphsAdministrationTest extends WebTestBase {
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'image', 'Image', 'image', array(), array('settings[alt_field_required]' => FALSE));
     $this->assertText('Saved Image configuration.');
 
+    // Create paragraph type Nested test.
+    $edit = array(
+      'label' => 'Nested_test',
+      'id' => 'nested_test',
+    );
+    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/nested_test', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
+      'settings[target_type]' => 'paragraph',
+      'cardinality' => '-1',
+    ), array());
+
+    // Change the add more button to select mode.
+    $this->clickLink(t('Manage form display'));
+    $this->drupalPostAjaxForm(NULL, ['fields[field_paragraphs][type]' => 'entity_reference_paragraphs'], 'field_paragraphs_settings_edit');
+    $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][add_mode]' => 'select'], t('Update'));
+    $this->drupalPostForm(NULL, [], t('Save'));
+
     // Create paragraph type image.
     $edit = array(
       'label' => 'Image only',
@@ -201,7 +219,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalGet('admin/structure/paragraphs_type');
     $rows = $this->xpath('//tbody/tr');
     // Make sure 2 types are available with their label.
-    $this->assertEqual(count($rows), 2);
+    $this->assertEqual(count($rows), 3);
     $this->assertText('Text + Image');
     $this->assertText('Image only');
     // Make sure there is an edit link for each type.
@@ -219,6 +237,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ), array(
       'settings[handler_settings][target_bundles_drag_drop][image][enabled]' => TRUE,
       'settings[handler_settings][target_bundles_drag_drop][text_image][enabled]' => TRUE,
+      'settings[handler_settings][target_bundles_drag_drop][nested_test][enabled]' => TRUE,
       'description' => 'Help text.',
     ));
     // Configure article fields.
@@ -388,6 +407,16 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
     $this->assertNoText(t('Example published and unpublished'));
+
+    // Add a new article.
+    $this->drupalGet('node/add/article');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_nested_test_add_more');
+    $edit = [
+      'field_paragraphs[0][subform][field_paragraphs][add_more][add_more_select]' => 'image',
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_subform_field_paragraphs_add_more');
+    // Test the new field is displayed.
+    $this->assertFieldByName('files[field_paragraphs_0_subform_field_paragraphs_0_subform_field_image_only_0]');
   }
 
   /**

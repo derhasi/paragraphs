@@ -880,7 +880,6 @@ class InlineParagraphsWidget extends WidgetBase {
 
     // Go one level up in the form, to the widgets container.
     $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
-    $values = NestedArray::getValue($form_state->getValues(), array_slice($button['#array_parents'], 0, -3));
     $field_name = $element['#field_name'];
     $parents = $element['#field_parents'];
 
@@ -895,7 +894,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $widget_state['selected_bundle'] = $button['#bundle_machine_name'];
     }
     else {
-      $widget_state['selected_bundle'] = $values['add_more']['add_more_select'];
+      $widget_state['selected_bundle'] = $element['add_more']['add_more_select']['#value'];
     }
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
