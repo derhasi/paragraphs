@@ -408,6 +408,14 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
     $this->assertNoText(t('Example published and unpublished'));
 
+    // Set the fields as required.
+    $this->drupalGet('admin/structure/types/manage/article/fields');
+    $this->clickLink('Edit', 1);
+    $this->drupalPostForm(NULL, ['required' => TRUE], t('Save settings'));
+    $this->drupalGet('admin/structure/paragraphs_type/nested_test/fields');
+    $this->clickLink('Edit');
+    $this->drupalPostForm(NULL, ['required' => TRUE], t('Save settings'));
+
     // Add a new article.
     $this->drupalGet('node/add/article');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_nested_test_add_more');
@@ -417,6 +425,21 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_subform_field_paragraphs_add_more');
     // Test the new field is displayed.
     $this->assertFieldByName('files[field_paragraphs_0_subform_field_paragraphs_0_subform_field_image_only_0]');
+
+    // Add an image to the required field.
+    $edit = array(
+      'title[0][value]' => 'test required',
+      'files[field_paragraphs_0_subform_field_paragraphs_0_subform_field_image_only_0]' => drupal_realpath('temporary://myImage2.jpg'),
+    );
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $edit = [
+      'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][width]' => 100,
+      'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][height]' => 100,
+      'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][alt]' => 'Alternative_text',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->assertRaw('<em class="placeholder">test required</em> has been created.');
+    $this->assertNoRaw('This value should not be null.');
   }
 
   /**
