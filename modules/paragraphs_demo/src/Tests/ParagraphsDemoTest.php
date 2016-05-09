@@ -122,8 +122,13 @@ class ParagraphsDemoTest extends WebTestBase {
       'title[0][value]' => 'Paragraph title',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Paragraph text',
     );
+    $this->drupalPostForm(NULL, $edit, t('Add User'));
+    $edit = [
+      'field_paragraphs_demo[1][subform][field_user_demo][0][target_id]' => $admin_user->label() . ' (' . $admin_user->id() . ')',
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
 
+    $this->assertText('Paragraphed article Paragraph title has been created.');
     $this->assertText('Paragraph title');
     $this->assertText('Paragraph text');
   }
