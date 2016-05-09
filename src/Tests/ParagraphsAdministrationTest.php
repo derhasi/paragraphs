@@ -440,6 +440,23 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $this->assertRaw('<em class="placeholder">test required</em> has been created.');
     $this->assertNoRaw('This value should not be null.');
+
+    // Test that unsupported widgets are not displayed.
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $select = $this->xpath('//*[@id="edit-fields-field-paragraphs-type"]')[0];
+    $this->assertEqual(count($select->option), 2);
+    $this->assertRaw('value="entity_reference_paragraphs" selected="selected"');
+
+    // Check that Paragraphs is not displayed as an entity_reference field
+    // reference option.
+    $this->drupalGet('admin/structure/types/manage/article/fields/add-field');
+    $edit = [
+      'new_storage_type' => 'entity_reference',
+      'label' => 'unsupported field',
+      'field_name' => 'unsupportedfield',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and continue'));
+    $this->assertNoOption('edit-settings-target-type', 'paragraph');
   }
 
   /**

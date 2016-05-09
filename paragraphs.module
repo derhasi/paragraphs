@@ -76,6 +76,33 @@ function paragraphs_theme_suggestions_paragraph(array $variables) {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function paragraphs_form_entity_form_display_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $field_definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions($form['#entity_type'], $form['#bundle']);
+  // Loop over ERR field's display options with paragraph target type.
+  foreach (array_keys($field_definitions) as $field_name) {
+    if ($field_definitions[$field_name]->getType() == 'entity_reference_revisions') {
+      if ($field_definitions[$field_name]->getSettings()['target_type'] == 'paragraph') {
+        foreach (['options_buttons', 'options_select', 'entity_reference_revisions_autocomplete'] as $option) {
+          unset($form['fields'][$field_name]['plugin']['type']['#options'][$option]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function paragraphs_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_state->getFormObject()->getEntity()->getType() == 'entity_reference') {
+    // Entity Reference fields are no longer supported to reference Paragraphs.
+    unset($form['settings']['target_type']['#options'][(string) t('Content')]['paragraph']);
+  }
+}
+
+/**
  * Prepares variables for paragraph templates.
  *
  * Default template: paragraph.html.twig.
