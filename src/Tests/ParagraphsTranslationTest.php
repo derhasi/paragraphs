@@ -161,6 +161,8 @@ class ParagraphsTranslationTest extends WebTestBase {
     $edit = array(
       'title[0][value]' => 'Title in french',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Text in french',
+      'revision' => TRUE,
+      'revision_log[0][value]' => 'french 1',
     );
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
     $this->assertText('Paragraphed article Title in french has been updated.');
@@ -182,10 +184,13 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertText('Title in french');
     $this->assertText('Text in french');
     $edit = array(
+      'title[0][value]' => 'Title Change in french',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'New text in french',
+      'revision' => TRUE,
+      'revision_log[0][value]' => 'french 2',
     );
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
-    $this->assertText('Title in french');
+    $this->assertText('Title Change in french');
     $this->assertText('New text in french');
 
     // Back to the source language.
@@ -196,6 +201,18 @@ class ParagraphsTranslationTest extends WebTestBase {
     // Save the original content on second request.
     $this->drupalPostForm(NULL, NULL, t('Save and keep published (this translation)'));
     $this->assertText('Paragraphed article Title in english has been updated.');
+
+    // Test if reverting to old paragraphs revisions works, make sure that
+    // the reverted node can be saved again.
+    $this->drupalGet('fr/node/' . $node->id() . '/revisions');
+    $this->clickLink(t('Revert'));
+    $this->drupalPostForm(NULL, ['revert_untranslated_fields' => TRUE], t('Revert'));
+    $this->clickLink(t('Edit'));
+    $this->assertRaw('Title in french');
+    $this->assertText('Text in french');
+    $this->drupalPostForm(NULL, [], t('Save and keep published (this translation)'));
+    $this->assertNoRaw('The content has either been modified by another user, or you have already submitted modifications');
+    $this->assertText('Text in french');
 
     //Add paragraphed content with untranslatable language
     $this->drupalGet('node/add/paragraphed_content_demo');

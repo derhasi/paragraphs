@@ -7,7 +7,6 @@
 
 namespace Drupal\paragraphs\Entity;
 
-use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -80,7 +79,7 @@ use Drupal\user\UserInterface;
  */
 class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityNeedsSaveInterface {
 
-  use EntityChangedTrait, EntityNeedsSaveTrait;
+  use EntityNeedsSaveTrait;
 
   /**
    * {@inheritdoc}
@@ -126,13 +125,6 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
-  public function getChangedTime() {
-    return $this->get('changed')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getOwner() {
     return $this->get('uid')->entity;
   }
@@ -172,22 +164,6 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
    */
   public function getData() {
     return $this->get('data')->value;
-  }
-
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRevisionCreationTime() {
-    return $this->get('revision_timestamp')->value;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setRevisionCreationTime($timestamp) {
-    $this->set('revision_timestamp', $timestamp);
-    return $this;
   }
 
   /**
@@ -293,18 +269,6 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
       ))
       ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
-
-    $fields['changed'] = BaseFieldDefinition::create('changed')
-      ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the Paragraph was last edited.'))
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE);
-
-    $fields['revision_timestamp'] = BaseFieldDefinition::create('created')
-      ->setLabel(t('Revision timestamp'))
-      ->setDescription(t('The time that the current revision was created.'))
-      ->setQueryable(FALSE)
-      ->setRevisionable(TRUE);
 
     $fields['revision_uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Revision user ID'))
