@@ -239,6 +239,58 @@ class ParagraphsTranslationTest extends WebTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
     $this->assertRaw('Title FR');
+
+    $this->drupalGet('node/add/paragraphed_content_demo');
+    $this->drupalPostForm(NULL, [], t('Add Text'));
+    $edit = [
+      'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'texto',
+      'title[0][value]' => 'titulo',
+      'langcode[0][value]' => 'de',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $node = $this->drupalGetNodeByTitle('titulo');
+    $this->assertParagraphsLangcode($node->id(), 'de');
+
+    // Test langcode matching when Paragraphs and node have different language.
+    $paragraph_1 = Paragraph::create([
+      'title' => 'Paragraph',
+      'type' => 'text',
+      'langcode' => 'en',
+      'field_text_demo' => 'english_text_1',
+    ]);
+    $paragraph_1->save();
+
+    $paragraph_2 = Paragraph::create([
+      'title' => 'Paragraph',
+      'type' => 'text',
+      'langcode' => 'en',
+      'field_text_demo' => 'english_text_2',
+    ]);
+    $paragraph_2->save();
+
+    $paragraph_data = $paragraph_2->toArray();
+    $paragraph_data['field_text_demo'] = 'german_text_2';
+    $paragraph_2->addTranslation('de', $paragraph_data);
+    $paragraph_2->save();
+    $translated_paragraph = $paragraph_2->getTranslation('en');
+
+    $node = $this->createNode([
+      'langcode' => 'de',
+      'type' => 'paragraphed_content_demo',
+      'field_paragraphs_demo' => [$paragraph_1, $translated_paragraph],
+    ]);
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->assertText('Paragraphed article ' . $node->label() . ' has been updated.');
+    // Check that first paragraph langcode has been updated.
+    $paragraph = Paragraph::load($paragraph_1->id());
+    $this->assertEqual($paragraph->language()->getId(), 'de');
+    $this->assertFalse($paragraph->hasTranslation('en'));
+    // Check that second paragraph has two translations.
+    $paragraph = Paragraph::load($paragraph_2->id());
+    $this->assertTrue($paragraph->hasTranslation('de'));
+    $this->assertTrue($paragraph->hasTranslation('en'));
+    $this->assertRaw('german_text');
   }
 
   /**

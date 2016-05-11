@@ -224,7 +224,16 @@ class InlineParagraphsWidget extends WidgetBase {
 
       if (!$this->isTranslating) {
         // Set the langcode if we are not translating.
-        $paragraphs_entity->set('langcode', $langcode);
+        if ($paragraphs_entity->get('langcode') != $langcode) {
+          // If a translation in the given language already exists, switch to
+          // that. If there is none yet, update the language.
+          if ($paragraphs_entity->hasTranslation($langcode)) {
+            $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+          }
+          else {
+            $paragraphs_entity->set('langcode', $langcode);
+          }
+        }
       }
       else {
         // Add translation if missing for the target language.
@@ -1114,7 +1123,16 @@ class InlineParagraphsWidget extends WidgetBase {
         $paragraphs_entity->setNewRevision($new_revision);
         // A content entity form saves without any rebuild. It needs to set the
         // language to update it in case of language change.
-        $paragraphs_entity->set('langcode', $form_state->get('langcode'));
+        if ($paragraphs_entity->get('langcode') != $form_state->get('langcode')) {
+          // If a translation in the given language already exists, switch to
+          // that. If there is none yet, update the language.
+          if ($paragraphs_entity->hasTranslation($form_state->get('langcode'))) {
+            $paragraphs_entity = $paragraphs_entity->getTranslation($form_state->get('langcode'));
+          }
+          else {
+            $paragraphs_entity->set('langcode', $form_state->get('langcode'));
+          }
+        }
         $paragraphs_entity->setNeedsSave(TRUE);
         $item['entity'] = $paragraphs_entity;
         $item['target_id'] = $paragraphs_entity->id();
