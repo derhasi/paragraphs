@@ -155,9 +155,7 @@ class ParagraphSelection extends SelectionBase {
 
       // All disabled = all enabled.
       if ($enabled === 0) {
-        foreach ($element_values as $machine_name => $bundle_info) {
-          $bundle_options[$machine_name] = $machine_name;
-        }
+        $bundle_options = NULL;
       }
     }
 

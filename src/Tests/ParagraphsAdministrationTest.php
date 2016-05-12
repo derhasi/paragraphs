@@ -235,9 +235,6 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'settings[target_type]' => 'paragraph',
       'cardinality' => '-1',
     ), array(
-      'settings[handler_settings][target_bundles_drag_drop][image][enabled]' => TRUE,
-      'settings[handler_settings][target_bundles_drag_drop][text_image][enabled]' => TRUE,
-      'settings[handler_settings][target_bundles_drag_drop][nested_test][enabled]' => TRUE,
       'description' => 'Help text.',
     ));
     // Configure article fields.
@@ -457,6 +454,35 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and continue'));
     $this->assertNoOption('edit-settings-target-type', 'paragraph');
+
+    // Test that all paragraph types can be referenced if none is selected.
+    $edit = array(
+      'label' => 'Nested_double_test',
+      'id' => 'nested_double_test',
+    );
+    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+    static::fieldUIAddExistingField('admin/structure/paragraphs_type/nested_double_test', 'field_paragraphs', 'paragraphs_1');
+    $this->clickLink(t('Manage form display'));
+    $this->drupalPostForm(NULL, [], 'Save');
+    //$this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_revisions_entity_view'), t('Save'));
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/nested_double_test', 'paragraphs_2', 'paragraphs_2', 'entity_reference_revisions', array(
+      'settings[target_type]' => 'paragraph',
+      'cardinality' => '-1',
+    ), array());
+    $this->clickLink(t('Manage form display'));
+    $this->drupalPostForm(NULL, [], 'Save');
+    $this->drupalPostAjaxForm('node/add/article', [], 'field_paragraphs_nested_test_add_more');
+    $edit = [
+      'field_paragraphs[0][subform][field_paragraphs][add_more][add_more_select]' => 'nested_double_test',
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_subform_field_paragraphs_add_more');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_subform_field_paragraphs_0_subform_field_paragraphs_image_add_more');
+    $edit = array(
+      'title[0][value]' => 'Nested twins',
+    );
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->assertRaw('Nested twins</em> has been created.');
+    $this->assertNoText('This entity (paragraph: ) cannot be referenced.');
   }
 
   /**
