@@ -9,6 +9,9 @@ dependencies:
   - language
   - content_translation
   - node
+test_dependencies:
+  - search_api_db
+  - search_api
 hidden: false
 name: Paragraphs demo
 package: Paragraphs
