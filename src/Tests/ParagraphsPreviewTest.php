@@ -65,7 +65,7 @@ class ParagraphsPreviewTest extends WebTestBase {
     $this->drupalLogin($admin_user);
 
     $this->drupalGet('admin/structure/paragraphs_type');
-    $this->clickLink(t('Add a Paragraphs type'));
+    $this->clickLink(t('Add paragraphs type'));
     // Create paragraph type Headline + Block.
     $edit = array(
       'label' => 'Text',
