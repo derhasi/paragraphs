@@ -123,10 +123,10 @@ class ParagraphSelection extends SelectionBase {
     }
 
     if (!count($bundle_options)) {
-      $form['allowed_bundles_explain'] = array(
+      $form['allowed_bundles_explain'] = [
         '#type' => 'markup',
-        '#markup' => t('You did not add any paragraph types yet, click !here to add one.', array('!here' => \Drupal::l(t('here'), new Url('paragraphs.type_add', array()))))
-      );
+        '#markup' => t('You did not add any paragraph types yet, click <a href=":here">here</a> to add one.', [':here' => Url::fromRoute('paragraphs.type_add')->toString()]),
+      ];
     }
 
     return $form;

@@ -172,6 +172,21 @@ class ParagraphsAdministrationTest extends WebTestBase {
     ));
     $this->drupalLogin($admin_user);
 
+    // Assert suggested 'Add a paragraph type' link when there is no type yet.
+    $this->drupalGet('admin/structure/paragraphs_type');
+    $this->assertText('There is no Paragraphs type yet.');
+    $this->drupalGet('admin/structure/types/manage/paragraphs/fields/add-field');
+    $edit = [
+      'new_storage_type' => 'field_ui:entity_reference_revisions:paragraph',
+      'label' => 'Paragraph',
+      'field_name' => 'paragraph',
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save and continue');
+    $this->drupalPostForm(NULL, [], 'Save field settings');
+    $this->assertLinkByHref('admin/structure/paragraphs_type/add');
+    $this->clickLink('here');
+    $this->assertUrl('admin/structure/paragraphs_type/add');
+
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->clickLink(t('Add paragraphs type'));
     // Create paragraph type text + image.
