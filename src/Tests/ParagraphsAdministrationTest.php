@@ -498,6 +498,77 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $this->assertRaw('Nested twins</em> has been created.');
     $this->assertNoText('This entity (paragraph: ) cannot be referenced.');
+
+    // Set the fields as not required.
+    $this->drupalGet('admin/structure/types/manage/article/fields');
+    $this->clickLink('Edit', 1);
+    $this->drupalPostForm(NULL, ['required' => FALSE], t('Save settings'));
+
+    // Set the Paragraph field edit mode to 'Closed'.
+    $this->drupalPostAjaxForm('admin/structure/types/manage/article/form-display', [], 'field_paragraphs_settings_edit');
+    $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed'], t('Update'));
+    $this->drupalPostForm(NULL, [], t('Save'));
+
+    $edit = array(
+      'label' => 'Node_test',
+      'id' => 'node_test',
+    );
+    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+
+    // Add a node reference field.
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/node_test', 'entity_reference', 'Entity reference', 'entity_reference', array(
+      'settings[target_type]' => 'node',
+      'cardinality' => '-1'
+    ), array('settings[handler_settings][target_bundles][article]' => TRUE));
+    $node = $this->drupalGetNodeByTitle('Nested twins');
+
+    // Create a node with a reference in a Paragraph.
+    $this->drupalPostAjaxForm('node/add/article', [], 'field_paragraphs_node_test_add_more');
+    $edit = [
+      'field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')',
+      'title[0][value]' => 'choke test',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    // Delete the referenced node.
+    $node->delete();
+    // Edit the node with the reference.
+    $this->clickLink(t('Edit'));
+    // Attempt to edit the Paragraph.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
+    // Try to collapse with an invalid reference.
+    $this->drupalPostAjaxForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], 'field_paragraphs_0_collapse');
+    $this->assertText('There are no entities matching "foo".');
+    // Attempt to remove the Paragraph.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
+    $elements = $this->xpath('//*[@name="field_paragraphs_0_confirm_remove"]');
+    $this->assertTrue(!empty($elements), "'Confirm removal' button appears.");
+    // Restore the Paragraph and fix the broken reference.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_restore');
+    $node = $this->drupalGetNodeByTitle('Example publish/unpublish');
+    $this->drupalPostForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')'], t('Save and keep published'));
+    $this->assertText('choke test has been updated.');
+    $this->assertLink('Example publish/unpublish');
+    // Delete the new referenced node.
+    $node->delete();
+
+    // Set the Paragraph field edit mode to 'Preview'.
+    $this->drupalPostAjaxForm('admin/structure/types/manage/article/form-display', [], 'field_paragraphs_settings_edit');
+    $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'preview'], t('Update'));
+    $this->drupalPostForm(NULL, [], t('Save'));
+
+    $node = $this->drupalGetNodeByTitle('choke test');
+    // Attempt to edit the Paragraph.
+    $this->drupalPostAjaxForm('node/' . $node->id() . '/edit', [], 'field_paragraphs_0_edit');
+    // Try to collapse with an invalid reference.
+    $this->drupalPostAjaxForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], 'field_paragraphs_0_collapse');
+    $this->assertText('There are no entities matching "foo".');
+    // Remove the Paragraph and save the node.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
+    $elements = $this->xpath('//*[@name="field_paragraphs_0_confirm_remove"]');
+    $this->assertTrue(!empty($elements), "'Confirm removal' button appears.");
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
+    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->assertText('choke test has been updated.');
   }
 
   /**

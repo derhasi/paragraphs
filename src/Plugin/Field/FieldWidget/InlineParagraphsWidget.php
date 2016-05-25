@@ -314,7 +314,6 @@ class InlineParagraphsWidget extends WidgetBase {
               '#name' => strtr($id_prefix, '-', '_') . '_collapse',
               '#weight' => 499,
               '#submit' => array(array(get_class($this), 'collapseItemSubmit')),
-              '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
               '#delta' => $delta,
               '#ajax' => array(
                 'callback' => array(get_class($this), 'itemAjax'),
@@ -1074,7 +1073,7 @@ class InlineParagraphsWidget extends WidgetBase {
       /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
       $display = $widget_state['paragraphs'][$delta]['display'];
 
-      if ($widget_state['paragraphs'][$delta]['mode'] != 'remove' && $widget_state['paragraphs'][$delta]['mode'] != 'removed') {
+      if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
         // Extract the form values on submit for getting the current paragraph.
         $display->extractFormValues($entity, $element['subform'], $form_state);
         $display->validateFormValues($entity, $element['subform'], $form_state);
