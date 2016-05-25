@@ -205,3 +205,19 @@ function paragraphs_update_8006() {
       ->installFieldStorageDefinition('content_translation_changed', 'paragraph', 'paragraph', $storage_definition);
   }
 }
+
+/**
+ * Ensure that existing paragraphs are published.
+ */
+function paragraphs_update_8007() {
+  \Drupal::database()
+    ->update('paragraphs_item_field_data')
+    ->fields(['status' => 1])
+    ->isNull('status')
+    ->execute();
+  \Drupal::database()
+    ->update('paragraphs_item_revision_field_data')
+    ->fields(['status' => 1])
+    ->isNull('status')
+    ->execute();
+}
