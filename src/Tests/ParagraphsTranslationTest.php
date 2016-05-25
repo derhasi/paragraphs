@@ -308,6 +308,22 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertTrue($paragraph->hasTranslation('de'));
     $this->assertTrue($paragraph->hasTranslation('en'));
     $this->assertRaw('german_text');
+
+    // Create an english translation of the node.
+    $edit = [
+      'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'english_translation_1',
+      'field_paragraphs_demo[1][subform][field_text_demo][0][value]' => 'english_translation_2',
+    ];
+    $this->drupalPostForm('node/' . $node->id() . '/translations/add/de/en', $edit, t('Save and keep published (this translation)'));
+    // Attempt to create a french translation.
+    $this->drupalGet('node/' . $node->id() . '/translations/add/de/fr');
+    // Check that the german translation of the paragraphs is displayed.
+    $this->assertFieldByName('field_paragraphs_demo[0][subform][field_text_demo][0][value]', 'english_text_1');
+    $this->assertFieldByName('field_paragraphs_demo[1][subform][field_text_demo][0][value]', 'german_text_2');
+    $this->drupalPostForm(NULL, ['source_langcode[source]' => 'en'], t('Change'));
+    // Check that the english translation of the paragraphs is displayed.
+    $this->assertFieldByName('field_paragraphs_demo[0][subform][field_text_demo][0][value]', 'english_translation_1');
+    $this->assertFieldByName('field_paragraphs_demo[1][subform][field_text_demo][0][value]', 'english_translation_2');
   }
 
   /**
