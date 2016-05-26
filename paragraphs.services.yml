@@ -1,0 +1,6 @@
+services:
+  replicate.event_subscriber.paragraphs:
+    class: \Drupal\paragraphs\EventSubscriber\ReplicateFieldSubscriber
+    arguments: ['@replicate.replicator']
+    tags:
+      - { name: event_subscriber }
