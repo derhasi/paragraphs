@@ -569,6 +569,11 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('choke test has been updated.');
+
+    // Verify that the text displayed is correct when no paragraph has been
+    // added yet.
+    $this->drupalGet('node/add/article');
+    $this->assertText('No Paragraph added yet.');
   }
 
   /**

@@ -736,8 +736,7 @@ class InlineParagraphsWidget extends WidgetBase {
     } else {
 
       // @todo: properize this.
-      $add_text = 'No @title_multiple have been added yet. Select a @title type and press the button below to add one.';
-      $element_text = '<p><em>' . t($add_text, array('@title_multiple' => $this->getSetting('title_plural'), '@title' => $this->getSetting('title'))) . '</em></p>';
+      $element_text = '<p><em>' . t('No @title added yet.', ['@title' => $this->getSetting('title')]) . '</em></p>';
       $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
 
       $elements += array(
