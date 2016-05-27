@@ -1,5 +1,0 @@
-services:
-  replicate.event_subscriber.paragraphs:
-    class: \Drupal\paragraphs\EventSubscriber\ReplicateFieldSubscriber
-    tags:
-      - { name: event_subscriber }
