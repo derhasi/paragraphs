@@ -26,6 +26,9 @@ class ParagraphAccessControlHandler extends EntityAccessControlHandler {
     // Allowed when the operation is not view or the status is true.
     /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
     if ($paragraph->getParentEntity() != NULL) {
+      // Delete permission on the paragraph, should just depend on 'update'
+      // access permissions on the parent.
+      $operation = ($operation == 'delete') ? 'update' : $operation;
       $parent_access = $paragraph->getParentEntity()->access($operation, $account, TRUE);
       return AccessResult::allowedIf($operation != 'view' || $paragraph->status->value)
         ->andIf($parent_access);
