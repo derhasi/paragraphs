@@ -10,12 +10,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\paragraphs\Entity\ParagraphsType;
 use Drupal\Core\Render\Element;
 
-define('PARAGRAPHS_DEFAULT_TITLE', 'Paragraph');
-define('PARAGRAPHS_DEFAULT_TITLE_PLURAL', 'Paragraphs');
-define('PARAGRAPHS_DEFAULT_EDIT_MODE', 'open');
-define('PARAGRAPHS_DEFAULT_ADD_MODE', 'dropdown');
-define('PARAGRAPHS_DEFAULT_FORM_DISPLAY_MODE', 'default');
-
 /**
  * Implements hook_help().
  */

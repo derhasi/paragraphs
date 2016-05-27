@@ -39,10 +39,6 @@ class ParagraphSelection extends SelectionBase {
     $selection_handler_settings += array(
       'target_bundles' => array(),
       'target_bundles_drag_drop' => array(),
-      'add_mode' => PARAGRAPHS_DEFAULT_ADD_MODE,
-      'edit_mode' => PARAGRAPHS_DEFAULT_EDIT_MODE,
-      'title' => PARAGRAPHS_DEFAULT_TITLE,
-      'title_plural' => PARAGRAPHS_DEFAULT_TITLE_PLURAL,
     );
 
     $bundle_options = array();

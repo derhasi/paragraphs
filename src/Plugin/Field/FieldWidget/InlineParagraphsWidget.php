@@ -50,11 +50,11 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public static function defaultSettings() {
     return array(
-      'title' => PARAGRAPHS_DEFAULT_TITLE,
-      'title_plural' => PARAGRAPHS_DEFAULT_TITLE_PLURAL,
-      'edit_mode' => PARAGRAPHS_DEFAULT_EDIT_MODE,
-      'add_mode' => PARAGRAPHS_DEFAULT_ADD_MODE,
-      'form_display_mode' => PARAGRAPHS_DEFAULT_FORM_DISPLAY_MODE,
+      'title' => t('Paragraph'),
+      'title_plural' => t('Paragraphs'),
+      'edit_mode' => 'open',
+      'add_mode' => 'dropdown',
+      'form_display_mode' => 'default',
     );
   }
 
