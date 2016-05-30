@@ -6,6 +6,7 @@
 
 namespace Drupal\paragraphs_demo\Tests;
 
+use Drupal\filter\Entity\FilterFormat;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -39,6 +40,11 @@ class ParagraphsDemoTest extends WebTestBase {
    * Asserts demo paragraphs have been created.
    */
   protected function testConfigurationsAndCreation() {
+    $basic_html_format = FilterFormat::create(array(
+      'format' => 'basic_html',
+      'name' => 'Basic HTML',
+    ));
+    $basic_html_format->save();
     $admin_user = $this->drupalCreateUser(array(
       'administer site configuration',
       'administer nodes',
@@ -56,6 +62,7 @@ class ParagraphsDemoTest extends WebTestBase {
       'administer paragraph display',
       'administer paragraph form display',
       'administer node form display',
+      $basic_html_format->getPermissionName(),
     ));
 
     $this->drupalLogin($admin_user);
@@ -134,6 +141,16 @@ class ParagraphsDemoTest extends WebTestBase {
     $this->assertText('Paragraphed article Paragraph title has been created.');
     $this->assertText('Paragraph title');
     $this->assertText('Paragraph text');
+
+    // Search a nested Paragraph text.
+    $this->drupalGet('paragraphs_search', ['query' => ['search_api_fulltext' => 'A search api example']]);
+    $this->assertRaw('Welcome to the Paragraphs Demo module!');
+    // Search a node paragraph field text.
+    $this->drupalGet('paragraphs_search', ['query' => ['search_api_fulltext' => 'It allows you']]);
+    $this->assertRaw('Welcome to the Paragraphs Demo module!');
+    // Search non existent text.
+    $this->drupalGet('paragraphs_search', ['query' => ['search_api_fulltext' => 'foo']]);
+    $this->assertNoRaw('Welcome to the Paragraphs Demo module!');
   }
 
 }

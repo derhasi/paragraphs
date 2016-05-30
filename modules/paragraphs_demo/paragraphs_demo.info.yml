@@ -9,6 +9,9 @@ dependencies:
   - language
   - content_translation
   - node
+  - search_api_db
+  - search_api
+  - views
 test_dependencies:
   - search_api_db
   - search_api
