@@ -733,23 +733,37 @@ class InlineParagraphsWidget extends WidgetBase {
         '#description' => $description,
         '#max_delta' => $max-1,
       );
-    } else {
-
-      // @todo: properize this.
-      $element_text = '<p><em>' . t('No @title added yet.', ['@title' => $this->getSetting('title')]) . '</em></p>';
-      $element_text .= $description ? '<div class="description">' . $description . '</div>' : '';
-
-      $elements += array(
+    }
+    else {
+      $elements += [
         '#type' => 'container',
-        '#theme_wrappers' => array('container'),
+        '#theme_wrappers' => ['container'],
         '#field_name' => $field_name,
         '#cardinality' => $cardinality,
         '#cardinality_multiple' => TRUE,
         '#max_delta' => $max-1,
-        'text' => array(
-          '#markup' => $element_text,
-        ),
-      );
+        'title' => [
+          '#type' => 'html_tag',
+          '#tag' => 'strong',
+          '#value' => $title,
+        ],
+        'text' => [
+          '#type' => 'container',
+          'value' => [
+            '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
+            '#prefix' => '<em>',
+            '#suffix' => '</em>',
+          ]
+        ],
+      ];
+
+      if ($description) {
+        $elements['description'] = [
+          '#type' => 'container',
+          'value' => ['#markup' => $description],
+          '#attributes' => ['class' => ['description']],
+        ];
+      }
     }
 
     // Add 'add more' button, if not working with a programmed form.

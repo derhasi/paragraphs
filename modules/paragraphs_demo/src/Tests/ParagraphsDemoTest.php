@@ -117,7 +117,10 @@ class ParagraphsDemoTest extends WebTestBase {
     $this->assertNoFieldChecked('edit-settings-handler-settings-target-bundles-drag-drop-text-enabled');
 
     $this->drupalGet('node/add/paragraphed_content_demo');
+    $this->assertRaw('<strong data-drupal-selector="edit-field-paragraphs-demo-title">Paragraphs</strong>', 'Field name is present on the page.');
     $this->drupalPostForm(NULL, NULL, t('Add Text'));
+    $this->assertNoRaw('<strong data-drupal-selector="edit-field-paragraphs-demo-title">Paragraphs</strong>', 'Field name for empty field is not present on the page.');
+    $this->assertRaw('<h4 class="label">Paragraphs</h4>', 'Field name appears in the table header.');
     $edit = array(
       'title[0][value]' => 'Paragraph title',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Paragraph text',
