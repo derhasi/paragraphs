@@ -18,6 +18,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Render\Element;
 use Drupal\paragraphs;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
@@ -542,6 +543,17 @@ class InlineParagraphsWidget extends WidgetBase {
 
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+        foreach (Element::children($element['subform']) as $field) {
+          if ($paragraphs_entity->hasField($field)) {
+            $translatable = $paragraphs_entity->{$field}->getFieldDefinition()->isTranslatable();
+            if ($translatable) {
+              $element['subform'][$field]['widget']['#after_build'][] = [
+                static::class,
+                'removeTranslatabilityClue'
+              ];
+            }
+          }
+        }
       }
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
@@ -1178,5 +1190,41 @@ class InlineParagraphsWidget extends WidgetBase {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }
+  }
+
+  /**
+   * After-build callback for removing the translatability clue from the widget.
+   *
+   * If the fields on the paragraph type are translatable,
+   * ContentTranslationHandler::addTranslatabilityClue()adds an
+   * "(all languages)" suffix to the widget title. That suffix is incorrect and
+   * is being removed by this method using a #after_build on the field widget.
+   *
+   * @param array $element
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *
+   * @return array
+   */
+  public static function removeTranslatabilityClue(array $element, FormStateInterface $form_state) {
+    // Widgets could have multiple elements with their own titles, so remove the
+    // suffix if it exists, do not recurse lower than this to avoid going into
+    // nested paragraphs or similar nested field types.
+    $suffix = ' <span class="translation-entity-all-languages">(' . t('all languages') . ')</span>';
+    if (isset($element['#title']) && strpos($element['#title'], $suffix)) {
+      $element['#title'] = str_replace($suffix, '', $element['#title']);
+    }
+    // Loop over all widget deltas.
+    foreach (Element::children($element) as $delta) {
+      if (isset($element[$delta]['#title']) && strpos($element[$delta]['#title'], $suffix)) {
+        $element[$delta]['#title'] = str_replace($suffix, '', $element[$delta]['#title']);
+      }
+      // Loop over all form elements within the current delta.
+      foreach (Element::children($element[$delta]) as $field) {
+        if (isset($element[$delta][$field]['#title']) && strpos($element[$delta][$field]['#title'], $suffix)) {
+          $element[$delta][$field]['#title'] = str_replace($suffix, '', $element[$delta][$field]['#title']);
+        }
+      }
+    }
+    return $element;
   }
 }

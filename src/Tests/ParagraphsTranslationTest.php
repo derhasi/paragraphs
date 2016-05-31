@@ -30,6 +30,7 @@ class ParagraphsTranslationTest extends WebTestBase {
     'paragraphs_demo',
     'content_translation',
     'block',
+    'link',
   );
 
   /**
@@ -324,6 +325,57 @@ class ParagraphsTranslationTest extends WebTestBase {
     // Check that the english translation of the paragraphs is displayed.
     $this->assertFieldByName('field_paragraphs_demo[0][subform][field_text_demo][0][value]', 'english_translation_1');
     $this->assertFieldByName('field_paragraphs_demo[1][subform][field_text_demo][0][value]', 'english_translation_2');
+
+    // Add a non translatable field to Text Paragraph type.
+    $edit = [
+      'new_storage_type' => 'text_long',
+      'label' => 'untranslatable_field',
+      'field_name' => 'untranslatable_field',
+    ];
+    $this->drupalPostForm('admin/structure/paragraphs_type/text/fields/add-field', $edit, t('Save and continue'));
+    $this->drupalPostForm(NULL, [], t('Save field settings'));
+    $this->drupalPostForm(NULL, [], t('Save settings'));
+
+    // Add a non translatable reference field.
+    $edit = [
+      'new_storage_type' => 'field_ui:entity_reference:node',
+      'label' => 'untranslatable_ref_field',
+      'field_name' => 'untranslatable_ref_field',
+    ];
+    $this->drupalPostForm('admin/structure/paragraphs_type/text/fields/add-field', $edit, t('Save and continue'));
+    $this->drupalPostForm(NULL, [], t('Save field settings'));
+    $this->drupalPostForm(NULL, ['settings[handler_settings][target_bundles][paragraphed_content_demo]' => TRUE], t('Save settings'));
+
+    // Add a non translatable link field.
+    $edit = [
+      'new_storage_type' => 'link',
+      'label' => 'untranslatable_link_field',
+      'field_name' => 'untranslatable_link_field',
+    ];
+    $this->drupalPostForm('admin/structure/paragraphs_type/text/fields/add-field', $edit, t('Save and continue'));
+    $this->drupalPostForm(NULL, [], t('Save field settings'));
+    $this->drupalPostForm(NULL, [], t('Save settings'));
+
+    // Attempt to add a translation.
+    $this->drupalGet('node/' . $node->id() . '/translations/add/de/fr');
+    $this->assertText('untranslatable_field (all languages)');
+    $this->assertText('untranslatable_ref_field (all languages)');
+    $this->assertText('untranslatable_link_field (all languages)');
+    $this->assertNoText('Text (all languages)');
+
+    // Enable translations for the reference and link field.
+    $edit = [
+      'translatable' => TRUE,
+    ];
+    $this->drupalPostForm('admin/structure/paragraphs_type/text/fields/paragraph.text.field_untranslatable_ref_field', $edit, t('Save settings'));
+    $this->drupalPostForm('admin/structure/paragraphs_type/text/fields/paragraph.text.field_untranslatable_link_field', $edit, t('Save settings'));
+
+    // Attempt to add a translation.
+    $this->drupalGet('node/' . $node->id() . '/translations/add/de/fr');
+    $this->assertText('untranslatable_field (all languages)');
+    $this->assertNoText('untranslatable_link_field (all languages)');
+    $this->assertNoText('untranslatable_ref_field (all languages)');
+    $this->assertNoText('Text (all languages)');
   }
 
   /**
