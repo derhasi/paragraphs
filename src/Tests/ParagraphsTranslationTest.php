@@ -326,6 +326,16 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->assertFieldByName('field_paragraphs_demo[0][subform][field_text_demo][0][value]', 'english_translation_1');
     $this->assertFieldByName('field_paragraphs_demo[1][subform][field_text_demo][0][value]', 'english_translation_2');
 
+    // Create a node with empty Paragraphs.
+    $this->drupalGet('node/add/paragraphed_content_demo');
+    $this->drupalPostForm(NULL, [], t('Add Nested Paragraph'));
+    $this->drupalPostForm(NULL, ['title[0][value]' => 'empty_node'], t('Save and publish'));
+    // Attempt to translate it.
+    $this->clickLink(t('Translate'));
+    $this->clickLink(t('Add'));
+    // Check the add button is not displayed.
+    $this->assertEqual(count($this->xpath('//*[@name="field_paragraphs_demo_0_subform_field_paragraphs_demo_images_add_more"]')), 0);
+
     // Add a non translatable field to Text Paragraph type.
     $edit = [
       'new_storage_type' => 'text_long',
