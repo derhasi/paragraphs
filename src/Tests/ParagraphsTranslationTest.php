@@ -614,7 +614,7 @@ class ParagraphsTranslationTest extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Upload'));
     // Check the paragraph langcode is still 'de' and its buttons are shown.
     $this->assertParagraphsLangcode($node1->id(), 'de');
-    $this->assertNoParagraphsButtons(1);
+    $this->assertParagraphsButtons(1);
     $this->drupalPostForm(NULL, NULL, t('Save and keep published'));
     // Check the paragraph langcode is now 'en' after saving.
     $this->assertParagraphsLangcode($node1->id());
@@ -772,21 +772,23 @@ class ParagraphsTranslationTest extends WebTestBase {
    */
   protected function assertParagraphsButtonsHelper($count, $hidden = TRUE) {
     for ($i = 0; $i < $count; $i++) {
+      $remove_button = $this->xpath('//*[@name="field_paragraphs_demo_' . $i . '_remove"]');
       if (!$hidden) {
-        $this->assertFieldByName('field_paragraphs_demo_' . $i . '_remove');
+        $this->assertNotEqual(count($remove_button), 0);
       }
       else {
-        $this->assertNoFieldByName('field_paragraphs_demo_' . $i . '_remove');
+        $this->assertEqual(count($remove_button), 0);
       }
     }
 
     // It is enough to check for the specific paragraph type 'Images' to assert
     // the add more buttons presence for this test class.
+    $add_button = $this->xpath('//input[@value="Add Images"]');
     if (!$hidden) {
-      $this->assertFieldByName('field_paragraphs_demo_images_add_more');
+      $this->assertNotEqual(count($add_button), 0);
     }
     else {
-      $this->assertNoFieldByName('field_paragraphs_demo_images_add_more');
+      $this->assertEqual(count($add_button), 0);
     }
   }
 
