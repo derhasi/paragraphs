@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphsSelection.
- */
-
 namespace Drupal\paragraphs\Plugin\EntityReferenceSelection;
 
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase;

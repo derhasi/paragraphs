@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\paragraphs\Entity\Paragraph.
- */
-
 namespace Drupal\paragraphs\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;

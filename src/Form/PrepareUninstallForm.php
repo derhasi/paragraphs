@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\paragraphs\Form\PrepareUninstallForm.
- */
 
 namespace Drupal\paragraphs\Form;
 

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Paragraphs widget implementation for entity reference.
- */
-
 namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;

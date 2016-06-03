@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\paragraphs\Form\ParagraphsTypeForm.
- */
-
 namespace Drupal\paragraphs\Form;
 
 use Drupal\Core\Entity\EntityForm;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\paragraphs_type_permissions\ParagraphsTypePermissions.
- */
-
 namespace Drupal\paragraphs_type_permissions;
 
 use Drupal\Core\Routing\UrlGeneratorTrait;

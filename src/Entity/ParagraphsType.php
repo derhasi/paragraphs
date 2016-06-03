@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\paragraphs\Entity\ParagraphsType.
- */
-
 namespace Drupal\paragraphs\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
