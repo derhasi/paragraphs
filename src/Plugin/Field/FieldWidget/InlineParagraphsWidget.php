@@ -294,7 +294,7 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         $element['top']['paragraph_type_title']['info'] = array(
-          '#markup' => '<strong>' . $bundle_info['label'] . '</strong>',
+          '#markup' => '<strong>Type: ' . $bundle_info['label'] . '</strong>',
         );
 
         $actions = array();
