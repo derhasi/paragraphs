@@ -6,11 +6,11 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\simpletest\WebTestBase;
 
 /**
- * Tests paragraphs selection.
+ * Tests paragraphs add modes.
  *
  * @group paragraphs
  */
-class ParagraphsSelectionTest extends WebTestBase {
+class ParagraphsAddModesTest extends WebTestBase {
 
   use FieldUiTestTrait;
 
@@ -45,9 +45,9 @@ class ParagraphsSelectionTest extends WebTestBase {
   }
 
   /**
-   * Tests the revision of paragraphs.
+   * Tests the add drop down button.
    */
-  public function testParagraphsRevisions() {
+  public function testDropDownMode() {
     $admin_user = $this->drupalCreateUser(array(
       'administer nodes',
       'administer content types',

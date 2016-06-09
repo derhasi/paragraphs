@@ -309,7 +309,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#value' => t('Collapse'),
               '#name' => strtr($id_prefix, '-', '_') . '_collapse',
               '#weight' => 499,
-              '#submit' => array(array(get_class($this), 'collapseItemSubmit')),
+              '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
               '#delta' => $delta,
               '#ajax' => array(
                 'callback' => array(get_class($this), 'itemAjax'),
@@ -319,6 +319,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#access' => $paragraphs_entity->access('update'),
               '#prefix' => '<li class="collapse">',
               '#suffix' => '</li>',
+              '#paragraphs_mode' => 'collapsed',
             );
           }
 
@@ -329,7 +330,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 500,
-            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
@@ -340,6 +341,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#access' => $button_access,
             '#prefix' => '<li class="remove">',
             '#suffix' => '</li>',
+            '#paragraphs_mode' => 'remove',
           );
 
           $info['edit_button_info'] = array(
@@ -366,7 +368,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Edit'),
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 501,
-            '#submit' => array(array(get_class($this), 'editItemSubmit')),
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
@@ -377,6 +379,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#access' => $paragraphs_entity->access('update'),
             '#prefix' => '<li class="edit">',
             '#suffix' => '</li>',
+            '#paragraphs_mode' => 'edit',
           );
 
           $links['remove_button'] = array(
@@ -384,7 +387,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 502,
-            '#submit' => array(array(get_class($this), 'removeItemSubmit')),
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
@@ -395,6 +398,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#access' => $paragraphs_entity->access('delete'),
             '#prefix' => '<li class="remove">',
             '#suffix' => '</li>',
+            '#paragraphs_mode' => 'remove',
           );
 
           if ($show_must_be_saved_warning) {
@@ -439,7 +443,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Confirm removal'),
             '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
             '#weight' => 503,
-            '#submit' => array(array(get_class($this), 'confirmRemoveItemSubmit')),
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
@@ -449,6 +453,7 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
             '#prefix' => '<li class="confirm-remove">',
             '#suffix' => '</li>',
+            '#paragraphs_mode' => 'removed',
           );
 
           $links['restore_button'] = array(
@@ -456,7 +461,7 @@ class InlineParagraphsWidget extends WidgetBase {
             '#value' => t('Restore'),
             '#name' => strtr($id_prefix, '-', '_') . '_restore',
             '#weight' => 504,
-            '#submit' => array(array(get_class($this), 'restoreItemSubmit')),
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
             '#ajax' => array(
@@ -466,6 +471,7 @@ class InlineParagraphsWidget extends WidgetBase {
             ),
             '#prefix' => '<li class="restore">',
             '#suffix' => '</li>',
+            '#paragraphs_mode' => 'edit',
           );
         }
 
@@ -933,7 +939,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $form_state->setRebuild();
   }
 
-  public static function collapseItemSubmit(array $form, FormStateInterface $form_state) {
+  public static function paragraphsItemSubmit(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
 
     // Go one level up in the form, to the widgets container.
@@ -947,91 +953,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
-    $widget_state['paragraphs'][$delta]['mode'] = 'collapsed';
-
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
-
-    $form_state->setRebuild();
-  }
-
-  public static function removeItemSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $delta = array_slice($button['#array_parents'], -4, -3);
-    $delta = $delta[0];
-
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    $widget_state['paragraphs'][$delta]['mode'] = 'remove';
-
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
-
-    $form_state->setRebuild();
-  }
-
-  public static function confirmRemoveItemSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $delta = array_slice($button['#array_parents'], -4, -3);
-    $delta = $delta[0];
-
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    $widget_state['paragraphs'][$delta]['mode'] = 'removed';
-
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
-
-    $form_state->setRebuild();
-  }
-
-  public static function editItemSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $delta = array_slice($button['#array_parents'], -4, -3);
-    $delta = $delta[0];
-
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    $widget_state['paragraphs'][$delta]['mode'] = 'edit';
-
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
-
-    $form_state->setRebuild();
-  }
-
-  public static function restoreItemSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $delta = array_slice($button['#array_parents'], -4, -3);
-    $delta = $delta[0];
-
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    $widget_state['paragraphs'][$delta]['mode'] = 'edit';
+    $widget_state['paragraphs'][$delta]['mode'] = $button['#paragraphs_mode'];
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
