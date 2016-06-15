@@ -3,77 +3,26 @@
 namespace Drupal\paragraphs\Tests;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests paragraphs widget buttons.
  *
  * @group paragraphs
  */
-class ParagraphsWidgetButtonsTest extends WebTestBase {
+class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
 
   use FieldUiTestTrait;
-
-  /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = [
-    'node',
-    'paragraphs',
-    'field',
-    'field_ui',
-    'block',
-  ];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    // Create paragraphed_test content type.
-    $this->drupalCreateContentType([
-      'type' => 'paragraphed_test',
-      'name' => 'paragraphed_test'
-    ]);
-    // Place the breadcrumb, tested in fieldUIAddNewField().
-    $this->drupalPlaceBlock('system_breadcrumb_block');
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalPlaceBlock('page_title_block');
-  }
 
   /**
    * Tests the widget buttons of paragraphs.
    */
   public function testWidgetButtons() {
-    $admin_user = $this->drupalCreateUser([
-      'administer nodes',
-      'administer content types',
-      'administer node fields',
-      'administer paragraphs types',
-      'create paragraphed_test content',
-      'edit any paragraphed_test content',
-      'administer node form display',
-      'administer paragraphs types',
-      'administer paragraph fields',
-      'administer paragraph form display',
-    ]);
-    $this->drupalLogin($admin_user);
-    static::fieldUIDeleteField('admin/structure/types/manage/paragraphed_test', 'node.paragraphed_test.body', 'Body', 'paragraphed_test');
+    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs');
 
+    $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
     // Add a Paragraph type.
     $paragraph_type = 'text_paragraph';
     $this->addParagraphsType($paragraph_type);
-
-    // Create a Paragraphs field.
-    static::fieldUIAddNewField('admin/structure/types/manage/paragraphed_test', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', [
-      'settings[target_type]' => 'paragraph',
-      'cardinality' => '-1',
-    ], []);
-    $this->clickLink(t('Manage form display'));
-    $this->drupalPostForm(NULL, ['fields[field_paragraphs][type]' => 'entity_reference_paragraphs'], t('Save'));
 
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
@@ -95,7 +44,7 @@ class ParagraphsWidgetButtonsTest extends WebTestBase {
     $this->assertText($text);
 
     // Test the 'Closed' mode.
-    $this->setParagraphsWidgetMode('paragraphed_test', 'paragraphs', 'closed');
+    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
     $this->drupalGet('node/' . $node->id() . '/edit');
     // Click "Edit" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
@@ -111,7 +60,7 @@ class ParagraphsWidgetButtonsTest extends WebTestBase {
     $this->assertText($closed_mode_text);
 
     // Test the 'Preview' mode.
-    $this->setParagraphsWidgetMode('paragraphed_test', 'paragraphs', 'preview');
+    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'preview');
     $this->drupalGet('node/' . $node->id() . '/edit');
     // Click "Edit" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
@@ -155,32 +104,20 @@ class ParagraphsWidgetButtonsTest extends WebTestBase {
   }
 
   /**
-   * Set the Paragraphs widget display mode.
+   * Sets the Paragraphs widget display mode.
    *
    * @param string $content_type
    *   Content type name where to set the widget mode.
    * @param string $paragraphs_field
    *   Paragraphs field to change the mode.
    * @param string $mode
-   *   Mode to be set.
+   *   Mode to be set. ('closed', 'preview' or 'open').
    */
   protected function setParagraphsWidgetMode($content_type, $paragraphs_field, $mode) {
     $this->drupalGet('admin/structure/types/manage/' . $content_type . '/form-display');
-    $this->drupalPostAjaxForm(NULL, [], 'field_' . $paragraphs_field . '_settings_edit');
-    $this->drupalPostForm(NULL, ['fields[field_' . $paragraphs_field . '][settings_edit_form][settings][edit_mode]' => $mode], t('Update'));
+    $this->drupalPostAjaxForm(NULL, [], $paragraphs_field . '_settings_edit');
+    $this->drupalPostForm(NULL, ['fields[' . $paragraphs_field . '][settings_edit_form][settings][edit_mode]' => $mode], t('Update'));
     $this->drupalPostForm(NULL, [], 'Save');
-  }
-
-  /**
-   * Adds a Paragraphs type.
-   *
-   * @param string $paragraphs_type
-   *   Paragraph type name used to create.
-   */
-  protected function addParagraphsType($paragraphs_type) {
-    $this->drupalGet('admin/structure/paragraphs_type/add');
-    $edit = ['label' => $paragraphs_type, 'id' => $paragraphs_type];
-    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
   }
 
 }
