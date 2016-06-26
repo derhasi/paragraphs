@@ -24,11 +24,9 @@ class ParagraphSelection extends SelectionBase {
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $entity_manager = \Drupal::entityManager();
     $entity_type_id = $this->configuration['target_type'];
     $selection_handler_settings = $this->configuration['handler_settings'] ?: array();
-    $entity_type = $entity_manager->getDefinition($entity_type_id);
-    $bundles = $entity_manager->getBundleInfo($entity_type_id);
+    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type_id);
 
     // Merge-in default values.
     $selection_handler_settings += array(

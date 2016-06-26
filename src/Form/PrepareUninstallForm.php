@@ -58,7 +58,7 @@ class PrepareUninstallForm extends FormBase {
    */
   public static function deleteParagraphs(&$context) {
     $paragraph_ids = \Drupal::entityQuery('paragraph')->range(0, 100)->execute();
-    $storage = \Drupal::entityManager()->getStorage('paragraph');
+    $storage = \Drupal::entityTypeManager()->getStorage('paragraph');
     if ($paragraphs = $storage->loadMultiple($paragraph_ids)) {
       $storage->delete($paragraphs);
     }

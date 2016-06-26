@@ -66,7 +66,7 @@ class ParagraphsAccessTest extends WebTestBase {
     // Remove the "access content" for anonymous users. That results in
     // anonymous users not being able to "view" the host entity.
     /* @var Role $role */
-    $role = \Drupal::entityManager()
+    $role = \Drupal::entityTypeManager()
       ->getStorage('user_role')
       ->load(RoleInterface::ANONYMOUS_ID);
     $role->revokePermission('access content');
