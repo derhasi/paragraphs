@@ -149,3 +149,12 @@ function paragraphs_update_8007() {
     ->isNull('status')
     ->execute();
 }
+
+/**
+ * Ensure that the parent indexes are added to the paragraphs entity.
+ */
+function paragraphs_update_8008() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  // Regenerate entity type indexes.
+  $manager->updateEntityType($manager->getEntityType('paragraph'));
+}
