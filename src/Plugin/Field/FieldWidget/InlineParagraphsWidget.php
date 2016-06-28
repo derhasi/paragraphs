@@ -1089,6 +1089,15 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function extractFormValues(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
+    // Filter possible empty items.
+    $items->filterEmptyItems();
+    return parent::extractFormValues($items, $form, $form_state);
+  }
+
+  /**
    * Initializes the translation form state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state

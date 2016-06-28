@@ -58,25 +58,27 @@ class ParagraphSelection extends SelectionBase {
       '#access' => FALSE,
     );
 
-    $form['target_bundles_drag_drop'] = array(
-      '#element_validate' => array(array(__CLASS__, 'targetTypeValidate')),
-      '#type' => 'table',
-      '#header' => array(
-        t('Type'),
-        t('Weight'),
-      ),
-      '#attributes' => array(
-        'id' => 'bundles',
-      ),
-      '#prefix' => '<h5>' . t('Paragraph types') . '</h5>',
-      '#suffix' => '<div class="description">' . t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.') .'</div>',
-    );
+    if ($bundle_options) {
+      $form['target_bundles_drag_drop'] = [
+        '#element_validate' => [[__CLASS__, 'targetTypeValidate']],
+        '#type' => 'table',
+        '#header' => [
+          t('Type'),
+          t('Weight'),
+        ],
+        '#attributes' => [
+          'id' => 'bundles',
+        ],
+        '#prefix' => '<h5>' . t('Paragraph types') . '</h5>',
+        '#suffix' => '<div class="description">' . t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.') .'</div>',
+      ];
 
-    $form['target_bundles_drag_drop']['#tabledrag'][] = array(
-      'action' => 'order',
-      'relationship' => 'sibling',
-      'group' => 'bundle-weight',
-    );
+      $form['target_bundles_drag_drop']['#tabledrag'][] = [
+        'action' => 'order',
+        'relationship' => 'sibling',
+        'group' => 'bundle-weight',
+      ];
+    }
 
     uasort($bundle_options, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
