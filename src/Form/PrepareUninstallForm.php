@@ -40,7 +40,7 @@ class PrepareUninstallForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $batch = [
-      'title' => t('Deleting paragraphs'),
+      'title' => $this->t('Deleting paragraphs'),
       'operations' => [
         [
           [__CLASS__, 'deleteParagraphs'], [],
