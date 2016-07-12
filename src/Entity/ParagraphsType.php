@@ -16,7 +16,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     "form" = {
  *       "add" = "Drupal\paragraphs\Form\ParagraphsTypeForm",
  *       "edit" = "Drupal\paragraphs\Form\ParagraphsTypeForm",
- *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
+ *       "delete" = "Drupal\paragraphs\Form\ParagraphsTypeDeleteConfirm"
  *     }
  *   },
  *   config_prefix = "paragraphs_type",
