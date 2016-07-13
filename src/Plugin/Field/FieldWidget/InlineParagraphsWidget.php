@@ -240,14 +240,21 @@ class InlineParagraphsWidget extends WidgetBase {
           $source = $form_state->get(['content_translation', 'source']);
           $source_langcode = $source ? $source->getId() : $entity_langcode;
           $paragraphs_entity = $paragraphs_entity->getTranslation($source_langcode);
-          // Initialise the translation with source language values.
-          $paragraphs_entity->addTranslation($langcode, $paragraphs_entity->toArray());
-          $translation = $paragraphs_entity->getTranslation($langcode);
-          $manager = \Drupal::service('content_translation.manager');
-          $manager->getTranslationMetadata($translation)->setSource($paragraphs_entity->language()->getId());
+          // The paragraphs entity has no content translation source field if
+          // no paragraph entity field is translatable, even if the host is.
+          if ($paragraphs_entity->hasField('content_translation_source')) {
+            // Initialise the translation with source language values.
+            $paragraphs_entity->addTranslation($langcode, $paragraphs_entity->toArray());
+            $translation = $paragraphs_entity->getTranslation($langcode);
+            $manager = \Drupal::service('content_translation.manager');
+            $manager->getTranslationMetadata($translation)->setSource($paragraphs_entity->language()->getId());
+          }
         }
-        // Switch the paragraph to the translation.
-        $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+        // If any paragraphs type is translatable do not switch.
+        if ($paragraphs_entity->hasField('content_translation_source')) {
+          // Switch the paragraph to the translation.
+          $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+        }
       }
 
       $element_parents = $parents;
