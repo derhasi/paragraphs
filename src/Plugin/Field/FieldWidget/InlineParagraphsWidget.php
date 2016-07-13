@@ -1114,7 +1114,7 @@ class InlineParagraphsWidget extends WidgetBase {
       // Adding a language through the ContentTranslationController.
       $this->isTranslating = TRUE;
     }
-    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($host->getEntityType()->getKey('default_langcode'))->value == 0) {
+    if ($host->isTranslatable() && $host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($host->getEntityType()->getKey('default_langcode'))->value == 0) {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }

@@ -110,10 +110,24 @@ abstract class ParagraphsTestBase extends WebTestBase {
     ]);
     $node_type->save();
 
+    $this->addParagraphsField($content_type_name, $paragraphs_field_name, 'node');
+  }
+
+  /**
+   * Adds a Paragraphs field to a given $entity_type.
+   *
+   * @param string $entity_type_name
+   *   Entity type name to be used.
+   * @param string $paragraphs_field_name
+   *   Paragraphs field name to be used.
+   * @param string $entity_type
+   *   Entity type where to add the field.
+   */
+  protected function addParagraphsField($entity_type_name, $paragraphs_field_name, $entity_type) {
     // Add a paragraphs field.
     $field_storage = FieldStorageConfig::create([
       'field_name' => $paragraphs_field_name,
-      'entity_type' => 'node',
+      'entity_type' => $entity_type,
       'type' => 'entity_reference_revisions',
       'settings' => [
         'target_type' => 'paragraph',
@@ -123,7 +137,7 @@ abstract class ParagraphsTestBase extends WebTestBase {
     $field_storage->save();
     $field = FieldConfig::create([
       'field_storage' => $field_storage,
-      'bundle' => $content_type_name,
+      'bundle' => $entity_type_name,
       'settings' => [
         'handler' => 'default:paragraph',
         'handler_settings' => ['target_bundles' => NULL],
@@ -132,8 +146,8 @@ abstract class ParagraphsTestBase extends WebTestBase {
     $field->save();
 
     $form_display = EntityFormDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => $content_type_name,
+      'targetEntityType' => $entity_type,
+      'bundle' => $entity_type_name,
       'mode' => 'default',
       'status' => TRUE,
     ])
@@ -141,8 +155,8 @@ abstract class ParagraphsTestBase extends WebTestBase {
     $form_display->save();
 
     $view_display = EntityViewDisplay::create([
-      'targetEntityType' => 'node',
-      'bundle' => $content_type_name,
+      'targetEntityType' => $entity_type,
+      'bundle' => $entity_type_name,
       'mode' => 'default',
       'status' => TRUE,
     ])->setComponent($paragraphs_field_name, ['type' => 'entity_reference_revisions_entity_view']);
