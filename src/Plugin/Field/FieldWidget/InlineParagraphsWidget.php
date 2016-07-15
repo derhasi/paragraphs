@@ -443,7 +443,7 @@ class InlineParagraphsWidget extends WidgetBase {
         elseif ($item_mode == 'remove') {
 
           $element['top']['paragraph_type_title']['info'] = array(
-            '#markup' => $this->t('Deleted @title type: %type', array('@title' => $this->getSetting('title'), '%type' => $bundle_info['label'])),
+            '#markup' => $this->t('Deleted @title: %type', ['@title' => $this->getSetting('title'), '%type' => $bundle_info['label']]),
           );
 
           $links['confirm_remove_button'] = array(

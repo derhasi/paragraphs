@@ -43,6 +43,6 @@ class ParagraphsContactTest extends ParagraphsTestBase {
     // Check that the paragraph is displayed.
     $this->assertText('Type: paragraphs_contact');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_0_remove');
-    $this->assertText('Deleted Paragraph type: paragraphs_contact');
+    $this->assertText('Deleted Paragraph: paragraphs_contact');
   }
 }

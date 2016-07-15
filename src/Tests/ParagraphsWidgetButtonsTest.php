@@ -80,7 +80,7 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     $this->assertText($preview_mode_text);
     // Click "Remove" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $this->assertText('Deleted Paragraph type: text_paragraph');
+    $this->assertText('Deleted Paragraph: text_paragraph');
     // Click "Restore" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_restore');
     $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', $preview_mode_text);
@@ -95,7 +95,7 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     $this->assertText($restore_text);
     // Click "Remove" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $this->assertText('Deleted Paragraph type: text_paragraph');
+    $this->assertText('Deleted Paragraph: text_paragraph');
     // Click "Confirm Removal" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
