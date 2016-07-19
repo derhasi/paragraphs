@@ -1116,12 +1116,22 @@ class InlineParagraphsWidget extends WidgetBase {
       return;
     }
     $this->isTranslating = FALSE;
+    if (!$host->isTranslatable()) {
+      return;
+    }
+    if (!$host->getEntityType()->hasKey('default_langcode')) {
+      return;
+    }
+    $default_langcode_key = $host->getEntityType()->getKey('default_langcode');
+    if (!$host->hasField($default_langcode_key)) {
+      return;
+    }
 
     if (!empty($form_state->get('content_translation'))) {
       // Adding a language through the ContentTranslationController.
       $this->isTranslating = TRUE;
     }
-    if ($host->isTranslatable() && $host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($host->getEntityType()->getKey('default_langcode'))->value == 0) {
+    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($default_langcode_key)->value == 0) {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }
