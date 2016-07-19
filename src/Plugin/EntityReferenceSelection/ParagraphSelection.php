@@ -2,7 +2,7 @@
 
 namespace Drupal\paragraphs\Plugin\EntityReferenceSelection;
 
-use Drupal\Core\Entity\Plugin\EntityReferenceSelection\SelectionBase;
+use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
@@ -18,7 +18,7 @@ use Drupal\Component\Utility\NestedArray;
  *   weight = 0
  * )
  */
-class ParagraphSelection extends SelectionBase {
+class ParagraphSelection extends DefaultSelection {
 
   /**
    * {@inheritdoc}
