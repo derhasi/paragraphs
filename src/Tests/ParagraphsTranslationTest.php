@@ -66,8 +66,6 @@ class ParagraphsTranslationTest extends WebTestBase {
       'settings[paragraph][nested_paragraph][settings][language][language_alterable]' => TRUE,
       'settings[paragraph][images][fields][field_images_demo]' => TRUE,
     ];
-    // @todo Remove ONLY the following line after #2698529 is committed.
-    $edit['settings[paragraph][text][settings][language][langcode]'] = 'site_default';
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
   }
 
