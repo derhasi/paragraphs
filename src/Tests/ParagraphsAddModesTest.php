@@ -14,6 +14,24 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
   use FieldUiTestTrait;
 
   /**
+   * Tests that paragraphs field does not allow default values.
+   */
+  public function testNoDefaultValue() {
+    $this->loginAsAdmin();
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+
+    // Edit the field.
+    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields');
+    $this->clickLink(t('Edit'));
+
+    // Check that the current field does not allow to add default values.
+    $this->assertText('No widget available for: paragraphs_field.');
+    $this->drupalPostForm(NULL, [], t('Save settings'));
+    $this->assertText('Saved paragraphs_field configuration.');
+    $this->assertResponse(200);
+  }
+
+  /**
    * Tests the field creation when no paragraphs types are available.
    */
   public function testEmptyAllowedTypes() {

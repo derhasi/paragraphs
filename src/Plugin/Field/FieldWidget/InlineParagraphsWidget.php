@@ -886,6 +886,22 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function form(FieldItemListInterface $items, array &$form, FormStateInterface $form_state, $get_delta = NULL) {
+    $parents = $form['#parents'];
+
+    // Identify the manage field settings default value form.
+    if (in_array('default_value_input', $parents, TRUE)) {
+      // Since the entity is not reusable neither cloneable, having a default
+      // value is not supported.
+      return ['#markup' => $this->t('No widget available for: %label.', ['%label' => $items->getFieldDefinition()->getLabel()])];
+    }
+
+    return parent::form($items, $form, $form_state, $get_delta);
+  }
+
+  /**
    * Gets current language code from the form state or item.
    *
    * Since the paragraph field is not set as translatable, the item language
