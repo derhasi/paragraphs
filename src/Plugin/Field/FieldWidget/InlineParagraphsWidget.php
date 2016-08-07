@@ -830,7 +830,7 @@ class InlineParagraphsWidget extends WidgetBase {
             );
             if ($drop_button) {
               $elements['add_more']['add_more_button_' . $machine_name]['#prefix'] = '<li>';
-              $elements['add_more']['add_more_button_' . $machine_name]['#suffix'] = '<li>';
+              $elements['add_more']['add_more_button_' . $machine_name]['#suffix'] = '</li>';
             }
           }
         }
