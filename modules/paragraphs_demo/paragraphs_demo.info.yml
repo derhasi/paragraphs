@@ -12,6 +12,7 @@ dependencies:
   - search_api_db
   - search_api
   - views
+  - taxonomy
 test_dependencies:
   - search_api_db
   - search_api
