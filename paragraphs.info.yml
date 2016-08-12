@@ -9,3 +9,4 @@ dependencies:
 test_dependencies:
   - diff
   - replicate
+  - inline_entity_form
