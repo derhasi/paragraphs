@@ -120,8 +120,8 @@ function paragraphs_form_field_config_edit_form_alter(&$form,  \Drupal\Core\Form
     ->isEnabled($field->getTargetEntityTypeId(), $field->getTargetBundle());
 
   if (!$bundle_is_translatable
-    || !$field->getType() == 'entity_reference_revisions'
-    || !$field->getSetting('target_type') == 'paragraph') {
+    || $field->getType() != 'entity_reference_revisions'
+    || $field->getSetting('target_type') != 'paragraph') {
     return;
   }
 

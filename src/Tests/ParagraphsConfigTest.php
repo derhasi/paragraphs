@@ -111,5 +111,16 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $this->assertText('Paragraphs fields do not support translation.');
     $this->assertRaw('<div class="messages messages--error');
 
+    // Check a not paragraphs translatable field does not display the message.
+    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/add-field');
+    $edit = [
+      'new_storage_type' => 'field_ui:entity_reference:node',
+      'label' => 'new_no_paragraphs_field',
+      'field_name' => 'new_no_paragraphs_field',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and continue'));
+    $this->drupalPostForm(NULL, [], t('Save field settings'));
+    $this->assertNoText('Paragraphs fields do not support translation.');
+    $this->assertNoRaw('<div class="messages messages--warning');
   }
 }
