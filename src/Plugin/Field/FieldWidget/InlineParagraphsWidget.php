@@ -1082,8 +1082,9 @@ class InlineParagraphsWidget extends WidgetBase {
 
         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
         $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
-        $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
-
+        if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
+          $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
+        }
         $paragraphs_entity->setNewRevision($new_revision);
         // A content entity form saves without any rebuild. It needs to set the
         // language to update it in case of language change.
