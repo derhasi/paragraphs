@@ -27,6 +27,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
     'image',
     'field_ui',
     'block',
+    'file',
+    'views'
   );
 
   /**
@@ -165,6 +167,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
       'administer node form display',
       'edit any article content',
       'delete any article content',
+      'access files overview',
     ));
     $this->drupalLogin($admin_user);
 
@@ -570,6 +573,11 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // added yet.
     $this->drupalGet('node/add/article');
     $this->assertText('No Paragraph added yet.');
+
+    $this->drupalGet('admin/content/files');
+    $this->clickLink('1 place');
+    $label = $this->xpath('//tbody/tr/td[1]');
+    $this->assertEqual(trim(htmlspecialchars_decode(strip_tags($label[0]->asXML()))), 'test required > Paragraphs > Paragraphs');
   }
 
   /**

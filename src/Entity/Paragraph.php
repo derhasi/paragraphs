@@ -90,6 +90,23 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
+  public function label() {
+    $label = '';
+    if ($parent = $this->getParentEntity()) {
+      $parent_field = $this->get('parent_field_name')->value;
+      $values = $parent->{$parent_field};
+      foreach ($values as $key => $value) {
+        if ($value->entity->id() == $this->id()) {
+          $label = $parent->label() . ' > ' . $value->getFieldDefinition()->getLabel();
+        }
+      }
+    }
+    return $label;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preSave(EntityStorageInterface $storage) {
     parent::preSave($storage);
 
