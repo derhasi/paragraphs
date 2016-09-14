@@ -146,6 +146,23 @@ function paragraphs_form_field_config_edit_form_alter(&$form,  \Drupal\Core\Form
   );
 }
 
+/**
+ * Implements hook_module_implements_alter().
+ *
+ * Our paragraphs_form_field_config_edit_form_alter() needs to be run after
+ * that of the content_translation module in order to see the current state
+ * of the translation field.
+ *
+ * The hook here can't be more specific, as the $hook that's passed in to this
+ * function is form_alter, and not form_FORM_ID_alter.
+ */
+function paragraphs_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter' && isset($implementations['paragraphs'])) {
+    $group = $implementations['paragraphs'];
+    unset($implementations['paragraphs']);
+    $implementations['paragraphs'] = $group;
+  }
+}
 
 /**
  * Implements hook_form_FORM_ID_alter().
