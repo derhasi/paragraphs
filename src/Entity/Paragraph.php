@@ -248,16 +248,10 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
       ->setSetting('handler', 'default')
       ->setDefaultValueCallback('Drupal\paragraphs\Entity\Paragraph::getCurrentUserId')
       ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', array(
-        'label' => 'hidden',
-        'type' => 'hidden',
-        'weight' => 0,
-      ))
       ->setDisplayOptions('form', array(
         'type' => 'hidden',
         'weight' => 0,
       ))
-      ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
@@ -272,15 +266,10 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
       ->setDescription(t('The time that the Paragraph was created.'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
-      ->setDisplayOptions('view', array(
-        'type' => 'hidden',
-        'weight' => 0,
-      ))
       ->setDisplayOptions('form', array(
         'type' => 'hidden',
         'weight' => 0,
       ))
-      ->setDisplayConfigurable('view', TRUE)
       ->setDisplayConfigurable('form', TRUE);
 
     $fields['revision_uid'] = BaseFieldDefinition::create('entity_reference')
