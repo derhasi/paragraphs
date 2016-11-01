@@ -400,6 +400,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
     $edit = [
       'fields[status][type]' => 'boolean_checkbox',
+      'fields[status][region]' => 'content',
     ];
 
     $this->drupalPostForm(NULL, $edit, t('Save'));
@@ -455,7 +456,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Test that unsupported widgets are not displayed.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
     $select = $this->xpath('//*[@id="edit-fields-field-paragraphs-type"]')[0];
-    $this->assertEqual(count($select->option), 2);
+    $this->assertEqual(count($select->option), 1);
     $this->assertRaw('value="entity_reference_paragraphs" selected="selected"');
 
     // Check that Paragraphs is not displayed as an entity_reference field
