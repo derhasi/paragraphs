@@ -551,6 +551,21 @@ class InlineParagraphsWidget extends WidgetBase {
 
       $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
 
+      // @todo Remove as part of https://www.drupal.org/node/2640056
+      if (\Drupal::moduleHandler()->moduleExists('field_group')) {
+        $context = [
+          'entity_type' => $paragraphs_entity->getEntityTypeId(),
+          'bundle' => $paragraphs_entity->bundle(),
+          'entity' => $paragraphs_entity,
+          'context' => 'form',
+          'display_context' => 'form',
+          'mode' => $display->getMode(),
+        ];
+
+        field_group_attach_groups($element['subform'], $context);
+        $element['subform']['#pre_render'][] = 'field_group_form_pre_render';
+      }
+
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
         foreach (Element::children($element['subform']) as $field) {
