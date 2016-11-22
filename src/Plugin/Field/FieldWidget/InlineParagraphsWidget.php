@@ -1098,7 +1098,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
         $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
-        if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
+        if ($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'edit') {
           $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
         }
         $paragraphs_entity->setNewRevision($new_revision);
