@@ -6,6 +6,7 @@ use Drupal\Core\Entity\Entity;
 use Drupal\Core\Site\Settings;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\language\Entity\ConfigurableLanguage;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\paragraphs\Entity\Paragraph;
@@ -32,6 +33,7 @@ class ParagraphsCompositeRelationshipTest extends KernelTestBase {
     'system',
     'field',
     'entity_reference_revisions',
+    'language',
   );
 
   /**
@@ -288,6 +290,32 @@ class ParagraphsCompositeRelationshipTest extends KernelTestBase {
     $nested_paragraph_children = Paragraph::load($paragraph_nested_children1->id())->toArray();
     $this->assertParagraphField($nested_paragraph_children, $paragraph4_nested_parent->id(), $paragraph4_nested_parent->getEntityTypeId(), 'nested_paragraph_field');
 
+    // Add the german language.
+    ConfigurableLanguage::create(['id' => 'de'])->save();
+
+    // Create a new paragraph and add a german translation.
+    $paragraph = Paragraph::create([
+      'title' => 'Paragraph',
+      'type' => 'test_text'
+    ]);
+    $paragraph->addTranslation('de');
+    $paragraph->save();
+
+    // Load a node and add a german translation.
+    $node = Node::load($node->id());
+    $node->addTranslation('de', [
+      'title' => 'german',
+      'node_paragraph_field' => $paragraph
+    ]);
+    $node->save();
+
+    // Load the paragraph and its german translation.
+    $paragraph = Paragraph::load($paragraph->id());
+    $paragraph = $paragraph->getTranslation('de');
+
+    // Get the parent entity.
+    $parent = $paragraph->getParentEntity();
+    static::assertEquals($parent->language()->getId(), 'de');
   }
 
   /**

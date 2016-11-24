@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\entity_reference_revisions\EntityNeedsSaveInterface;
 use Drupal\entity_reference_revisions\EntityNeedsSaveTrait;
@@ -84,7 +85,15 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
     if (!isset($this->get('parent_type')->value) || !isset($this->get('parent_id')->value)) {
       return NULL;
     }
-    return \Drupal::entityTypeManager()->getStorage($this->get('parent_type')->value)->load($this->get('parent_id')->value);
+
+    $parent = \Drupal::entityTypeManager()->getStorage($this->get('parent_type')->value)->load($this->get('parent_id')->value);
+
+    // Return current translation of parent entity, if it exists.
+    if ($parent != NULL && ($parent instanceof TranslatableInterface) && $parent->hasTranslation($this->language()->getId())) {
+      return $parent->getTranslation($this->language()->getId());
+    }
+
+    return $parent;
   }
 
   /**
