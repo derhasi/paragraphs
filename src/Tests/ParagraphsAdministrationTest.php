@@ -331,8 +331,8 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // The textareas for paragraphs should not be visible.
     $this->assertNoRaw('field_paragraphs[0][subform][field_text][0][value]');
     $this->assertNoRaw('field_paragraphs[1][subform][field_text][0][value]');
-    $this->assertNoText('Test text 1');
-    $this->assertNoText('Test text 2');
+    $this->assertRaw('<div class="paragraphs-collapsed-description">myImage1.jpg, Test text 1');
+    $this->assertRaw('<div class="paragraphs-collapsed-description">myImage2.jpg, Test text 2');
 
     // Test for preview option.
     $this->drupalGet('admin/structure/types/manage/article/form-display');

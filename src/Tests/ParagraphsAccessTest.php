@@ -142,7 +142,7 @@ class ParagraphsAccessTest extends WebTestBase {
     // Create a new demo node.
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Text'));
-    $this->assertText('Type: Text');
+    $this->assertText('Text');
     $edit = [
       'title[0][value]' => 'delete_permissions',
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Test',

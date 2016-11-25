@@ -54,7 +54,7 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     // Click "Collapse" button.
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
     $this->assertText('Warning: this content must be saved to reflect changes on this Paragraph item.');
-    $this->assertNoText($closed_mode_text);
+    $this->assertRaw('<div class="paragraphs-collapsed-description">' . $closed_mode_text);
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertText($closed_mode_text);

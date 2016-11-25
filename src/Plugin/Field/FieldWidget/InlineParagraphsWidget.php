@@ -303,7 +303,7 @@ class InlineParagraphsWidget extends WidgetBase {
         );
 
         $element['top']['paragraph_type_title']['info'] = array(
-          '#markup' => '<strong>Type: ' . $bundle_info['label'] . '</strong>',
+          '#markup' => $bundle_info['label'],
         );
 
         $actions = array();
@@ -355,19 +355,19 @@ class InlineParagraphsWidget extends WidgetBase {
 
           $info['edit_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
@@ -413,31 +413,31 @@ class InlineParagraphsWidget extends WidgetBase {
           if ($show_must_be_saved_warning) {
             $info['must_be_saved_info'] = array(
               '#type' => 'markup',
-              '#markup' => '<em>' . $this->t('Warning: this content must be saved to reflect changes on this @title item.', array('@title' => $this->getSetting('title'))) . '</em>',
+              '#markup' => '<em class="color-warning">' . $this->t('Warning: this content must be saved to reflect changes on this @title item.', array('@title' => $this->getSetting('title'))) . '</em>',
             );
           }
 
           $info['preview_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('view'),
           );
 
           $info['edit_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
@@ -587,6 +587,14 @@ class InlineParagraphsWidget extends WidgetBase {
       }
       elseif ($item_mode == 'closed') {
         $element['subform'] = array();
+        if ($paragraphs_entity) {
+          $summary = $this->addCollapsedSummary($paragraphs_entity);
+          $element['top']['paragraph_summary']['fields_info'] = [
+            '#markup' => $summary,
+            '#prefix' => '<div class="paragraphs-collapsed-description">',
+            '#suffix' => '</div>',
+          ];
+        }
       }
       else {
         $element['subform'] = array();
@@ -787,7 +795,7 @@ class InlineParagraphsWidget extends WidgetBase {
           '#type' => 'container',
           'value' => [
             '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
-            '#prefix' => '<em>',
+            '#prefix' => '<em class="color-warning">',
             '#suffix' => '</em>',
           ]
         ],
@@ -884,13 +892,13 @@ class InlineParagraphsWidget extends WidgetBase {
         if (count($options)) {
           $elements['add_more']['info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You are not allowed to add any of the @title types.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to add any of the @title types.', array('@title' => $this->getSetting('title'))) . '</em>',
           );
         }
         else {
           $elements['add_more']['info'] = array(
             '#type' => 'markup',
-            '#markup' => '<em>' . $this->t('You did not add any @title types yet.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#markup' => '<em class="color-warning">' . $this->t('You did not add any @title types yet.', array('@title' => $this->getSetting('title'))) . '</em>',
           );
         }
       }
@@ -1206,4 +1214,52 @@ class InlineParagraphsWidget extends WidgetBase {
     }
     return $element;
   }
+
+  /**
+   * @param \Drupal\paragraphs\Entity\Paragraph $paragraphs_entity
+   *   Entity where to extract the values.
+   *
+   * @return string $collapsed_summary_text
+   *   The text without tags to return.
+   */
+  public function addCollapsedSummary(paragraphs\Entity\Paragraph $paragraphs_entity) {
+    $text_types = ['text_with_summary', 'text', 'text_long', 'list_string'];
+    $summary = [];
+    foreach ($paragraphs_entity->getFieldDefinitions() as $key => $value) {
+      if ($value->getType() == 'image') {
+        if ($paragraphs_entity->get($key)->entity) {
+          foreach ($paragraphs_entity->get($key) as $image_key => $image_value) {
+            if ($image_value->title != '') {
+              $text = $image_value->title;
+            }
+            elseif ($image_value->alt != '') {
+              $text = $image_value->alt;
+            }
+            elseif ($text = $image_value->entity->filename->value) {
+              $text = $image_value->entity->filename->value;
+            }
+            if (strlen($text) > 50) {
+              $text = strip_tags(substr($text, 0, 150));
+            }
+            $summary[] = $text;
+          }
+        }
+      }
+      if (in_array($value->getType(), $text_types)) {
+        $text = $paragraphs_entity->get($key)->value;
+        if (strlen($text) > 50) {
+          $text = strip_tags(substr($text, 0, 150));
+        }
+        $summary[] = $text;
+      }
+      if ($field_type = $value->getType() == 'entity_reference_revisions') {
+        if ($paragraphs_entity->get($key) && $paragraphs_entity->get($key)->entity) {
+          $summary[] = $this->addCollapsedSummary($paragraphs_entity->get($key)->entity);
+        }
+      }
+    }
+    $collapsed_summary_text = implode(', ', $summary);
+    return strip_tags($collapsed_summary_text);
+  }
+
 }
