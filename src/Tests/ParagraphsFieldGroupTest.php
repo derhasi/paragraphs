@@ -39,11 +39,15 @@ class ParagraphsFieldGroupTest extends ParagraphsTestBase {
 
     // Create the field group element on paragraph type.
     $edit = [
-      'fields[_add_new_group][format][type]' => 'fieldset',
-      'fields[_add_new_group][label]' => 'paragraph_field_group_title',
-      'fields[_add_new_group][group_name]' => 'group_field'
+      'group_formatter' => 'fieldset',
+      'label' => 'paragraph_field_group_title',
+      'group_name' => 'field'
     ];
-    $this->drupalPostForm('admin/structure/paragraphs_type/' . $paragraph_type . '/form-display', $edit, t('Save'));
+    $this->drupalPostForm('admin/structure/paragraphs_type/' . $paragraph_type . '/form-display/add-group', $edit, t('Save and continue'));
+    $edit = [
+      'format_settings[label]' => 'field_group'
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Create group'));
 
     // Put the text field into the field group.
     $edit = [
@@ -56,7 +60,7 @@ class ParagraphsFieldGroupTest extends ParagraphsTestBase {
     $this->drupalPostAjaxForm('node/add/' . $content_type, [], 'field_paragraphs_paragraph_type_test_add_more');
 
     // Test if the new field group is displayed.
-    $this->assertText('paragraph_field_group_title');
+    $this->assertText('field_group');
     $this->assertFieldByXPath("//fieldset", NULL, t('Fieldset present'));
 
     // Save the node.
