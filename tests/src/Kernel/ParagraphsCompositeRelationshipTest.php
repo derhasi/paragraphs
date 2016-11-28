@@ -316,6 +316,15 @@ class ParagraphsCompositeRelationshipTest extends KernelTestBase {
     // Get the parent entity.
     $parent = $paragraph->getParentEntity();
     static::assertEquals($parent->language()->getId(), 'de');
+
+    // Test if the needs save variable is set as false after saving.
+    $paragraph_needs_save = Paragraph::create([
+      'title' => 'Paragraph',
+      'type' => 'test_text',
+    ]);
+    $paragraph_needs_save->setNeedsSave(TRUE);
+    $paragraph_needs_save->save();
+    $this->assertFalse($paragraph_needs_save->needsSave());
   }
 
   /**

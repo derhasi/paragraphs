@@ -133,6 +133,14 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    $this->setNeedsSave(FALSE);
+    parent::postSave($storage, $update);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function preSaveRevision(EntityStorageInterface $storage, \stdClass $record) {
     parent::preSaveRevision($storage, $record);
   }
