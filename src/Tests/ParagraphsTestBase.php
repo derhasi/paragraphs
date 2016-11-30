@@ -235,4 +235,35 @@ abstract class ParagraphsTestBase extends WebTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save settings'));
   }
 
+  /**
+   * Sets the default paragraph type.
+   *
+   * @param $content_type
+   *   Content type name that contains the paragraphs field.
+   * @param $paragraphs_name
+   *   Paragraphs name.
+   * @param $paragraphs_field_name
+   *   Paragraphs field name to be used.
+   * @param $default_type
+   *   Default paragraph type which should be set.
+   */
+  protected function setDefaultParagraphType($content_type, $paragraphs_name, $paragraphs_field_name, $default_type) {
+    $this->drupalGet('admin/structure/types/manage/' . $content_type . '/form-display');
+    $this->drupalPostAjaxForm(NULL, [], $paragraphs_field_name);
+    $this->drupalPostForm(NULL, ['fields[' . $paragraphs_name . '][settings_edit_form][settings][default_paragraph_type]' => $default_type], t('Update'));
+    $this->drupalPostForm(NULL, [], t('Save'));
+  }
+
+  /**
+   * Removes the default paragraph type.
+   *
+   * @param $content_type
+   *   Content type name that contains the paragraphs field.
+   */
+  protected function removeDefaultParagraphType($content_type) {
+    $this->drupalGet('node/add/' . $content_type);
+    $this->drupalPostForm(NULL, [], 'Remove');
+    $this->drupalPostForm(NULL, [], 'Confirm removal');
+    $this->assertNoText('No paragraphs added yet.');
+  }
 }

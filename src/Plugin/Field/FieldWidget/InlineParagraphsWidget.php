@@ -52,6 +52,7 @@ class InlineParagraphsWidget extends WidgetBase {
       'edit_mode' => 'open',
       'add_mode' => 'dropdown',
       'form_display_mode' => 'default',
+      'default_paragraph_type' => '',
     );
   }
 
@@ -112,6 +113,20 @@ class InlineParagraphsWidget extends WidgetBase {
       '#required' => TRUE,
     );
 
+    $options  = [];
+    foreach ($this->getAllowedTypes() as $key => $bundle) {
+      $options[$key] = $bundle['label'];
+    }
+
+    $elements['default_paragraph_type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Default paragraph type'),
+      '#empty_option' => $this->t('- None -'),
+      '#default_value' => $this->getDefaultParagraphTypeMachineName(),
+      '#options' => $options,
+      '#description' => $this->t('When creating a new host entity, a paragraph of this type is added.'),
+    ];
+
     return $elements;
   }
 
@@ -120,8 +135,10 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   public function settingsSummary() {
     $summary = array();
-    $summary[] = $this->t('Title: @title', array('@title' => $this->getSetting('title')));
-    $summary[] = $this->t('Plural title: @title_plural', array('@title_plural' => $this->getSetting('title_plural')));
+    $summary[] = $this->t('Title: @title', ['@title' => $this->getSetting('title')]);
+    $summary[] = $this->t('Plural title: @title_plural', [
+      '@title_plural' => $this->getSetting('title_plural')
+    ]);
 
     switch($this->getSetting('edit_mode')) {
       case 'open':
@@ -149,9 +166,17 @@ class InlineParagraphsWidget extends WidgetBase {
         break;
     }
 
-    $summary[] = $this->t('Edit mode: @edit_mode', array('@edit_mode' => $edit_mode));
-    $summary[] = $this->t('Add mode: @add_mode', array('@add_mode' => $add_mode));
-    $summary[] = $this->t('Form display mode: @form_display_mode', array('@form_display_mode' => $this->getSetting('form_display_mode')));
+    $summary[] = $this->t('Edit mode: @edit_mode', ['@edit_mode' => $edit_mode]);
+    $summary[] = $this->t('Add mode: @add_mode', ['@add_mode' => $add_mode]);
+    $summary[] = $this->t('Form display mode: @form_display_mode', [
+      '@form_display_mode' => $this->getSetting('form_display_mode')
+    ]);
+    if ($this->getDefaultParagraphTypeLabelName() !== NULL) {
+      $summary[] = $this->t('Default paragraph type: @default_paragraph_type', [
+        '@default_paragraph_type' => $this->getDefaultParagraphTypeLabelName()
+      ]);
+    }
+
     return $summary;
   }
 
@@ -699,6 +724,32 @@ class InlineParagraphsWidget extends WidgetBase {
     $field_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $max = $field_state['items_count'];
+    $entity_type_manager = \Drupal::entityTypeManager();
+
+    // Consider adding a default paragraph for new host entities.
+    if ($max == 0 && $items->getEntity()->isNew()) {
+      $default_type = $this->getDefaultParagraphTypeMachineName();
+
+      // Checking if default_type is not none and if is allowed.
+      if ($default_type) {
+        // Place the default paragraph.
+        $target_type = $this->getFieldSetting('target_type');
+        $paragraphs_entity = $entity_type_manager->getStorage($target_type)->create([
+          'type' => $default_type,
+        ]);
+        $field_state['selected_bundle'] = $default_type;
+        $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
+        $field_state['paragraphs'][0] = [
+          'entity' => $paragraphs_entity,
+          'display' => $display,
+          'mode' => 'edit',
+          'original_delta' => 1
+        ];
+        $max = 1;
+        $field_state['items_count'] = $max;
+      }
+    }
+
     $real_item_count = $max;
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
@@ -1229,6 +1280,41 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
     return $element;
+  }
+
+  /**
+   * Returns the default paragraph type.
+   *
+   * @return string $default_paragraph_type
+   *   Label name for default paragraph type.
+   */
+  protected function getDefaultParagraphTypeLabelName(){
+    if ($this->getDefaultParagraphTypeMachineName() !== NULL) {
+      $allowed_types = $this->getAllowedTypes();
+      return $allowed_types[$this->getDefaultParagraphTypeMachineName()]['label'];
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Returns the machine name for default paragraph type.
+   *
+   * @return string
+   *   Machine name for default paragraph type.
+   */
+  protected function getDefaultParagraphTypeMachineName() {
+    $default_type = $this->getSetting('default_paragraph_type');
+    $allowed_types = $this->getAllowedTypes();
+    if ($default_type && isset($allowed_types[$default_type])) {
+      return $default_type;
+    }
+
+    if (count($allowed_types) === 1) {
+      return key($allowed_types);
+    }
+
+    return NULL;
   }
 
   /**

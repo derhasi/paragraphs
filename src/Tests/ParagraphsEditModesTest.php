@@ -37,6 +37,7 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
     // Add a Paragraph type.
     $paragraph_type = 'image_text_paragraph';
     $this->addParagraphsType($paragraph_type);
+    $this->addParagraphsType('text');
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'image', 'Image', 'image', [], ['settings[alt_field_required]' => FALSE]);
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
 

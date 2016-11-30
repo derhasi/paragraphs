@@ -29,6 +29,8 @@ entity_reference_selection.default:paragraph:
       type: string
     title_plural:
       type: string
+    default_paragraph_type:
+      type: string
 
 field.widget.settings.entity_reference_paragraphs:
   type: mapping
@@ -42,4 +44,6 @@ field.widget.settings.entity_reference_paragraphs:
     add_mode:
       type: string
     form_display_mode:
+      type: string
+    default_paragraph_type:
       type: string

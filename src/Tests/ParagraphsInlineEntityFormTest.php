@@ -28,6 +28,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
 
     // Create the paragraphs type simple.
     $this->addParagraphsType('simple');
+    $this->addParagraphsType('text');
 
     // Create a reference to an article.
     $this->fieldUIAddNewField('admin/structure/paragraphs_type/simple', 'article', 'Article', 'field_ui:entity_reference:node', [
@@ -79,6 +80,8 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
 
     // Create the paragraphs type simple.
     $this->addParagraphsType('simple');
+    $this->addParagraphsType('text');
+
 
     // Create a reference to an article.
     $this->fieldUIAddNewField('admin/structure/paragraphs_type/simple', 'article', 'Article', 'field_ui:entity_reference:node', [

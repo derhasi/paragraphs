@@ -35,6 +35,7 @@ class ParagraphsFieldGroupTest extends ParagraphsTestBase {
     // Add a Paragraphed test content type.
     $this->addParagraphedContentType($content_type, 'field_paragraphs');
     $this->addParagraphsType($paragraph_type);
+    $this->addParagraphsType('text');
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
 
     // Create the field group element on paragraph type.

@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Tests;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Tests paragraphs add modes.
@@ -146,5 +147,50 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
     }
     $this->assertTrue(count($buttons) == count($options), 'The amount of select options matches with the given array');
     $this->assertNotEqual($this->xpath('//*[@name="' . $paragraphs_field .'_add_more"]'), [], 'The add button is displayed');
+  }
+
+  /**
+   * Tests if setting for default paragraph type is working properly.
+   */
+  public function testSettingDefaultParagraphType() {
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->loginAsAdmin([
+      'administer content types',
+      'administer node form display',
+      'edit any paragraphed_test content'
+    ]);
+
+    // Add a Paragraphed test content.
+    $paragraphs_type_text_image = ParagraphsType::create([
+      'id' => 'text_image',
+      'label' => 'Text + Image',
+    ]);
+    $paragraphs_type_text = ParagraphsType::create([
+      'id' => 'text',
+      'label' => 'Text',
+    ]);
+    $paragraphs_type_text_image->save();
+    $paragraphs_type_text->save();
+
+    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', 'text_image');
+
+    // Check if default paragraph type is showing.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->assertText('Text + Image');
+    $this->removeDefaultParagraphType('paragraphed_test');
+
+    // Disable text_image as default paragraph type.
+    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', '');
+
+    // Check if is Text + Image is added as default paragraph type.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->assertText('No Paragraph added yet.');
+
+    // Check if default type is created only for new host
+    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', 'text_image');
+    $this->removeDefaultParagraphType('paragraphed_test');
+    $this->drupalPostForm(NULL, ['title[0][value]' => 'New Host'], 'Save and publish');
+    $this->drupalGet('node/1/edit');
+    $this->assertText('No Paragraph added yet.');
   }
 }

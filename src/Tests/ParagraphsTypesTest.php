@@ -18,6 +18,7 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     // Add a Paragraphed test content.
     $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
+    $this->addParagraphsType('text');
 
     // Attempt to delete the content type not used yet.
     $this->drupalGet('admin/structure/paragraphs_type');

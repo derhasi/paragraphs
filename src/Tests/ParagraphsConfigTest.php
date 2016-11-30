@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Tests;
 
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Tests paragraphs configuration.
@@ -34,6 +35,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     // Add a paragraphed content type.
     $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
     $this->addParagraphsType('paragraph_type_test');
+    $this->addParagraphsType('text');
 
     // Add a second language.
     ConfigurableLanguage::create(['id' => 'de'])->save();
