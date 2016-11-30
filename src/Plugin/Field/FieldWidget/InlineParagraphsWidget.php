@@ -306,6 +306,16 @@ class InlineParagraphsWidget extends WidgetBase {
           '#markup' => $bundle_info['label'],
         );
 
+        $element['top']['paragraphs_remove_button_container'] = [
+          '#type' => 'container',
+          '#weight' => 1,
+          '#attributes' => [
+            'class' => [
+              'paragraphs-remove-button-container',
+            ],
+          ],
+        ];
+
         $actions = array();
         $links = array();
         $info = array();
@@ -334,11 +344,16 @@ class InlineParagraphsWidget extends WidgetBase {
 
           // Hide the button when translating.
           $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
-          $links['remove_button'] = array(
+          $element['top']['paragraphs_remove_button_container']['paragraphs_remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 500,
+            '#attributes' => [
+              'class' => [
+                'paragraphs-remove-button',
+              ],
+            ],
             '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
@@ -348,10 +363,8 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
             '#access' => $button_access,
-            '#prefix' => '<li class="remove">',
-            '#suffix' => '</li>',
             '#paragraphs_mode' => 'remove',
-          );
+          ];
 
           $info['edit_button_info'] = array(
             '#type' => 'markup',
@@ -391,11 +404,16 @@ class InlineParagraphsWidget extends WidgetBase {
             '#paragraphs_mode' => 'edit',
           );
 
-          $links['remove_button'] = array(
+          $element['top']['paragraphs_remove_button_container']['paragraphs_remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
             '#weight' => 502,
+            '#attributes' => [
+              'class' => [
+                'paragraphs-remove-button',
+              ],
+            ],
             '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
             '#delta' => $delta,
@@ -405,10 +423,8 @@ class InlineParagraphsWidget extends WidgetBase {
               'effect' => 'fade',
             ),
             '#access' => $paragraphs_entity->access('delete'),
-            '#prefix' => '<li class="remove">',
-            '#suffix' => '</li>',
             '#paragraphs_mode' => 'remove',
-          );
+          ];
 
           if ($show_must_be_saved_warning) {
             $info['must_be_saved_info'] = array(
@@ -513,7 +529,7 @@ class InlineParagraphsWidget extends WidgetBase {
                 unset($element['top']['links'][$key]['#suffix']);
               }
             }
-            $element['top']['links']['#weight'] = 1;
+            $element['top']['links']['#weight'] = 2;
           }
         }
 

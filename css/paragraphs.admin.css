@@ -80,3 +80,30 @@
   padding-right: 10px;
   text-align: right;
 }
+
+.paragraphs-remove-button-container {
+  display: flex;
+  flex-flow: row-reverse;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-left: auto;
+}
+
+.js .paragraphs-remove-button {
+  background: url('/core/misc/icons/787878/ex.svg') no-repeat center;
+  background-size: 13px 13px;
+  width: 20px;
+  border: none;
+  font-size: 0px;
+  line-height: 0;
+}
+
+.js .paragraphs-remove-button:hover {
+  background: url('/core/misc/icons/000000/ex.svg') no-repeat center;
+  background-size: 13px 13px;
+  width: 20px;
+  border: none;
+  font-size: 0px;
+  line-height: 0;
+  box-shadow: none;
+}
