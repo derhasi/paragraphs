@@ -107,3 +107,15 @@
   line-height: 0;
   box-shadow: none;
 }
+
+
+/* Override 600px breakpoint core submit button tweaks. */
+@media screen and (max-width: 600px) {
+  .js .paragraphs-remove-button-container .paragraphs-remove-button {
+    width: 20px;
+  }
+
+  .js .paragraphs-remove-button-container .paragraphs-remove-button:hover {
+    width: 20px;
+  }
+}
