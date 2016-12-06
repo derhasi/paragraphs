@@ -392,20 +392,23 @@ class InlineParagraphsWidget extends WidgetBase {
           ];
 
           $info['edit_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
@@ -453,32 +456,37 @@ class InlineParagraphsWidget extends WidgetBase {
 
           if ($show_must_be_saved_warning) {
             $info['must_be_saved_info'] = array(
-              '#type' => 'markup',
-              '#markup' => '<em class="color-warning">' . $this->t('Warning: this content must be saved to reflect changes on this @title item.', array('@title' => $this->getSetting('title'))) . '</em>',
+              '#type' => 'container',
+              '#markup' => $this->t('You have unsaved changes on this @title item.', array('@title' => $this->getSetting('title'))),
+              '#attributes' => ['class' => ['messages', 'messages--warning']],
             );
           }
 
           $info['preview_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('view'),
           );
 
           $info['edit_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
           );
 
           $info['remove_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
           );
 
           $info['edit_remove_button_info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
@@ -860,11 +868,8 @@ class InlineParagraphsWidget extends WidgetBase {
         ],
         'text' => [
           '#type' => 'container',
-          'value' => [
-            '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
-            '#prefix' => '<em class="color-warning">',
-            '#suffix' => '</em>',
-          ]
+          '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
+          '#attributes' => ['class' => ['messages', 'messages--warning']]
         ],
       ];
 
@@ -958,14 +963,16 @@ class InlineParagraphsWidget extends WidgetBase {
       else {
         if (count($options)) {
           $elements['add_more']['info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You are not allowed to add any of the @title types.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You are not allowed to add any of the @title types.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']]
           );
         }
         else {
           $elements['add_more']['info'] = array(
-            '#type' => 'markup',
-            '#markup' => '<em class="color-warning">' . $this->t('You did not add any @title types yet.', array('@title' => $this->getSetting('title'))) . '</em>',
+            '#type' => 'container',
+            '#markup' => $this->t('You did not add any @title types yet.', array('@title' => $this->getSetting('title'))),
+            '#attributes' => ['class' => ['messages', 'messages--warning']]
           );
         }
       }
