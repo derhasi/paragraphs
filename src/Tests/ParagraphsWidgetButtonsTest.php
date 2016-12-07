@@ -54,7 +54,7 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     $edit = ['field_paragraphs[0][subform][field_text][0][value]' => $closed_mode_text];
     // Click "Collapse" button.
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
-    $this->assertText('Warning: this content must be saved to reflect changes on this Paragraph item.');
+    $this->assertText('You have unsaved changes on this Paragraph item.');
     $this->assertRaw('<div class="paragraphs-collapsed-description">' . $closed_mode_text);
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
@@ -70,7 +70,7 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     $edit = ['field_paragraphs[0][subform][field_text][0][value]' => $preview_mode_text];
     // Click "Collapse" button.
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
-    $this->assertText('Warning: this content must be saved to reflect changes on this Paragraph item.');
+    $this->assertText('You have unsaved changes on this Paragraph item.');
     $this->assertText($preview_mode_text);
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
