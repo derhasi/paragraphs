@@ -129,9 +129,9 @@ abstract class ParagraphsTestBase extends WebTestBase {
       'field_name' => $paragraphs_field_name,
       'entity_type' => $entity_type,
       'type' => 'entity_reference_revisions',
+      'cardinality' => '-1',
       'settings' => [
         'target_type' => 'paragraph',
-        'cardinality' => '-1',
       ],
     ]);
     $field_storage->save();

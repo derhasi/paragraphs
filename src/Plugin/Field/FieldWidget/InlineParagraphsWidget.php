@@ -200,7 +200,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
     $default_edit_mode = $this->getSetting('edit_mode');
 
-    $show_must_be_saved_warning = FALSE;
+    $show_must_be_saved_warning = !empty($widget_state['paragraphs'][$delta]['show_warning']);
 
     if (isset($widget_state['paragraphs'][$delta]['entity'])) {
       $paragraphs_entity = $widget_state['paragraphs'][$delta]['entity'];
@@ -236,7 +236,6 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($item_mode == 'collapsed') {
       $item_mode = $default_edit_mode;
-      $show_must_be_saved_warning = TRUE;
     }
 
     if ($paragraphs_entity) {
@@ -364,6 +363,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#prefix' => '<li class="collapse">',
               '#suffix' => '</li>',
               '#paragraphs_mode' => 'collapsed',
+              '#paragraphs_show_warning' => TRUE,
             );
           }
 
@@ -656,11 +656,9 @@ class InlineParagraphsWidget extends WidgetBase {
         $element['#access'] = FALSE;
       }
 
-      $widget_state['paragraphs'][$delta] = array(
-        'entity' => $paragraphs_entity,
-        'display' => $display,
-        'mode' => $item_mode,
-      );
+      $widget_state['paragraphs'][$delta]['entity'] = $paragraphs_entity;
+      $widget_state['paragraphs'][$delta]['display'] = $display;
+      $widget_state['paragraphs'][$delta]['mode'] = $item_mode;
 
       static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
@@ -1075,6 +1073,10 @@ class InlineParagraphsWidget extends WidgetBase {
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $widget_state['paragraphs'][$delta]['mode'] = $button['#paragraphs_mode'];
+
+    if (!empty($button['#paragraphs_show_warning'])) {
+      $widget_state['paragraphs'][$delta]['show_warning'] = $button['#paragraphs_show_warning'];
+    }
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
