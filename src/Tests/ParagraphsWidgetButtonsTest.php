@@ -81,32 +81,13 @@ class ParagraphsWidgetButtonsTest extends ParagraphsTestBase {
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertText($preview_mode_text);
 
-    // Test the remove/restore function.
+    // Test the remove function.
     $this->drupalGet('node/' . $node->id() . '/edit');
-    $this->assertText($preview_mode_text);
     // Click "Remove" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $this->assertText('Deleted Paragraph: text_paragraph');
-    // Click "Restore" button.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_restore');
-    $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', $preview_mode_text);
-    $restore_text = 'restore_text';
-    $edit = ['field_paragraphs[0][subform][field_text][0][value]' => $restore_text];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
-    $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
-    $this->assertText($restore_text);
-
-    // Test the remove/confirm remove function.
-    $this->drupalGet('node/' . $node->id() . '/edit');
-    $this->assertText($restore_text);
-    // Click "Remove" button.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $this->assertText('Deleted Paragraph: text_paragraph');
-    // Click "Confirm Removal" button.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
-    $this->assertNoText($restore_text);
+    $this->assertNoText($preview_mode_text);
   }
 
   /**

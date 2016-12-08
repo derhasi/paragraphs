@@ -374,27 +374,26 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, NULL, t('Remove'));
     $this->assertNoField('field_paragraphs[1][subform][field_text][0][value]');
     $this->assertNoRaw('<a href="' . $img2_url . '" type="image/jpeg; length=21">myImage2.jpg</a>');
-    // Restore it again.
-    $this->drupalPostForm(NULL, NULL, t('Restore'));
-    $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', 'Test text 2');
+    // Assert the paragraph is not deleted unless the user saves the node.
+    $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertRaw('<a href="' . $img2_url . '" type="image/jpeg; length=21">myImage2.jpg</a>');
-    // @todo enable below test in 2428833.
-//    // Remove it and confirm.
-//    $this->drupalPostAjaxForm(NULL, NULL, array('field_paragraphs_1_subform_field_image_0_remove_button' => t('Remove')));
-//    $this->drupalPostAjaxForm(NULL, NULL, array('field_paragraphs_1_confirm_remove' => t('Confirm removal')));
-//    $this->drupalPostForm(NULL, NULL, t('Save and keep published'));
-//    $current_paragraphs  = Paragraph::loadMultiple();
-//    debug(count($current_paragraphs));
-//    $this->assertEqual(count($current_paragraphs), 1, 'Only one paragraph in article');
+    // Remove the second paragraph.
+    $this->drupalPostForm(NULL, [], t('Remove'));
+    $this->assertNoRaw('<a href="' . $img2_url . '" type="image/jpeg; length=21">myImage2.jpg</a>');
+    $edit = [
+      'field_paragraphs[0][subform][field_image][0][alt]' => 'test_alt',
+      'field_paragraphs[0][subform][field_image][0][width]' => 300,
+      'field_paragraphs[0][subform][field_image][0][height]' => 300,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    // Assert the paragraph is deleted after the user saves the node.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertNoRaw('<a href="' . $img2_url . '" type="image/jpeg; length=21">myImage2.jpg</a>');
 
     // Delete the node.
     $this->clickLink(t('Delete'));
     $this->drupalPostForm(NULL, NULL, t('Delete'));
     $this->assertText('Test article has been deleted.');
-    // @todo enable below tests in 2429335.
-//    // Make sure two paragraph entities have been deleted.
-//    $current_paragraphs = Paragraph::loadMultiple();
-//    $this->assertTrue(empty($current_paragraphs));
 
     // Check if the publish/unpublish option works.
     $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
@@ -538,12 +537,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Try to collapse with an invalid reference.
     $this->drupalPostAjaxForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], 'field_paragraphs_0_collapse');
     $this->assertText('There are no entities matching "foo".');
-    // Attempt to remove the Paragraph.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $elements = $this->xpath('//*[@name="field_paragraphs_0_confirm_remove"]');
-    $this->assertTrue(!empty($elements), "'Confirm removal' button appears.");
-    // Restore the Paragraph and fix the broken reference.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_restore');
+    // Fix the broken reference.
     $node = $this->drupalGetNodeByTitle('Example publish/unpublish');
     $this->drupalPostForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')'], t('Save and keep published'));
     $this->assertText('choke test has been updated.');
@@ -564,9 +558,6 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertText('There are no entities matching "foo".');
     // Remove the Paragraph and save the node.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $elements = $this->xpath('//*[@name="field_paragraphs_0_confirm_remove"]');
-    $this->assertTrue(!empty($elements), "'Confirm removal' button appears.");
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $this->assertText('choke test has been updated.');
 

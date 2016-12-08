@@ -330,6 +330,8 @@ class InlineParagraphsWidget extends WidgetBase {
           '#markup' => $bundle_info['label'],
         );
 
+        // Hide the button when translating.
+        $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
         $element['top']['paragraphs_remove_button_container'] = [
           '#type' => 'container',
           '#weight' => 1,
@@ -338,6 +340,27 @@ class InlineParagraphsWidget extends WidgetBase {
               'paragraphs-remove-button-container',
             ],
           ],
+          'paragraphs_remove_button' => [
+            '#type' => 'submit',
+            '#value' => $this->t('Remove'),
+            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#weight' => 500,
+            '#attributes' => [
+              'class' => [
+                'paragraphs-remove-button',
+              ],
+            ],
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#access' => $button_access,
+            '#paragraphs_mode' => 'remove',
+          ]
         ];
 
         $actions = array();
@@ -366,30 +389,6 @@ class InlineParagraphsWidget extends WidgetBase {
               '#paragraphs_show_warning' => TRUE,
             );
           }
-
-          // Hide the button when translating.
-          $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
-          $element['top']['paragraphs_remove_button_container']['paragraphs_remove_button'] = [
-            '#type' => 'submit',
-            '#value' => $this->t('Remove'),
-            '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 500,
-            '#attributes' => [
-              'class' => [
-                'paragraphs-remove-button',
-              ],
-            ],
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#access' => $button_access,
-            '#paragraphs_mode' => 'remove',
-          ];
 
           $info['edit_button_info'] = array(
             '#type' => 'container',
@@ -432,28 +431,6 @@ class InlineParagraphsWidget extends WidgetBase {
             '#paragraphs_mode' => 'edit',
           );
 
-          $element['top']['paragraphs_remove_button_container']['paragraphs_remove_button'] = [
-            '#type' => 'submit',
-            '#value' => $this->t('Remove'),
-            '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 502,
-            '#attributes' => [
-              'class' => [
-                'paragraphs-remove-button',
-              ],
-            ],
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#access' => $paragraphs_entity->access('delete'),
-            '#paragraphs_mode' => 'remove',
-          ];
-
           if ($show_must_be_saved_warning) {
             $info['must_be_saved_info'] = array(
               '#type' => 'container',
@@ -488,48 +465,6 @@ class InlineParagraphsWidget extends WidgetBase {
             '#markup' => $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))),
             '#attributes' => ['class' => ['messages', 'messages--warning']],
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
-          );
-        }
-        elseif ($item_mode == 'remove') {
-
-          $element['top']['paragraph_type_title']['info'] = array(
-            '#markup' => $this->t('Deleted @title: %type', ['@title' => $this->getSetting('title'), '%type' => $bundle_info['label']]),
-          );
-
-          $links['confirm_remove_button'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Confirm removal'),
-            '#name' => strtr($id_prefix, '-', '_') . '_confirm_remove',
-            '#weight' => 503,
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#prefix' => '<li class="confirm-remove">',
-            '#suffix' => '</li>',
-            '#paragraphs_mode' => 'removed',
-          );
-
-          $links['restore_button'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Restore'),
-            '#name' => strtr($id_prefix, '-', '_') . '_restore',
-            '#weight' => 504,
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#prefix' => '<li class="restore">',
-            '#suffix' => '</li>',
-            '#paragraphs_mode' => 'edit',
           );
         }
 
@@ -652,7 +587,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $element['subform']['#attributes']['class'][] = 'paragraphs-subform';
       $element['subform']['#access'] = $paragraphs_entity->access('update');
 
-      if ($item_mode == 'removed') {
+      if ($item_mode == 'remove') {
         $element['#access'] = FALSE;
       }
 
@@ -1206,7 +1141,7 @@ class InlineParagraphsWidget extends WidgetBase {
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
-      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove' || $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'removed') {
+      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove') {
         $item['target_id'] = NULL;
         $item['target_revision_id'] = NULL;
       }
