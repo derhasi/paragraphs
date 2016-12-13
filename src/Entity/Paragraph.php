@@ -2,6 +2,7 @@
 
 namespace Drupal\paragraphs\Entity;
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -23,7 +24,7 @@ use Drupal\user\UserInterface;
  *   label = @Translation("Paragraph"),
  *   bundle_label = @Translation("Paragraph type"),
  *   handlers = {
- *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "view_builder" = "Drupal\paragraphs\ParagraphViewBuilder",
  *     "access" = "Drupal\paragraphs\ParagraphAccessControlHandler",
  *     "storage_schema" = "Drupal\paragraphs\ParagraphStorageSchema",
  *     "form" = {
@@ -79,6 +80,11 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   use EntityNeedsSaveTrait;
 
   /**
+   * The behavior plugin data for the paragraph entity.
+   */
+  protected $unserializedBehaviorSettings;
+
+  /**
    * {@inheritdoc}
    */
   public function getParentEntity() {
@@ -128,6 +134,77 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
     if (!$this->getRevisionAuthor()) {
       $this->setRevisionAuthorId($this->getOwnerId());
     }
+
+    // If behavior settings are not set then get them from the entity.
+    if ($this->unserializedBehaviorSettings !== NULL) {
+      $this->set('behavior_settings', serialize($this->unserializedBehaviorSettings));
+    }
+  }
+
+  /**
+   * Gets all the behavior settings.
+   *
+   * @return array
+   *   The array of behavior settings.
+   */
+  public function getAllBehaviorSettings() {
+    if ($this->unserializedBehaviorSettings === NULL) {
+      $this->unserializedBehaviorSettings = unserialize($this->get('behavior_settings')->value);
+    }
+    if (!is_array($this->unserializedBehaviorSettings)) {
+      $this->unserializedBehaviorSettings = [];
+    }
+    return $this->unserializedBehaviorSettings;
+  }
+
+  /**
+   * Gets the behavior setting of an specific plugin.
+   *
+   * @param string $plugin_id
+   *   The plugin ID for which to get the settings.
+   * @param string|array $key
+   *   Values are stored as a multi-dimensional associative array. If $key is a
+   *   string, it will return $values[$key]. If $key is an array, each element
+   *   of the array will be used as a nested key. If $key = array('foo', 'bar')
+   *   it will return $values['foo']['bar'].
+   * @param mixed $default
+   *   (optional) The default value if the specified key does not exist.
+   *
+   * @return mixed
+   *   The value for the given key.
+   */
+  public function &getBehaviorSetting($plugin_id, $key, $default = NULL) {
+    $settings = $this->getAllBehaviorSettings();
+    $exists = NULL;
+    $value = &NestedArray::getValue($settings, array_merge((array) $plugin_id, (array) $key), $exists);
+    if (!$exists) {
+      $value = $default;
+    }
+    return $value;
+  }
+
+  /**
+   * Sets all the behavior settings of a plugin.
+   *
+   * @param array $settings
+   *   The behavior settings from the form.
+   */
+  public function setAllBehaviorSettings(array $settings) {
+    // Set behavior settings fields.
+    $this->unserializedBehaviorSettings = $settings;
+  }
+
+  /**
+   * Sets the behavior settings of a plugin.
+   *
+   * @param string $plugin_id
+   *   The plugin ID for which to set the settings.
+   * @param array $settings
+   *   The behavior settings from the form.
+   */
+  public function setBehaviorSettings($plugin_id, array $settings) {
+    // Set behavior settings fields.
+    $this->unserializedBehaviorSettings[$plugin_id] = $settings;
   }
 
   /**
@@ -192,8 +269,8 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
-  public function getData() {
-    return $this->get('data')->value;
+  public function getParagraphType() {
+    return $this->type->entity;
   }
 
   /**
@@ -312,6 +389,10 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
       ->setDescription(t('The entity parent field name to which this entity is referenced.'))
       ->setSetting('is_ascii', TRUE)
       ->setSetting('max_length', FieldStorageConfig::NAME_MAX_LENGTH);
+
+    $fields['behavior_settings'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Behavior settings'))
+      ->setDescription(t('The behavior plugin settings'));
 
     return $fields;
   }

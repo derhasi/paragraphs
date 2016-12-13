@@ -238,4 +238,10 @@ function template_preprocess_paragraph(&$variables) {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
+
+  $paragraph_type = $variables['elements']['#paragraph']->getParagraphType();;
+  foreach ($paragraph_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_value) {
+    $plugin_value->preprocess($variables);
+  }
+
 }

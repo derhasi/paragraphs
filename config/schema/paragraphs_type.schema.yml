@@ -8,6 +8,16 @@ paragraphs.paragraphs_type.*:
     label:
       type: label
       label: 'Label'
+    behavior_plugins:
+      type: sequence
+      label: 'Plugins'
+      sequence:
+        type: mapping
+        label: 'Behavior plugins'
+        mapping:
+          enabled:
+            type: boolean
+            label: 'Enabled'
 
 entity_reference_selection.default:paragraph:
   type: entity_reference_selection

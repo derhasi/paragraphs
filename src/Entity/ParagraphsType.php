@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
+use Drupal\paragraphs\ParagraphsBehaviorCollection;
 use Drupal\paragraphs\ParagraphsTypeInterface;
 
 /**
@@ -28,6 +29,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   config_export = {
  *     "id",
  *     "label",
+ *     "behavior_plugins",
  *   },
  *   bundle_of = "paragraph",
  *   links = {
@@ -37,8 +39,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   }
  * )
  */
-class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInterface
-{
+class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInterface {
 
   /**
    * The ParagraphsType ID.
@@ -53,5 +54,50 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    * @var string
    */
   public $label;
+
+  /**
+   * The paragraphs type behavior plugins configuration keyed by their id.
+   *
+   * @var array
+   */
+  public $behavior_plugins = [];
+
+  /**
+   * Holds the collection of behavior plugins that are attached to this
+   * paragraphs type.
+   *
+   * @var \Drupal\paragraphs\ParagraphsBehaviorCollection
+   */
+  public $behaviorCollection;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBehaviorPlugins() {
+    if (!isset($this->behaviorCollection)) {
+      $this->behaviorCollection = new ParagraphsBehaviorCollection(\Drupal::service('plugin.manager.paragraphs.behavior'), $this->behavior_plugins);
+    }
+    return $this->behaviorCollection;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBehaviorPlugin($instance_id) {
+    if (!isset($this->behaviorCollection)) {
+      $this->getBehaviorPlugins();
+    }
+    return $this->behaviorCollection->get($instance_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEnabledBehaviorPlugins() {
+    if (!isset($this->behaviorCollection)) {
+      $this->getBehaviorPlugins();
+    }
+    return $this->behaviorCollection->getEnabled();
+  }
 
 }

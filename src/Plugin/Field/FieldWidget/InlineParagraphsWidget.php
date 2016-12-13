@@ -4,7 +4,6 @@ namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
@@ -563,14 +562,25 @@ class InlineParagraphsWidget extends WidgetBase {
             }
           }
         }
+
+        // Build the behavior plugins fields.
+        $paragraphs_type = $paragraphs_entity->getParagraphType();
+        if ($paragraphs_type) {
+          foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
+            $element['behavior_plugins'][$plugin_id] = [];
+            $element['behavior_plugins'][$plugin_id] = $plugin->buildBehaviorForm($paragraphs_entity);
+          }
+        }
       }
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
+        $element['behavior_plugins'] = [];
         $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
         $element['preview']['#access'] = $paragraphs_entity->access('view');
       }
       elseif ($item_mode == 'closed') {
         $element['subform'] = array();
+        $element['behavior_plugins'] = [];
         if ($paragraphs_entity) {
           $summary = $this->addCollapsedSummary($paragraphs_entity);
           $element['top']['paragraph_summary']['fields_info'] = [
@@ -1079,6 +1089,12 @@ class InlineParagraphsWidget extends WidgetBase {
         // Extract the form values on submit for getting the current paragraph.
         $display->extractFormValues($entity, $element['subform'], $form_state);
         $display->validateFormValues($entity, $element['subform'], $form_state);
+
+        // Validate all enabled behavior plugins.
+        $paragraphs_type = $entity->getParagraphType();
+        foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+          $plugin_values->validateBehaviorForm($element['behavior_plugins'][$plugin_id], $form_state);
+        }
       }
     }
 
@@ -1114,7 +1130,6 @@ class InlineParagraphsWidget extends WidgetBase {
         && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
 
-
         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
         $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
         if ($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'edit') {
@@ -1134,6 +1149,14 @@ class InlineParagraphsWidget extends WidgetBase {
             $paragraphs_entity->set($langcode_key, $form_state->get('langcode'));
           }
         }
+        if (isset($item['behavior_plugins'])) {
+          // Submit all enabled behavior plugins.
+          $paragraphs_type = $paragraphs_entity->getParagraphType();
+          foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+            $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id]);
+          }
+        }
+
         $paragraphs_entity->setNeedsSave(TRUE);
         $item['entity'] = $paragraphs_entity;
         $item['target_id'] = $paragraphs_entity->id();

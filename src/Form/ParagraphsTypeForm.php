@@ -2,14 +2,43 @@
 
 namespace Drupal\paragraphs\Form;
 
+use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field_ui\FieldUI;
+use Drupal\paragraphs\ParagraphsBehaviorManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for paragraph type forms.
  */
 class ParagraphsTypeForm extends EntityForm {
+
+  /**
+   * The paragraphs behavior plugin manager service.
+   *
+   * @var \Drupal\paragraphs\ParagraphsBehaviorManager
+   */
+  protected $paragraphsBehaviorManager;
+
+  /**
+   * GeneralSettingsForm constructor.
+   *
+   * @param \Drupal\paragraphs\ParagraphsBehaviorManager $paragraphs_behavior_manager
+   *   The paragraphs type feature manager service.
+   */
+  public function __construct(ParagraphsBehaviorManager $paragraphs_behavior_manager) {
+    $this->paragraphsBehaviorManager = $paragraphs_behavior_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('plugin.manager.paragraphs.behavior')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -41,7 +70,28 @@ class ParagraphsTypeForm extends EntityForm {
       '#disabled' => !$paragraphs_type->isNew(),
     );
 
-    // You will need additional form elements for your custom properties.
+    if ($behavior_plugins = $this->paragraphsBehaviorManager->getDefinitions()) {
+      $form['behavior_plugins'] = [
+        '#type' => 'table',
+        '#header' => [t('Behavior'), t('Description')],
+        '#suffix' => '<div class="description">' . $this->t('The behavior plugins that are enabled to add special behavior, properties and attributes to a paragraph.') .'</div>',
+      ];
+      $config = $paragraphs_type->get('behavior_plugins');
+      foreach ($behavior_plugins as $id => $behavior_plugin) {
+        $description = $behavior_plugin['description'];
+        $form['behavior_plugins'][$id]['enabled'] = [
+          '#type' => 'checkbox',
+          '#title' => $behavior_plugin['label'],
+          '#title_display' => 'after',
+          '#default_value' => isset($config[$id]['enabled']) ? $config[$id]['enabled'] : FALSE,
+        ];
+        $form['behavior_plugins'][$id]['description'] = [
+          '#type' => 'markup',
+          '#markup' => isset($description) ? Xss::filter($description) : '',
+        ];
+      }
+    }
+
     return $form;
   }
 

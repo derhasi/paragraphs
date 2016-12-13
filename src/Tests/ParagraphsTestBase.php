@@ -43,6 +43,7 @@ abstract class ParagraphsTestBase extends WebTestBase {
     'field',
     'field_ui',
     'block',
+    'paragraphs_test',
   ];
 
   /**
