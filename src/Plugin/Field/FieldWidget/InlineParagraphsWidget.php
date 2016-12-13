@@ -42,6 +42,41 @@ class InlineParagraphsWidget extends WidgetBase {
   private $isTranslating;
 
   /**
+   * Id to name ajax buttons that includes field parents and field name.
+   *
+   * @var string
+   */
+  protected $fieldIdPrefix;
+
+  /**
+   * Wrapper id to identify the paragraphs.
+   *
+   * @var string
+   */
+  protected $fieldWrapperId;
+
+  /**
+   * Number of paragraphs item on form.
+   *
+   * @var int
+   */
+  protected $realItemCount;
+
+  /**
+   * Parents for the current paragraph.
+   *
+   * @var array
+   */
+  protected $fieldParents;
+
+  /**
+   * Accessible paragraphs types.
+   *
+   * @var array
+   */
+  protected $accessOptions = NULL;
+
+  /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
@@ -671,8 +706,8 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
-    $parents = $form['#parents'];
-    $field_state = static::getWidgetState($parents, $field_name, $form_state);
+    $this->fieldParents = $form['#parents'];
+    $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
 
     $max = $field_state['items_count'];
     $entity_type_manager = \Drupal::entityTypeManager();
@@ -701,20 +736,20 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    $real_item_count = $max;
+    $this->realItemCount = $max;
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
     $title = $this->fieldDefinition->getLabel();
     $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
-    $id_prefix = implode('-', array_merge($parents, array($field_name)));
-    $wrapper_id = Html::getUniqueId($id_prefix . '-add-more-wrapper');
-    $elements['#prefix'] = '<div id="' . $wrapper_id . '">';
+    $this->fieldIdPrefix = implode('-', array_merge($this->fieldParents, array($field_name)));
+    $this->fieldWrapperId = Html::getUniqueId($this->fieldIdPrefix . '-add-more-wrapper');
+    $elements['#prefix'] = '<div id="' . $this->fieldWrapperId . '">';
     $elements['#suffix'] = '</div>';
 
-    $field_state['ajax_wrapper_id'] = $wrapper_id;
-    static::setWidgetState($parents, $field_name, $form_state, $field_state);
+    $field_state['ajax_wrapper_id'] = $this->fieldWrapperId;
+    static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
     if ($max > 0) {
       for ($delta = 0; $delta < $max; $delta++) {
@@ -749,7 +784,7 @@ class InlineParagraphsWidget extends WidgetBase {
           }
 
           if (isset($element['#access']) && !$element['#access']) {
-            $real_item_count--;
+            $this->realItemCount--;
           }
           else {
             $elements[$delta] = $element;
@@ -758,33 +793,11 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    $field_state = static::getWidgetState($parents, $field_name, $form_state);
-    $field_state['real_item_count'] = $real_item_count;
-    static::setWidgetState($parents, $field_name, $form_state, $field_state);
+    $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
+    $field_state['real_item_count'] = $this->realItemCount;
+    static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
-    $entity_manager = \Drupal::entityTypeManager();
-    $target_type = $this->getFieldSetting('target_type');
-    $bundles = $this->getAllowedTypes();
-    $access_control_handler = $entity_manager->getAccessControlHandler($target_type);
-
-    $options = array();
-    $access_options = array();
-
-    $dragdrop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
-
-    foreach ($bundles as $machine_name => $bundle) {
-
-      if ($dragdrop_settings || (!count($this->getSelectionHandlerSetting('target_bundles'))
-        || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
-        $options[$machine_name] = $bundle['label'];
-
-        if ($access_control_handler->createAccess($machine_name)) {
-          $access_options[$machine_name] = $bundle['label'];
-        }
-      }
-    }
-
-    if ($real_item_count > 0) {
+    if ($this->realItemCount > 0) {
       $elements += array(
         '#theme' => 'field_multiple_value_form',
         '#field_name' => $field_name,
@@ -825,100 +838,11 @@ class InlineParagraphsWidget extends WidgetBase {
       }
     }
 
-    // Add 'add more' button, if not working with a programmed form.
-    if (($real_item_count < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed()) {
-      // Hide the button when translating.
-      $host = $items->getEntity();
-      $this->initIsTranslating($form_state, $host);
-      $elements['add_more'] = array(
-        '#type' => 'container',
-        '#theme_wrappers' => array('paragraphs_dropbutton_wrapper'),
-        '#access' => !$this->isTranslating,
-      );
+    $host = $items->getEntity();
+    $this->initIsTranslating($form_state, $host);
 
-      if (count($access_options)) {
-        if ($this->getSetting('add_mode') == 'button' || $this->getSetting('add_mode') == 'dropdown') {
-          $drop_button = FALSE;
-          if (count($access_options) > 1 && $this->getSetting('add_mode') == 'dropdown') {
-            $drop_button = TRUE;
-            $elements['add_more']['#theme_wrappers'] = array('dropbutton_wrapper');
-            $elements['add_more']['prefix'] = array(
-              '#markup' => '<ul class="dropbutton">',
-              '#weight' => -999,
-            );
-            $elements['add_more']['suffix'] = array(
-              '#markup' => '</ul>',
-              '#weight' => 999,
-            );
-            $elements['add_more']['#suffix'] = $this->t(' to %type', array('%type' => $title));
-          }
-          foreach ($access_options as $machine_name => $label) {
-            $elements['add_more']['add_more_button_' . $machine_name] = array(
-              '#type' => 'submit',
-              '#name' => strtr($id_prefix, '-', '_') . '_' . $machine_name . '_add_more',
-              '#value' => $this->t('Add @type', array('@type' => $label)),
-              '#attributes' => array('class' => array('field-add-more-submit')),
-              '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-              '#submit' => array(array(get_class($this), 'addMoreSubmit')),
-              '#ajax' => array(
-                'callback' => array(get_class($this), 'addMoreAjax'),
-                'wrapper' => $wrapper_id,
-                'effect' => 'fade',
-              ),
-              '#bundle_machine_name' => $machine_name,
-            );
-            if ($drop_button) {
-              $elements['add_more']['add_more_button_' . $machine_name]['#prefix'] = '<li>';
-              $elements['add_more']['add_more_button_' . $machine_name]['#suffix'] = '</li>';
-            }
-          }
-        }
-        else {
-          $elements['add_more']['add_more_select'] = array(
-            '#type'    => 'select',
-            '#options' => $options,
-            '#title'   => $this->t('@title type', array('@title' => $this->getSetting('title'))),
-            '#label_display' => 'hidden',
-          );
-
-          $text = $this->t('Add @title', array('@title' => $this->getSetting('title')));
-
-          if ($real_item_count > 0) {
-            $text = $this->t('Add another @title', array('@title' => $this->getSetting('title')));
-          }
-
-          $elements['add_more']['add_more_button'] = array(
-            '#type' => 'submit',
-            '#name' => strtr($id_prefix, '-', '_') . '_add_more',
-            '#value' => $text,
-            '#attributes' => array('class' => array('field-add-more-submit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#submit' => array(array(get_class($this), 'addMoreSubmit')),
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'addMoreAjax'),
-              'wrapper' => $wrapper_id,
-              'effect' => 'fade',
-            ),
-          );
-          $elements['add_more']['add_more_button']['#suffix'] = $this->t(' to %type', array('%type' => $title));
-        }
-      }
-      else {
-        if (count($options)) {
-          $elements['add_more']['info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to add any of the @title types.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']]
-          );
-        }
-        else {
-          $elements['add_more']['info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You did not add any @title types yet.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']]
-          );
-        }
-      }
+    if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
+      $elements['add_more'] = $this->buildAddActions();
     }
 
     $elements['#attached']['library'][] = 'paragraphs/drupal.paragraphs.admin';
@@ -940,6 +864,163 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     return parent::form($items, $form, $form_state, $get_delta);
+  }
+
+  /**
+   * Add 'add more' button, if not working with a programmed form.
+   *
+   * @return array
+   *    The form element array.
+   */
+  protected function buildAddActions() {
+    if (count($this->getAccessibleOptions()) === 0) {
+      if (count($this->getAllowedTypes()) === 0) {
+        $add_more_elements['info'] = [
+          '#type' => 'container',
+          '#markup' => $this->t('You are not allowed to add any of the @title types.', ['@title' => $this->getSetting('title')]),
+          '#attributes' => ['class' => ['messages', 'messages--warning']],
+        ];
+      }
+      else {
+        $add_more_elements['info'] = [
+          '#type' => 'container',
+          '#markup' => $this->t('You did not add any @title types yet.', ['@title' => $this->getSetting('title')]),
+          '#attributes' => ['class' => ['messages', 'messages--warning']],
+        ];
+      }
+
+      return $add_more_elements ;
+    }
+
+    if ($this->getSetting('add_mode') == 'button' || $this->getSetting('add_mode') == 'dropdown') {
+      return $this->buildButtonsAddMode();
+    }
+
+    return $this->buildSelectAddMode();
+  }
+
+  /**
+   * Returns the available paragraphs type.
+   *
+   * @return array
+   *   Available paragraphs types.
+   */
+  protected function getAccessibleOptions() {
+    if ($this->accessOptions !== NULL) {
+      return $this->accessOptions;
+    }
+
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $target_type = $this->getFieldSetting('target_type');
+    $bundles = $this->getAllowedTypes();
+    $access_control_handler = $entity_type_manager->getAccessControlHandler($target_type);
+    $dragdrop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
+
+    foreach ($bundles as $machine_name => $bundle) {
+      if ($dragdrop_settings || (!count($this->getSelectionHandlerSetting('target_bundles'))
+          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
+        if ($access_control_handler->createAccess($machine_name)) {
+          $this->accessOptions[$machine_name] = $bundle['label'];
+        }
+      }
+    }
+
+    return $this->accessOptions;
+  }
+
+  /**
+   * Builds dropdown button for adding new paragraph.
+   *
+   * @return array
+   *   The form element array.
+   */
+  protected function buildButtonsAddMode() {
+    // Hide the button when translating.
+    $add_more_elements = [
+      '#type' => 'container',
+      '#theme_wrappers' => ['paragraphs_dropbutton_wrapper'],
+    ];
+    $field_name = $this->fieldDefinition->getName();
+    $title = $this->fieldDefinition->getLabel();
+
+    $drop_button = FALSE;
+    if (count($this->getAccessibleOptions()) > 1 && $this->getSetting('add_mode') == 'dropdown') {
+      $drop_button = TRUE;
+      $add_more_elements['#theme_wrappers'] = ['dropbutton_wrapper'];
+      $add_more_elements['prefix'] = [
+        '#markup' => '<ul class="dropbutton">',
+        '#weight' => -999,
+      ];
+      $add_more_elements['suffix'] = [
+        '#markup' => '</ul>',
+        '#weight' => 999,
+      ];
+      $add_more_elements['#suffix'] = $this->t(' to %type', ['%type' => $title]);
+    }
+
+    foreach ($this->getAccessibleOptions() as $machine_name => $label) {
+      $add_more_elements['add_more_button_' . $machine_name] = [
+        '#type' => 'submit',
+        '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_' . $machine_name . '_add_more',
+        '#value' => $this->t('Add @type', ['@type' => $label]),
+        '#attributes' => ['class' => ['field-add-more-submit']],
+        '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'add_more'])],
+        '#submit' => [[get_class($this), 'addMoreSubmit']],
+        '#ajax' => [
+          'callback' => [get_class($this), 'addMoreAjax'],
+          'wrapper' => $this->fieldWrapperId,
+          'effect' => 'fade',
+        ],
+        '#bundle_machine_name' => $machine_name,
+      ];
+
+      if ($drop_button) {
+        $add_more_elements['add_more_button_' . $machine_name]['#prefix'] = '<li>';
+        $add_more_elements['add_more_button_' . $machine_name]['#suffix'] = '</li>';
+      }
+    }
+
+    return $add_more_elements;
+  }
+
+  /**
+   * Builds list of actions based on paragraphs type.
+   *
+   * @return array
+   *   The form element array.
+   */
+  protected function buildSelectAddMode() {
+    $field_name = $this->fieldDefinition->getName();
+    $title = $this->fieldDefinition->getLabel();
+    $add_more_elements['add_more_select'] = [
+      '#type' => 'select',
+      '#options' => $this->getAccessibleOptions(),
+      '#title' => $this->t('@title type', ['@title' => $this->getSetting('title')]),
+      '#label_display' => 'hidden',
+    ];
+
+    $text = $this->t('Add @title', ['@title' => $this->getSetting('title')]);
+
+    if ($this->realItemCount > 0) {
+      $text = $this->t('Add another @title', ['@title' => $this->getSetting('title')]);
+    }
+
+    $add_more_elements['add_more_button'] = [
+      '#type' => 'submit',
+      '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_add_more',
+      '#value' => $text,
+      '#attributes' => ['class' => ['field-add-more-submit']],
+      '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'add_more'])],
+      '#submit' => [[get_class($this), 'addMoreSubmit']],
+      '#ajax' => [
+        'callback' => [get_class($this), 'addMoreAjax'],
+        'wrapper' => $this->fieldWrapperId,
+        'effect' => 'fade',
+      ],
+    ];
+
+    $add_more_elements['add_more_button']['#suffix'] = $this->t(' to %type', ['%type' => $title]);
+    return $add_more_elements;
   }
 
   /**
