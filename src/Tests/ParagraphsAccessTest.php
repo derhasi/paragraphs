@@ -84,15 +84,15 @@ class ParagraphsAccessTest extends WebTestBase {
     // Add a new paragraphs images item.
     $this->drupalPostForm(NULL, NULL, t('Add Images'));
 
+    $images = $this->drupalGetTestFiles('image');
+
     // Create a file, upload it.
-    $text = 'Trust me I\'m an image';
-    file_put_contents('temporary://privateImage.jpg', $text);
+    file_unmanaged_copy($images[0]->uri, 'temporary://privateImage.jpg');
     $file_path = $this->container->get('file_system')
       ->realpath('temporary://privateImage.jpg');
 
     // Create a file, upload it.
-    $text = 'Trust me I\'m an image 2';
-    file_put_contents('temporary://privateImage2.jpg', $text);
+    file_unmanaged_copy($images[1]->uri, 'temporary://privateImage2.jpg');
     $file_path_2 = $this->container->get('file_system')
       ->realpath('temporary://privateImage2.jpg');
 
@@ -101,18 +101,13 @@ class ParagraphsAccessTest extends WebTestBase {
       'files[field_paragraphs_demo_0_subform_field_images_demo_0][]' => [$file_path, $file_path_2],
     );
 
-    $this->drupalPostForm(NULL, $edit, t('Preview'));
+    $this->drupalPostForm(NULL, $edit, t('Upload'));
+    $this->drupalPostForm(NULL,  [], t('Preview'));
     $img1_url = file_create_url(\Drupal::token()->replace('private://privateImage.jpg'));
     $image_url = file_url_transform_relative($img1_url);
     $this->assertRaw($image_url, 'Image was found in preview');
     $this->clickLink(t('Back to content editing'));
-    $edit = [
-      'field_paragraphs_demo[0][subform][field_images_demo][0][width]' => 100,
-      'field_paragraphs_demo[0][subform][field_images_demo][0][height]' => 100,
-      'field_paragraphs_demo[0][subform][field_images_demo][1][width]' => 100,
-      'field_paragraphs_demo[0][subform][field_images_demo][1][height]' => 100,
-    ];
-    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->drupalPostForm(NULL,  [], 'Save and publish');
 
     $node = $this->drupalGetNodeByTitle('Security test node');
 
