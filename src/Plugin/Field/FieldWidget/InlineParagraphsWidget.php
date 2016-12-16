@@ -824,8 +824,11 @@ class InlineParagraphsWidget extends WidgetBase {
         ],
         'text' => [
           '#type' => 'container',
-          '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
-          '#attributes' => ['class' => ['messages', 'messages--warning']]
+          'value' => [
+            '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
+            '#prefix' => '<em>',
+            '#suffix' => '</em>',
+          ]
         ],
       ];
 
