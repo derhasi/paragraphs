@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\PluginFormInterface;
 use Drupal\Component\Plugin\ConfigurablePluginInterface;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Provides an interface defining a paragraph behavior.
@@ -90,5 +91,16 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    *   A render array provided by the plugin.
    */
   public function view(array &$build, Paragraph $paragraph, EntityViewDisplayInterface $display, $view_mode);
+
+  /**
+   * Returns if the plugin can be used for the provided paragraphs type.
+   *
+   * @param \Drupal\paragraphs\Entity\ParagraphsType $paragraphs_type
+   *   The paragraphs type entity that should be checked.
+   *
+   * @return bool
+   *   TRUE if the formatter can be used, FALSE otherwise.
+   */
+  public static function isApplicable(ParagraphsType $paragraphs_type);
 
 }

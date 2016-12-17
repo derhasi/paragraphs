@@ -38,4 +38,25 @@ class ParagraphsBehaviorManager extends DefaultPluginManager {
     uasort($definitions, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
     return $definitions;
   }
+
+  /**
+   * Gets the applicable behavior plugins.
+   *
+   * Loop over the plugin definitions, check the applicability of each one of
+   * them and return the array of the applicable plugins.
+   *
+   * @return array
+   *   The applicable behavior plugins.
+   */
+  public function getApplicableDefinitions($paragraphs_type) {
+    $definitions = $this->getDefinitions();
+    $applicable_plugins = [];
+    foreach ($definitions as $key => $definition) {
+      if ($definition['class']::isApplicable($paragraphs_type)) {
+        $applicable_plugins[$key] = $definition;
+      }
+    }
+    return $applicable_plugins;
+  }
+
 }

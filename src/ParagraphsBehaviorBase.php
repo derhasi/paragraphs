@@ -5,6 +5,7 @@ namespace Drupal\paragraphs;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\paragraphs\Entity\ParagraphsType;
 
 abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBehaviorInterface {
 
@@ -72,5 +73,12 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
    * {@inheritdoc}
    */
   public function preprocess(&$variables) { }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(ParagraphsType $paragraphs_type) {
+    return TRUE;
+  }
 
 }

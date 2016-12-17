@@ -73,6 +73,16 @@ class ParagraphsPluginsTest extends ParagraphsTestBase {
     // Assert the plugin fields populate the stored values.
     $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', $updated_text);
     $this->assertFieldByName('field_paragraphs[0][behavior_plugins][text_bold_text][bold_text]', TRUE);
+
+    // Test plugin applicability. Add a paragraph type.
+    $paragraph_type = 'text_paragraph_test';
+    $this->addParagraphsType($paragraph_type);
+    // Add a text field to the text_paragraph type.
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text_test', 'Text', 'text_long', [], []);
+    // Assert if the plugin is listed on the edit form of the paragraphs type.
+    $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
+    $this->assertNoFieldByName('behavior_plugins[text_bold_text][enabled]');
+    $this->assertFieldByName('behavior_plugins[test_text_color][enabled]');
   }
 
 }

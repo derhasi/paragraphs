@@ -70,7 +70,7 @@ class ParagraphsTypeForm extends EntityForm {
       '#disabled' => !$paragraphs_type->isNew(),
     );
 
-    if ($behavior_plugins = $this->paragraphsBehaviorManager->getDefinitions()) {
+    if ($behavior_plugins = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
       $form['behavior_plugins'] = [
         '#type' => 'table',
         '#header' => [t('Behavior'), t('Description')],

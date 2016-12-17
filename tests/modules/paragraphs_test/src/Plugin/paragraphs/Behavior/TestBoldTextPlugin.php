@@ -5,6 +5,7 @@ namespace Drupal\paragraphs_test\Plugin\paragraphs\Behavior;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\paragraphs\Entity\ParagraphsType;
 use Drupal\paragraphs\ParagraphsBehaviorBase;
 
 /**
@@ -53,6 +54,18 @@ class TestBoldTextPlugin extends ParagraphsBehaviorBase {
       $build['#attributes']['class'][] = 'bold_plugin_text';
       $build['#attached']['library'][] = 'paragraphs_test/drupal.paragraphs_test.bold_text';
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(ParagraphsType $paragraphs_type) {
+    // If the name of the field is not text_paragraph_test then allow using this
+    // plugin.
+    if ($paragraphs_type->id() != 'text_paragraph_test') {
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }
