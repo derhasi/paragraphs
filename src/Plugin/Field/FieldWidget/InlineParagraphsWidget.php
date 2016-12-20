@@ -783,6 +783,9 @@ class InlineParagraphsWidget extends WidgetBase {
             );
           }
 
+          // Access for the top element is set to FALSE only when the paragraph
+          // was removed. A paragraphs that a user can not edit has access on
+          // lower level.
           if (isset($element['#access']) && !$element['#access']) {
             $this->realItemCount--;
           }
