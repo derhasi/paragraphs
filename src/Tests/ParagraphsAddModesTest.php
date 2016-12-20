@@ -180,7 +180,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
     $this->removeDefaultParagraphType('paragraphed_test');
 
     // Disable text_image as default paragraph type.
-    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', '');
+    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', '_none');
 
     // Check if is Text + Image is added as default paragraph type.
     $this->drupalGet('node/add/paragraphed_test');
@@ -191,6 +191,36 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
     $this->removeDefaultParagraphType('paragraphed_test');
     $this->drupalPostForm(NULL, ['title[0][value]' => 'New Host'], 'Save and publish');
     $this->drupalGet('node/1/edit');
+    $this->assertText('No Paragraph added yet.');
+  }
+
+  /**
+   * Tests the default paragraph type behavior for a field with a single type.
+   */
+  public function testDefaultParagraphTypeWithSingleType() {
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->loginAsAdmin([
+      'administer content types',
+      'administer node form display',
+      'edit any paragraphed_test content'
+    ]);
+
+    // Add a Paragraphed test content.
+    $paragraphs_type_text = ParagraphsType::create([
+      'id' => 'text',
+      'label' => 'Text',
+    ]);
+    $paragraphs_type_text->save();
+
+    // Check that when only one paragraph type is allowed in a content type,
+    // one instance is automatically added in the 'Add content' dialogue.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->assertNoText('No Paragraph added yet.');
+
+    // Check that no paragraph type is automatically added, if the defaut
+    // setting was set to '- None -'.
+    $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', '_none');
+    $this->drupalGet('node/add/paragraphed_test');
     $this->assertText('No Paragraph added yet.');
   }
 }

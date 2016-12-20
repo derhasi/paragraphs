@@ -155,7 +155,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['default_paragraph_type'] = [
       '#type' => 'select',
       '#title' => $this->t('Default paragraph type'),
-      '#empty_option' => $this->t('- None -'),
+      '#empty_value' => '_none',
       '#default_value' => $this->getDefaultParagraphTypeMachineName(),
       '#options' => $options,
       '#description' => $this->t('When creating a new host entity, a paragraph of this type is added.'),
@@ -1360,7 +1360,12 @@ class InlineParagraphsWidget extends WidgetBase {
     if ($default_type && isset($allowed_types[$default_type])) {
       return $default_type;
     }
-
+    // Check if the user explicitly selected not to have any default Paragraph
+    // type. Othewise, if there is only one type available, that one is the
+    // default.
+    if ($default_type === '_none') {
+      return NULL;
+    }
     if (count($allowed_types) === 1) {
       return key($allowed_types);
     }
