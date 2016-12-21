@@ -443,11 +443,14 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
 
     $this->addParagraphsType('node_test');
 
-    // Add a node reference field.
+    // Add a required node reference field.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/node_test', 'entity_reference', 'Entity reference', 'entity_reference', array(
       'settings[target_type]' => 'node',
       'cardinality' => '-1'
-    ), array('settings[handler_settings][target_bundles][article]' => TRUE));
+    ), [
+      'settings[handler_settings][target_bundles][article]' => TRUE,
+      'required' => TRUE,
+    ]);
     $node = $this->drupalGetNodeByTitle('Nested twins');
 
     // Create a node with a reference in a Paragraph.
@@ -462,10 +465,23 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     $node->delete();
     // Edit the node with the reference.
     $this->clickLink(t('Edit'));
-    // Attempt to edit the Paragraph.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
+    // Since we have validation error (reference to deleted node), paragraph is
+    // by default in edit mode.
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][0][target_id]');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][1][target_id]');
+    // Assert the validation error message.
+    $this->assertText('The referenced entity (node: 4) does not exist');
+    // Triggering unrelated button, assert that error message is still present.
+    $this->drupalPostForm(NULL, [], t('Add another item'));
+    $this->assertText('The referenced entity (node: 4) does not exist');
+    $this->assertText('Entity reference (value 1) field is required.');
     // Try to collapse with an invalid reference.
     $this->drupalPostAjaxForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], 'field_paragraphs_0_collapse');
+    // Paragraph should be still in edit mode.
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][0][target_id]');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][1][target_id]');
+    $this->drupalPostForm(NULL, [], t('Add another item'));
+    // Assert the validation message.
     $this->assertText('There are no entities matching "foo".');
     // Fix the broken reference.
     $node = $this->drupalGetNodeByTitle('Example publish/unpublish');

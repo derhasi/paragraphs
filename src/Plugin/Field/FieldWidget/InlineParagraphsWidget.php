@@ -223,6 +223,7 @@ class InlineParagraphsWidget extends WidgetBase {
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $parents = $element['#field_parents'];
+    $info = [];
 
     $paragraphs_entity = NULL;
     $host = $items->getEntity();
@@ -270,6 +271,25 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if ($item_mode == 'collapsed') {
       $item_mode = $default_edit_mode;
+    }
+
+    if ($item_mode == 'closed') {
+      // Validate closed paragraphs and expand if needed.
+      // @todo Consider recursion.
+      $violations = $paragraphs_entity->validate();
+      $violations->filterByFieldAccess();
+      if (count($violations) > 0) {
+        $item_mode = 'edit';
+        $messages = [];
+        foreach ($violations as $violation) {
+          $messages[] = $violation->getMessage();
+        }
+        $info['validation_error'] = array(
+          '#type' => 'container',
+          '#markup' => $this->t('@messages', ['@messages' => strip_tags(implode('\n', $messages))]),
+          '#attributes' => ['class' => ['messages', 'messages--warning']],
+        );
+      }
     }
 
     if ($paragraphs_entity) {
@@ -399,7 +419,6 @@ class InlineParagraphsWidget extends WidgetBase {
 
         $actions = array();
         $links = array();
-        $info = array();
 
         if ($item_mode == 'edit') {
 
