@@ -11,7 +11,7 @@ use Drupal\simpletest\WebTestBase;
  *
  * @group paragraphs
  */
-class ParagraphsAdministrationTest extends WebTestBase {
+class ParagraphsAdministrationTest extends ParagraphsTestBase {
 
   use FieldUiTestTrait;
 
@@ -21,12 +21,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
    * @var array
    */
   public static $modules = array(
-    'node',
-    'paragraphs',
-    'field',
     'image',
-    'field_ui',
-    'block',
     'file',
     'views'
   );
@@ -36,41 +31,22 @@ class ParagraphsAdministrationTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    // Create paragraphs and article content types.
+    // Create paragraphs content type.
     $this->drupalCreateContentType(array('type' => 'paragraphs', 'name' => 'Paragraphs'));
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
-    // Place the breadcrumb, tested in fieldUIAddNewField().
-    $this->drupalPlaceBlock('system_breadcrumb_block');
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalPlaceBlock('page_title_block');
   }
   /**
    * Tests the revision of paragraphs.
    */
   public function testParagraphsRevisions() {
-    $admin_user = $this->drupalCreateUser(array(
-      'administer nodes',
+    $this->addParagraphedContentType('article', 'paragraphs');
+    $this->loginAsAdmin([
       'create paragraphs content',
-      'administer content types',
-      'administer node fields',
       'administer node display',
-      'administer paragraphs types',
-      'administer paragraph fields',
-      'administer node form display',
       'edit any paragraphs content',
-    ));
-    $this->drupalLogin($admin_user);
+    ]);
 
-    $this->drupalGet('admin/structure/paragraphs_type');
-    $this->clickLink(t('Add paragraphs type'));
     // Create paragraphs type Headline + Block.
-    $edit = array(
-      'label' => 'Text',
-      'id' => 'text',
-    );
-    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
-    $this->assertUrl('admin/structure/paragraphs_type/text/fields');
+    $this->addParagraphsType('text');
     // Create field types for the text.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text', 'text', 'Text', 'text', array(), array());
     $this->assertText('Saved Text configuration.');
@@ -152,24 +128,18 @@ class ParagraphsAdministrationTest extends WebTestBase {
    * Tests the paragraph creation.
    */
   public function testParagraphsCreation() {
-    $admin_user = $this->drupalCreateUser(array(
+    // Create an article with paragraphs field.
+    $this->addParagraphedContentType('article', 'field_paragraphs');
+    $this->loginAsAdmin([
       'administer site configuration',
-      'administer nodes',
       'create article content',
       'create paragraphs content',
-      'administer content types',
-      'administer node fields',
       'administer node display',
-      'administer paragraphs types',
-      'administer paragraph fields',
       'administer paragraph display',
-      'administer paragraph form display',
-      'administer node form display',
       'edit any article content',
       'delete any article content',
       'access files overview',
-    ));
-    $this->drupalLogin($admin_user);
+    ]);
 
     // Assert suggested 'Add a paragraph type' link when there is no type yet.
     $this->drupalGet('admin/structure/paragraphs_type');
@@ -189,12 +159,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->clickLink(t('Add paragraphs type'));
     // Create paragraph type text + image.
-    $edit = array(
-      'label' => 'Text + Image',
-      'id' => 'text_image',
-    );
-    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
-    $this->assertUrl('admin/structure/paragraphs_type/text_image/fields');
+    $this->addParagraphsType('text_image');
     // Create field types for text and image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'text', 'Text', 'text_long', array(), array());
     $this->assertText('Saved Text configuration.');
@@ -202,11 +167,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertText('Saved Image configuration.');
 
     // Create paragraph type Nested test.
-    $edit = array(
-      'label' => 'Nested_test',
-      'id' => 'nested_test',
-    );
-    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+    $this->addParagraphsType('nested_test');
 
     static::fieldUIAddNewField('admin/structure/paragraphs_type/nested_test', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
       'settings[target_type]' => 'paragraph',
@@ -220,12 +181,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, [], t('Save'));
 
     // Create paragraph type image.
-    $edit = array(
-      'label' => 'Image only',
-      'id' => 'image',
-    );
-    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
-    $this->assertUrl('admin/structure/paragraphs_type/image/fields');
+    $this->addParagraphsType('image');
     // Create field types for image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/image', 'image_only', 'Image only', 'image', array(), array());
     $this->assertText('Saved Image only configuration.');
@@ -234,31 +190,15 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $rows = $this->xpath('//tbody/tr');
     // Make sure 2 types are available with their label.
     $this->assertEqual(count($rows), 3);
-    $this->assertText('Text + Image');
-    $this->assertText('Image only');
+    $this->assertText('text_image');
+    $this->assertText('image');
     // Make sure there is an edit link for each type.
     $this->clickLink(t('Edit'));
     // Make sure the field UI appears.
     $this->assertLink('Manage fields');
     $this->assertLink('Manage form display');
     $this->assertLink('Manage display');
-    $this->assertTitle('Edit Image only paragraph type | Drupal');
-
-    // Create an article with paragraphs field.
-    static::fieldUIAddNewField('admin/structure/types/manage/article', 'paragraphs', 'Paragraphs', 'entity_reference_revisions', array(
-      'settings[target_type]' => 'paragraph',
-      'cardinality' => '-1',
-    ), array(
-      'description' => 'Help text.',
-    ));
-    // Configure article fields.
-    $this->drupalGet('admin/structure/types/manage/article/fields');
-    $this->clickLink(t('Edit'), 1);
-    $this->drupalPostForm(NULL, NULL, t('Save settings'));
-    $this->clickLink(t('Manage display'));
-    $this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_revisions_entity_view'), t('Save'));
-    $this->clickLink(t('Manage form display'));
-    $this->drupalPostForm(NULL, array('fields[field_paragraphs][type]' => 'entity_reference_paragraphs'), t('Save'));
+    $this->assertTitle('Edit image paragraph type | Drupal');
 
     // Test for "Add mode" setting.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
@@ -281,9 +221,6 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     // Add two Text + Image paragraphs in article.
     $this->drupalGet('node/add/article');
-
-    // Check if help text is saved correctly.
-    $this->assertText('Help text.');
 
     // Checking changes on article.
     $this->assertRaw('<div class="paragraphs-dropbutton-wrapper"><input', 'Updated value in article.');
@@ -404,7 +341,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->drupalGet('node/add/article');
-    $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
+    $this->drupalPostForm(NULL, NULL, t('Add text_image'));
     $this->assertRaw('edit-field-paragraphs-0-subform-status-value');
     $edit = [
       'title[0][value]' => 'Example publish/unpublish',
@@ -422,7 +359,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     // Set the fields as required.
     $this->drupalGet('admin/structure/types/manage/article/fields');
     $this->clickLink('Edit', 1);
-    $this->drupalPostForm(NULL, ['required' => TRUE], t('Save settings'));
+    $this->drupalPostForm(NULL, ['preview_mode' => '1'], t('Save content type'));
     $this->drupalGet('admin/structure/paragraphs_type/nested_test/fields');
     $this->clickLink('Edit');
     $this->drupalPostForm(NULL, ['required' => TRUE], t('Save settings'));
@@ -470,11 +407,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->assertNoOption('edit-settings-target-type', 'paragraph');
 
     // Test that all paragraph types can be referenced if none is selected.
-    $edit = array(
-      'label' => 'Nested_double_test',
-      'id' => 'nested_double_test',
-    );
-    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+    $this->addParagraphsType('nested_double_test');
     static::fieldUIAddExistingField('admin/structure/paragraphs_type/nested_double_test', 'field_paragraphs', 'paragraphs_1');
     $this->clickLink(t('Manage form display'));
     $this->drupalPostForm(NULL, [], 'Save');
@@ -508,11 +441,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed'], t('Update'));
     $this->drupalPostForm(NULL, [], t('Save'));
 
-    $edit = array(
-      'label' => 'Node_test',
-      'id' => 'node_test',
-    );
-    $this->drupalPostForm('admin/structure/paragraphs_type/add', $edit, t('Save and manage fields'));
+    $this->addParagraphsType('node_test');
 
     // Add a node reference field.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/node_test', 'entity_reference', 'Entity reference', 'entity_reference', array(
@@ -523,6 +452,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
 
     // Create a node with a reference in a Paragraph.
     $this->drupalPostAjaxForm('node/add/article', [], 'field_paragraphs_node_test_add_more');
+    \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
     $edit = [
       'field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')',
       'title[0][value]' => 'choke test',
@@ -569,7 +499,7 @@ class ParagraphsAdministrationTest extends WebTestBase {
     $this->drupalGet('admin/content/files');
     $this->clickLink('1 place');
     $label = $this->xpath('//tbody/tr/td[1]');
-    $this->assertEqual(trim(htmlspecialchars_decode(strip_tags($label[0]->asXML()))), 'test required > Paragraphs > Paragraphs');
+    $this->assertEqual(trim(htmlspecialchars_decode(strip_tags($label[0]->asXML()))), 'test required > field_paragraphs > Paragraphs');
   }
 
   /**

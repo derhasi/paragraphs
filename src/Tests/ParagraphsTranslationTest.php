@@ -14,7 +14,7 @@ use Drupal\simpletest\WebTestBase;
  *
  * @group paragraphs
  */
-class ParagraphsTranslationTest extends WebTestBase {
+class ParagraphsTranslationTest extends ParagraphsTestBase {
 
   /**
    * Modules to enable.
@@ -22,17 +22,15 @@ class ParagraphsTranslationTest extends WebTestBase {
    * @var array
    */
   public static $modules = array(
-    'node',
     'paragraphs_demo',
     'content_translation',
-    'block',
     'link',
   );
 
   /**
    * A user with admin permissions.
    *
-   * @var \Drupal\user\UserInterface $entity
+   * @var array
    */
   protected $admin_user;
 
@@ -41,26 +39,16 @@ class ParagraphsTranslationTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('page_title_block');
-
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->loginAsAdmin([
       'administer site configuration',
-      'administer nodes',
       'create paragraphed_content_demo content',
       'edit any paragraphed_content_demo content',
       'delete any paragraphed_content_demo content',
-      'administer paragraph form display',
-      'administer paragraph fields',
       'administer content translation',
       'translate any entity',
       'create content translations',
       'administer languages',
-      'administer content types',
-    ));
-
-    $this->drupalLogin($this->admin_user);
-
+    ]);
     $edit = [
       'settings[paragraph][nested_paragraph][translatable]' => TRUE,
       'settings[paragraph][nested_paragraph][settings][language][language_alterable]' => TRUE,

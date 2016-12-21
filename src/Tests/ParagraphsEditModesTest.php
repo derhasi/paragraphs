@@ -19,11 +19,6 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
    * @var array
    */
   public static $modules = [
-    'node',
-    'paragraphs',
-    'field',
-    'field_ui',
-    'block',
     'image',
   ];
 

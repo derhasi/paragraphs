@@ -13,7 +13,7 @@ use Drupal\user\Entity\Role;
  *
  * @group paragraphs
  */
-class ParagraphsAccessTest extends WebTestBase {
+class ParagraphsAccessTest extends ParagraphsTestBase {
 
   use FieldUiTestTrait;
 
@@ -23,12 +23,7 @@ class ParagraphsAccessTest extends WebTestBase {
    * @var array
    */
   public static $modules = array(
-    'node',
-    'paragraphs',
-    'field',
     'image',
-    'field_ui',
-    'block',
     'paragraphs_demo',
   );
 
@@ -37,31 +32,20 @@ class ParagraphsAccessTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('page_title_block');
   }
 
   /**
    * Tests the paragraph translation.
    */
   public function testParagraphAccessCheck() {
-    $admin_user = $this->drupalCreateUser(array(
+    $admin_user = [
       'administer site configuration',
-      'administer nodes',
-      'administer content types',
-      'administer node fields',
       'administer node display',
-      'administer paragraphs types',
-      'administer paragraph fields',
       'administer paragraph display',
-      'administer paragraph form display',
-      'administer node form display',
       'create paragraphed_content_demo content',
       'edit any paragraphed_content_demo content',
-    ));
-    $this->drupalLogin($admin_user);
-
-    $this->drupalLogin($admin_user);
+    ];
+    $this->loginAsAdmin($admin_user);
 
     // Remove the "access content" for anonymous users. That results in
     // anonymous users not being able to "view" the host entity.
@@ -133,7 +117,7 @@ class ParagraphsAccessTest extends WebTestBase {
     $this->assertResponse(403, 'Image could not be downloaded');
 
     // Login as admin with no delete permissions.
-    $this->drupalLogin($admin_user);
+    $this->loginAsAdmin($admin_user);
     // Create a new demo node.
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Text'));
