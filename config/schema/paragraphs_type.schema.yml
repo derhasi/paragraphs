@@ -12,12 +12,21 @@ paragraphs.paragraphs_type.*:
       type: sequence
       label: 'Plugins'
       sequence:
-        type: mapping
+        type: paragraphs.behavior.settings.[%key]
         label: 'Behavior plugins'
-        mapping:
-          enabled:
-            type: boolean
-            label: 'Enabled'
+
+paragraphs.behavior.settings_base:
+  type: mapping
+  label: 'Settings for base paragraphs behavior plugin'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enabled'
+
+# The plugins which extend the base behavior plugin and don't provide
+# any configuration form will validate on this entry.
+paragraphs.behavior.settings.*:
+  type: paragraphs.behavior.settings_base
 
 entity_reference_selection.default:paragraph:
   type: entity_reference_selection

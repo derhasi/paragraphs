@@ -17,7 +17,46 @@ use Drupal\paragraphs\ParagraphsBehaviorBase;
  *   weight = 1
  * )
  */
-class TestTextColorPlugin extends ParagraphsBehaviorBase {
+class TestTextColorBehavior extends ParagraphsBehaviorBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    $form['default_color'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Default Color'),
+      '#maxlength' => 255,
+      '#default_value' => $this->configuration['default_color'],
+      '#description' => $this->t("Text color for the paragraph."),
+    ];
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    if ($form_state->getValue('default_color') == 'red') {
+      $form_state->setErrorByName('default_color', $this->t('Red can not be used as the default color.'));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $this->configuration['default_color'] = $form_state->getValue('default_color');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    return [
+      'default_color' => 'blue',
+    ];
+  }
 
   /**
    * {@inheritdoc}
@@ -25,9 +64,9 @@ class TestTextColorPlugin extends ParagraphsBehaviorBase {
   public function buildBehaviorForm(Paragraph $paragraphs_entity) {
     $form['text_color'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Label'),
+      '#title' => $this->t('Color'),
       '#maxlength' => 255,
-      '#default_value' => $paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'text_color', 'blue'),
+      '#default_value' => $paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'text_color', $this->configuration['default_color']),
       '#description' => $this->t("Text color for the paragraph."),
     ];
     return $form;

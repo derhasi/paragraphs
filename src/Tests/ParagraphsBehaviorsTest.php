@@ -9,7 +9,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
  *
  * @group paragraphs
  */
-class ParagraphsPluginsTest extends ParagraphsTestBase {
+class ParagraphsBehaviorsTest extends ParagraphsTestBase {
 
   use FieldUiTestTrait;
 
@@ -27,16 +27,47 @@ class ParagraphsPluginsTest extends ParagraphsTestBase {
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
 
-    // Enable the test plugin.
+    // Check default configuration.
+    $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
+    $this->assertFieldByName('behavior_plugins[test_text_color][settings][default_color]', 'blue');
+
+    // Enable the test plugins, with an invalid configuration value.
     $edit = [
-      'behavior_plugins[text_bold_text][enabled]' => TRUE,
+      'behavior_plugins[test_bold_text][enabled]' => TRUE,
       'behavior_plugins[test_text_color][enabled]' => TRUE,
+      'behavior_plugins[test_text_color][settings][default_color]' => 'red',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertText('Red can not be used as the default color.');
+
+    // Ensure the form can be saved with an invalid configuration value when
+    // the plugin is not selected.
+    $edit = [
+      'behavior_plugins[test_bold_text][enabled]' => TRUE,
+      'behavior_plugins[test_text_color][enabled]' => FALSE,
+      'behavior_plugins[test_text_color][settings][default_color]' => 'red',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->assertText('Saved the text_paragraph Paragraphs type.');
+
+    // Ensure it can be saved with a valid value and that the defaults are
+    // correct.
+    $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
+    $this->assertFieldChecked('edit-behavior-plugins-test-bold-text-enabled');
+    $this->assertNoFieldChecked('edit-behavior-plugins-test-text-color-enabled');
+    $this->assertFieldByName('behavior_plugins[test_text_color][settings][default_color]', 'blue');
+
+    $edit = [
+      'behavior_plugins[test_bold_text][enabled]' => TRUE,
+      'behavior_plugins[test_text_color][enabled]' => TRUE,
+      'behavior_plugins[test_text_color][settings][default_color]' => 'green',
     ];
     $this->drupalPostForm('admin/structure/paragraphs_type/' . $paragraph_type, $edit, t('Save'));
+    $this->assertText('Saved the text_paragraph Paragraphs type.');
 
     // Create a node with a Paragraph.
     $this->drupalGet('node/add/paragraphed_test');
-    $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', 'blue');
+    $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', 'green');
     // Setting a not allowed value in the text color plugin text field.
     $plugin_text = 'green';
     $edit = [
@@ -64,7 +95,7 @@ class ParagraphsPluginsTest extends ParagraphsTestBase {
     $updated_text = 'blue';
     $edit = [
       'field_paragraphs[0][behavior_plugins][test_text_color][text_color]' => $updated_text,
-      'field_paragraphs[0][behavior_plugins][text_bold_text][bold_text]' => TRUE,
+      'field_paragraphs[0][behavior_plugins][test_bold_text][bold_text]' => TRUE,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
     $this->assertNoRaw('class="red_plugin_text');
@@ -72,7 +103,7 @@ class ParagraphsPluginsTest extends ParagraphsTestBase {
     $this->clickLink('Edit');
     // Assert the plugin fields populate the stored values.
     $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', $updated_text);
-    $this->assertFieldByName('field_paragraphs[0][behavior_plugins][text_bold_text][bold_text]', TRUE);
+    $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_bold_text][bold_text]', TRUE);
 
     // Test plugin applicability. Add a paragraph type.
     $paragraph_type = 'text_paragraph_test';
@@ -81,7 +112,7 @@ class ParagraphsPluginsTest extends ParagraphsTestBase {
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text_test', 'Text', 'text_long', [], []);
     // Assert if the plugin is listed on the edit form of the paragraphs type.
     $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
-    $this->assertNoFieldByName('behavior_plugins[text_bold_text][enabled]');
+    $this->assertNoFieldByName('behavior_plugins[test_bold_text][enabled]');
     $this->assertFieldByName('behavior_plugins[test_text_color][enabled]');
   }
 

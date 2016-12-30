@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
+use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\paragraphs\ParagraphsBehaviorCollection;
 use Drupal\paragraphs\ParagraphsTypeInterface;
 
@@ -39,7 +40,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   }
  * )
  */
-class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInterface {
+class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInterface, EntityWithPluginCollectionInterface {
 
   /**
    * The ParagraphsType ID.
@@ -98,6 +99,13 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
       $this->getBehaviorPlugins();
     }
     return $this->behaviorCollection->getEnabled();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getPluginCollections() {
+    return ['behavior_plugins' => $this->getBehaviorPlugins()];
   }
 
 }

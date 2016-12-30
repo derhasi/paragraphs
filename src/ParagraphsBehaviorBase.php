@@ -29,7 +29,9 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
   /**
    * {@inheritdoc}
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) { }
+  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
+    return $form;
+  }
 
   /**
    * {@inheritdoc}
@@ -59,7 +61,7 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
    * {@inheritdoc}
    */
   public function setConfiguration(array $configuration) {
-    $this->configuration = $configuration;
+    $this->configuration = $configuration + $this->defaultConfiguration();
   }
 
   /**

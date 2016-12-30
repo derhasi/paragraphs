@@ -12,13 +12,13 @@ use Drupal\paragraphs\ParagraphsBehaviorBase;
  * Provides a test feature plugin.
  *
  * @ParagraphsBehavior(
- *   id = "text_bold_text",
+ *   id = "test_bold_text",
  *   label = @Translation("Test bold text plugin"),
  *   description = @Translation("Test bold text plugin"),
  *   weight = 2
  * )
  */
-class TestBoldTextPlugin extends ParagraphsBehaviorBase {
+class TestBoldTextBehavior extends ParagraphsBehaviorBase {
 
   /**
    * {@inheritdoc}

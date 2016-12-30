@@ -1,0 +1,6 @@
+paragraphs.behavior.settings.test_text_color:
+  type: paragraphs.behavior.settings_base
+  mapping:
+    default_color:
+      type: string
+      label: Default color

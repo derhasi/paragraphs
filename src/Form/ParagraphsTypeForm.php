@@ -2,9 +2,9 @@
 
 namespace Drupal\paragraphs\Form;
 
-use Drupal\Component\Utility\Xss;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\field_ui\FieldUI;
 use Drupal\paragraphs\ParagraphsBehaviorManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,6 +20,13 @@ class ParagraphsTypeForm extends EntityForm {
    * @var \Drupal\paragraphs\ParagraphsBehaviorManager
    */
   protected $paragraphsBehaviorManager;
+
+  /**
+   * The entity being used by this form.
+   *
+   * @var \Drupal\paragraphs\ParagraphsTypeInterface
+   */
+  protected $entity;
 
   /**
    * GeneralSettingsForm constructor.
@@ -70,25 +77,38 @@ class ParagraphsTypeForm extends EntityForm {
       '#disabled' => !$paragraphs_type->isNew(),
     );
 
-    if ($behavior_plugins = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
+    // Loop over the plugins that can be applied to this paragraph type.
+    if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
       $form['behavior_plugins'] = [
-        '#type' => 'table',
-        '#header' => [t('Behavior'), t('Description')],
-        '#suffix' => '<div class="description">' . $this->t('The behavior plugins that are enabled to add special behavior, properties and attributes to a paragraph.') .'</div>',
+        '#type' => 'details',
+        '#title' => $this->t('Behaviors'),
+        '#tree' => TRUE,
+        '#open' => TRUE
       ];
       $config = $paragraphs_type->get('behavior_plugins');
-      foreach ($behavior_plugins as $id => $behavior_plugin) {
-        $description = $behavior_plugin['description'];
+      foreach ($behavior_plugin_definitions as $id => $behavior_plugin_definition) {
+        $description = $behavior_plugin_definition['description'];
         $form['behavior_plugins'][$id]['enabled'] = [
           '#type' => 'checkbox',
-          '#title' => $behavior_plugin['label'],
+          '#title' => $behavior_plugin_definition['label'],
           '#title_display' => 'after',
-          '#default_value' => isset($config[$id]['enabled']) ? $config[$id]['enabled'] : FALSE,
+          '#description' => $description,
+          '#default_value' => !empty($config[$id]['enabled']),
         ];
-        $form['behavior_plugins'][$id]['description'] = [
-          '#type' => 'markup',
-          '#markup' => isset($description) ? Xss::filter($description) : '',
-        ];
+        $form['behavior_plugins'][$id]['settings'] = [];
+        $subform_state = SubformState::createForSubform($form['behavior_plugins'][$id]['settings'], $form, $form_state);
+        $behavior_plugin = $paragraphs_type->getBehaviorPlugin($id);
+        if ($settings = $behavior_plugin->buildConfigurationForm($form['behavior_plugins'][$id]['settings'], $subform_state)) {
+          $form['behavior_plugins'][$id]['settings'] = $settings + [
+            '#type' => 'fieldset',
+            '#title' => $behavior_plugin_definition['label'],
+            '#states' => [
+              'visible' => [
+                  ':input[name="behavior_plugins[' . $id . '][enabled]"]' => ['checked' => TRUE],
+              ]
+            ]
+          ];
+        }
       }
     }
 
@@ -98,20 +118,53 @@ class ParagraphsTypeForm extends EntityForm {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    $paragraphs_type = $this->entity;
+
+    if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
+      foreach ($behavior_plugin_definitions as $id => $behavior_plugin_definition) {
+        // Only validate if the plugin is enabled and has settings.
+        if (isset($form['behavior_plugins'][$id]['settings']) && $form_state->getValue(['behavior_plugins', $id, 'enabled'])) {
+          $subform_state = SubformState::createForSubform($form['behavior_plugins'][$id]['settings'], $form, $form_state);
+          $behavior_plugin = $paragraphs_type->getBehaviorPlugin($id);
+          $behavior_plugin->validateConfigurationForm($form['behavior_plugins'][$id]['settings'], $subform_state);
+        }
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(array $form, FormStateInterface $form_state) {
     $paragraphs_type = $this->entity;
-    $status = $paragraphs_type->save();
 
-    if ($status) {
-      drupal_set_message($this->t('Saved the %label Paragraphs type.', array(
-        '%label' => $paragraphs_type->label(),
-      )));
+    if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
+      foreach ($behavior_plugin_definitions as $id => $behavior_plugin_definition) {
+        $behavior_plugin = $paragraphs_type->getBehaviorPlugin($id);
+
+        // If the behavior is enabled, initialize the configuration with the
+        // enabled key and then let it process the form input.
+        if ($form_state->getValue(['behavior_plugins', $id, 'enabled'])) {
+          $behavior_plugin->setConfiguration(['enabled' => TRUE]);
+          if (isset($form['behavior_plugins'][$id]['settings'])) {
+            $subform_state = SubformState::createForSubform($form['behavior_plugins'][$id]['settings'], $form, $form_state);
+            $behavior_plugin->submitConfigurationForm($form['behavior_plugins'][$id]['settings'], $subform_state);
+          }
+        }
+        else {
+          // The plugin is not enabled, reset to default configuration.
+          $behavior_plugin->setConfiguration([]);
+        }
+      }
     }
-    else {
-      drupal_set_message($this->t('The %label Paragraphs type was not saved.', array(
-        '%label' => $paragraphs_type->label(),
-      )));
-    }
+
+    $status = $paragraphs_type->save();
+    drupal_set_message($this->t('Saved the %label Paragraphs type.', array(
+      '%label' => $paragraphs_type->label(),
+    )));
     if (($status == SAVED_NEW && \Drupal::moduleHandler()->moduleExists('field_ui'))
       && $route_info = FieldUI::getOverviewRouteInfo('paragraph', $paragraphs_type->id())) {
       $form_state->setRedirectUrl($route_info);
