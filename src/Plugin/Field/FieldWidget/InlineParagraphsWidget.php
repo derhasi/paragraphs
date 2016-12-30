@@ -768,6 +768,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['#suffix'] = '</div>';
 
     $field_state['ajax_wrapper_id'] = $this->fieldWrapperId;
+    // Persist the widget state so formElement() can access it.
     static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
     if ($max > 0) {
