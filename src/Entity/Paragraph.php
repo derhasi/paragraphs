@@ -392,7 +392,9 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
 
     $fields['behavior_settings'] = BaseFieldDefinition::create('string_long')
       ->setLabel(t('Behavior settings'))
-      ->setDescription(t('The behavior plugin settings'));
+      ->setDescription(t('The behavior plugin settings'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(serialize([]));
 
     return $fields;
   }

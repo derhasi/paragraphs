@@ -192,3 +192,17 @@ function paragraphs_update_8010() {
   \Drupal::entityDefinitionUpdateManager()
     ->installFieldStorageDefinition('behavior_settings', 'paragraph', 'paragraph', $storage_definition);
 }
+
+/**
+ * Make the behavior plugins field of Paragraphs revisionable.
+ */
+function paragraphs_update_8011() {
+  \Drupal::database()->update('paragraphs_item_field_data')
+    ->fields(['behavior_settings' => NULL])
+    ->execute();
+
+  /** @var \Drupal\Core\Field\BaseFieldDefinition $storage_definition */
+  $storage_definition = \Drupal::entityDefinitionUpdateManager()->getFieldStorageDefinition('behavior_settings', 'paragraph');
+  $storage_definition->setRevisionable(TRUE);
+  \Drupal::entityDefinitionUpdateManager()->updateFieldStorageDefinition($storage_definition);
+}
