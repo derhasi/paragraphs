@@ -1260,6 +1260,9 @@ class InlineParagraphsWidget extends WidgetBase {
           // Submit all enabled behavior plugins.
           $paragraphs_type = $paragraphs_entity->getParagraphType();
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+            if (!isset($item['behavior_plugins'][$plugin_id])) {
+              $item['behavior_plugins'][$plugin_id] = [];
+            }
             $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id]);
           }
         }
