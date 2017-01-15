@@ -114,6 +114,20 @@ class ParagraphsBehaviorsTest extends ParagraphsTestBase {
     $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
     $this->assertNoFieldByName('behavior_plugins[test_bold_text][enabled]');
     $this->assertFieldByName('behavior_plugins[test_text_color][enabled]');
+
+    // Test a plugin without behavior fields.
+    $edit = [
+      'behavior_plugins[test_dummy_behavior][enabled]' => TRUE,
+      'behavior_plugins[test_text_color][enabled]' => TRUE,
+    ];
+    $this->drupalPostForm('admin/structure/paragraphs_type/' . $paragraph_type, $edit, t('Save'));
+    $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_text_paragraph_test_add_more');
+    $edit = [
+      'title[0][value]' => 'paragraph with no fields',
+      'field_paragraphs[0][subform][field_text_test][0][value]' => 'my behavior plugin does not have any field',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->assertRaw('dummy_plugin_text');
   }
 
 }
