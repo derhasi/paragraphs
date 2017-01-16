@@ -1,10 +1,8 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Classic;
 
-use Drupal\Core\Entity\Entity;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the configuration of paragraphs.
@@ -23,14 +21,6 @@ class ParagraphsPreviewTest extends ParagraphsTestBase {
   public static $modules = array(
     'image',
   );
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    // Create paragraphs and article content types.
-  }
 
   /**
    * Tests the revision of paragraphs.

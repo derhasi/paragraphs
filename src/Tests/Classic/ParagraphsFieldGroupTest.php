@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Classic;
 
 /**
  * Tests the field group on node.

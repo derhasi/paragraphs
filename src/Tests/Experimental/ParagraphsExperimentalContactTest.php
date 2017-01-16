@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\contact\Entity\ContactForm;
 
@@ -9,7 +9,7 @@ use Drupal\contact\Entity\ContactForm;
  *
  * @group paragraphs
  */
-class ParagraphsContactTest extends ParagraphsTestBase {
+class ParagraphsExperimentalContactTest extends ParagraphsExperimentalTestBase {
 
   /**
    * Modules to enable.
@@ -37,7 +37,6 @@ class ParagraphsContactTest extends ParagraphsTestBase {
     $contact_form->save();
     // Add a paragraphs field to the contact form.
     $this->addParagraphsField($contact_form->id(), 'paragraphs', 'contact_message');
-
     // Add a paragraph to the contact form.
     $this->drupalGet('contact/test_contact_form');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraphs_contact_add_more');

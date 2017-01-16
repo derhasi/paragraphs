@@ -66,3 +66,19 @@ field.widget.settings.entity_reference_paragraphs:
       type: string
     default_paragraph_type:
       type: string
+
+field.widget.settings.paragraphs:
+  type: mapping
+  mapping:
+    title:
+      type: string
+    title_plural:
+      type: string
+    edit_mode:
+      type: string
+    add_mode:
+      type: string
+    form_display_mode:
+      type: string
+    default_paragraph_type:
+      type: string

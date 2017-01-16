@@ -14,32 +14,27 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs;
-use Symfony\Component\Validator\ConstraintViolationInterface;
-
 
 /**
- * Plugin implementation of the 'entity_reference paragraphs' widget.
- *
- * We hide add / remove buttons when translating to avoid accidental loss of
- * data because these actions effect all languages.
+ * Plugin implementation of the 'entity_reference_revisions paragraphs' widget.
  *
  * @FieldWidget(
- *   id = "entity_reference_paragraphs",
- *   label = @Translation("Paragraphs Classic"),
- *   description = @Translation("A paragraphs inline form widget."),
+ *   id = "paragraphs",
+ *   label = @Translation("Paragraphs EXPERIMENTAL"),
+ *   description = @Translation("An experimental paragraphs inline form widget."),
  *   field_types = {
  *     "entity_reference_revisions"
  *   }
  * )
  */
-class InlineParagraphsWidget extends WidgetBase {
+class ParagraphsWidget extends WidgetBase {
 
   /**
    * Indicates whether the current widget instance is in translation.
    *
    * @var bool
    */
-  private $isTranslating;
+  protected $isTranslating;
 
   /**
    * Id to name ajax buttons that includes field parents and field name.
@@ -384,29 +379,41 @@ class InlineParagraphsWidget extends WidgetBase {
           '#markup' => $bundle_info['label'],
         );
 
-        $actions = array();
-        $links = array();
-
         // Hide the button when translating.
         $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
-        $links['remove_button'] = array(
-          '#type' => 'submit',
-          '#value' => $this->t('Remove'),
-          '#name' => strtr($id_prefix, '-', '_') . '_remove',
-          '#weight' => 500,
-          '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-          '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-          '#delta' => $delta,
-          '#ajax' => array(
-            'callback' => array(get_class($this), 'itemAjax'),
-            'wrapper' => $widget_state['ajax_wrapper_id'],
-            'effect' => 'fade',
-          ),
-          '#access' => $button_access,
-          '#prefix' => '<li class="remove">',
-          '#suffix' => '</li>',
-          '#paragraphs_mode' => 'remove',
-        );
+        $element['top']['paragraphs_remove_button_container'] = [
+          '#type' => 'container',
+          '#weight' => 1,
+          '#attributes' => [
+            'class' => [
+              'paragraphs-remove-button-container',
+            ],
+          ],
+          'paragraphs_remove_button' => [
+            '#type' => 'submit',
+            '#value' => $this->t('Remove'),
+            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#weight' => 500,
+            '#attributes' => [
+              'class' => [
+                'paragraphs-remove-button',
+              ],
+            ],
+            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
+            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#delta' => $delta,
+            '#ajax' => array(
+              'callback' => array(get_class($this), 'itemAjax'),
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ),
+            '#access' => $button_access,
+            '#paragraphs_mode' => 'remove',
+          ]
+        ];
+
+        $actions = array();
+        $links = array();
 
         if ($item_mode == 'edit') {
 
@@ -604,6 +611,15 @@ class InlineParagraphsWidget extends WidgetBase {
             }
           }
         }
+
+        // Build the behavior plugins fields.
+        $paragraphs_type = $paragraphs_entity->getParagraphType();
+        if ($paragraphs_type) {
+          foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
+            $element['behavior_plugins'][$plugin_id] = [];
+            $element['behavior_plugins'][$plugin_id] = $plugin->buildBehaviorForm($paragraphs_entity);
+          }
+        }
       }
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
@@ -701,6 +717,9 @@ class InlineParagraphsWidget extends WidgetBase {
     return $return_bundles;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
     $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
@@ -850,7 +869,7 @@ class InlineParagraphsWidget extends WidgetBase {
       $elements['add_more'] = $this->buildAddActions();
     }
 
-    $elements['#attached']['library'][] = 'paragraphs/drupal.paragraphs.admin';
+    $elements['#attached']['library'][] = 'paragraphs/drupal.paragraphs.widget';
 
     return $elements;
   }
@@ -1029,21 +1048,6 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
-   * Gets current language code from the form state or item.
-   *
-   * Since the paragraph field is not set as translatable, the item language
-   * code is set to the source language. The intended translation language
-   * is only accessibly through the form state.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   * @param \Drupal\Core\Field\FieldItemListInterface $items
-   * @return string
-   */
-  protected function getCurrentLangcode(FormStateInterface $form_state, FieldItemListInterface $items) {
-    return $form_state->get('langcode') ?: $items->getEntity()->language()->getId();
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function addMoreAjax(array $form, FormStateInterface $form_state) {
@@ -1126,13 +1130,6 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function errorElement(array $element, ConstraintViolationInterface $error, array $form, FormStateInterface $form_state) {
-    return $element;
-  }
-
-  /**
    * Returns the value of a setting for the entity reference selection handler.
    *
    * @param string $setting_name
@@ -1144,17 +1141,6 @@ class InlineParagraphsWidget extends WidgetBase {
   protected function getSelectionHandlerSetting($setting_name) {
     $settings = $this->getFieldSetting('handler_settings');
     return isset($settings[$setting_name]) ? $settings[$setting_name] : NULL;
-  }
-
-  /**
-   * Checks whether a content entity is referenced.
-   *
-   * @return bool
-   */
-  protected function isContentReferenced() {
-    $target_type = $this->getFieldSetting('target_type');
-    $target_type_info = \Drupal::entityTypeManager()->getDefinition($target_type);
-    return $target_type_info->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface');
   }
 
   /**
@@ -1175,6 +1161,12 @@ class InlineParagraphsWidget extends WidgetBase {
         // Extract the form values on submit for getting the current paragraph.
         $display->extractFormValues($entity, $element['subform'], $form_state);
         $display->validateFormValues($entity, $element['subform'], $form_state);
+
+        // Validate all enabled behavior plugins.
+        $paragraphs_type = $entity->getParagraphType();
+        foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+          $plugin_values->validateBehaviorForm($element['behavior_plugins'][$plugin_id], $form_state);
+        }
       }
     }
 
@@ -1227,6 +1219,16 @@ class InlineParagraphsWidget extends WidgetBase {
           }
           else {
             $paragraphs_entity->set($langcode_key, $form_state->get('langcode'));
+          }
+        }
+        if (isset($item['behavior_plugins'])) {
+          // Submit all enabled behavior plugins.
+          $paragraphs_type = $paragraphs_entity->getParagraphType();
+          foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+            if (!isset($item['behavior_plugins'][$plugin_id])) {
+              $item['behavior_plugins'][$plugin_id] = [];
+            }
+            $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id]);
           }
         }
 

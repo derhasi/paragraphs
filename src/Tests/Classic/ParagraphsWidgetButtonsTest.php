@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Classic;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 

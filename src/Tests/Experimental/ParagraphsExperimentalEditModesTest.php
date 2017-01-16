@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 
@@ -9,7 +9,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
  *
  * @group paragraphs
  */
-class ParagraphsEditModesTest extends ParagraphsTestBase {
+class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase {
 
   use FieldUiTestTrait;
 

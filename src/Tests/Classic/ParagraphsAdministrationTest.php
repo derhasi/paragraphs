@@ -1,10 +1,9 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Classic;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\paragraphs\Entity\Paragraph;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the configuration of paragraphs.
@@ -392,7 +391,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     // Test that unsupported widgets are not displayed.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
     $select = $this->xpath('//*[@id="edit-fields-field-paragraphs-type"]')[0];
-    $this->assertEqual(count($select->option), 1);
+    $this->assertEqual(count($select->option), 2);
     $this->assertRaw('value="entity_reference_paragraphs" selected="selected"');
 
     // Check that Paragraphs is not displayed as an entity_reference field

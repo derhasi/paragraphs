@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\paragraphs\Entity\ParagraphsType;
@@ -10,7 +10,7 @@ use Drupal\paragraphs\Entity\ParagraphsType;
  *
  * @group paragraphs
  */
-class ParagraphsAddModesTest extends ParagraphsTestBase {
+class ParagraphsExperimentalAddModesTest extends ParagraphsExperimentalTestBase {
 
   use FieldUiTestTrait;
 
@@ -20,7 +20,6 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
   public function testNoDefaultValue() {
     $this->loginAsAdmin();
     $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
-
     // Edit the field.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields');
     $this->clickLink(t('Edit'));

@@ -1,16 +1,15 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\language\Entity\ConfigurableLanguage;
-use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
  * Tests paragraphs configuration.
  *
  * @group paragraphs
  */
-class ParagraphsConfigTest extends ParagraphsTestBase {
+class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
 
   /**
    * Modules to enable.
@@ -34,6 +33,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
 
     // Add a paragraphed content type.
     $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -79,7 +79,6 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
 
     $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
-
     // Check error message is not displayed.
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
@@ -130,4 +129,5 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $this->assertNoText('Paragraphs fields do not support translation.');
     $this->assertNoRaw('<div class="messages messages--warning');
   }
+
 }

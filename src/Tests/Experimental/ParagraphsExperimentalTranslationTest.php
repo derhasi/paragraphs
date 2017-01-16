@@ -1,20 +1,19 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\Component\Render\FormattableMarkup;
-use Drupal\Core\Entity\Entity;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\node\Entity\Node;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Tests the configuration of paragraphs.
  *
  * @group paragraphs
  */
-class ParagraphsTranslationTest extends ParagraphsTestBase {
+class ParagraphsExperimentalTranslationTest extends ParagraphsExperimentalTestBase {
 
   /**
    * Modules to enable.
@@ -26,13 +25,6 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
     'content_translation',
     'link',
   );
-
-  /**
-   * A user with admin permissions.
-   *
-   * @var array
-   */
-  protected $admin_user;
 
   /**
    * {@inheritdoc}
@@ -76,7 +68,18 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
       'fields[status][type]' => 'boolean_checkbox',
       'fields[status][region]' => 'content',
     );
-
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('paragraph.nested_paragraph.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
     $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Text + Image'));
@@ -383,6 +386,18 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
     // Case 1: original node langcode in EN, translate in FR, change to DE.
 
     // Add 'Images' paragraph and check the paragraphs buttons are displayed.
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('paragraph.nested_paragraph.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Images'));
     $this->assertParagraphsButtons(1);
@@ -557,7 +572,18 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
   public function testParagraphsMultilingualWorkflow() {
     // Case 1: Check the paragraphs buttons after changing the NODE language
     // (original node langcode in GERMAN, default site langcode in english).
-
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
+    // Use the experimental widget.
+    $form_display = EntityFormDisplay::load('paragraph.nested_paragraph.default')
+      ->setComponent('field_paragraphs_demo', [
+        'type' => 'paragraphs',
+      ]);
+    $form_display->save();
     // Create a node and check that the node langcode is 'english'.
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->assertOptionSelected('edit-langcode-0-value', 'en');

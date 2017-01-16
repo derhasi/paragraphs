@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\paragraphs\Tests;
+namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 
@@ -9,7 +9,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
  *
  * @group paragraphs
  */
-class ParagraphsBehaviorsTest extends ParagraphsTestBase {
+class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase {
 
   use FieldUiTestTrait;
 
@@ -31,6 +31,7 @@ class ParagraphsBehaviorsTest extends ParagraphsTestBase {
     $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
     $this->assertFieldByName('behavior_plugins[test_text_color][settings][default_color]', 'blue');
 
+    $this->assertText('Behavior plugins are only supported by the EXPERIMENTAL paragraphs widget');
     // Enable the test plugins, with an invalid configuration value.
     $edit = [
       'behavior_plugins[test_bold_text][enabled]' => TRUE,
