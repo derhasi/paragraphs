@@ -2,6 +2,7 @@
 
 namespace Drupal\paragraphs\Tests\Classic;
 
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\user\RoleInterface;
 use Drupal\user\Entity\Role;
@@ -59,6 +60,11 @@ class ParagraphsAccessTest extends ParagraphsTestBase {
       'settings[uri_scheme]' => 'private',
     );
     $this->drupalPostForm('admin/structure/paragraphs_type/images/fields/paragraph.images.field_images_demo/storage', $edit, t('Save field settings'));
+
+    // Set the form display to classic.
+    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
+      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs']);
+    $form_display->save();
 
     // Create a new demo node.
     $this->drupalGet('node/add/paragraphed_content_demo');

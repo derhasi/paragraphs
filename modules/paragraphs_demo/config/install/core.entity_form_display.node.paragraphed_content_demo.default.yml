@@ -25,7 +25,7 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_paragraphs_demo:
-    type: entity_reference_paragraphs
+    type: paragraphs
     weight: 32
     settings:
       title: Paragraph
