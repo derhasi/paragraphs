@@ -36,19 +36,6 @@ class TestBoldTextBehavior extends ParagraphsBehaviorBase {
   /**
    * {@inheritdoc}
    */
-  public function validateBehaviorForm(array &$form, FormStateInterface $form_state) {
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function submitBehaviorForm(Paragraph $paragraphs_entity, array $values) {
-    $paragraphs_entity->setBehaviorSettings($this->getPluginId(), $values);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function view(array &$build, Paragraph $paragraphs_entity, EntityViewDisplayInterface $display, $view_mode) {
     if ($paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'bold_text')) {
       $build['#attributes']['class'][] = 'bold_plugin_text';

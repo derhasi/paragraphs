@@ -85,13 +85,6 @@ class TestTextColorBehavior extends ParagraphsBehaviorBase {
   /**
    * {@inheritdoc}
    */
-  public function submitBehaviorForm(Paragraph $paragraphs_entity, array $values) {
-    $paragraphs_entity->setBehaviorSettings($this->getPluginId(), $values);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function view(array &$build, Paragraph $paragraphs_entity, EntityViewDisplayInterface $display, $view_mode) {
     if ($color = $paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'text_color')) {
       $build['#attributes']['class'][] = $color . '_plugin_text';
