@@ -103,4 +103,15 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    */
   public static function isApplicable(ParagraphsType $paragraphs_type);
 
+  /**
+   * Returns a short summary for the current behavior settings.
+   *
+   * @param \Drupal\paragraphs\Entity\Paragraph $paragraph
+   *   The paragraph.
+   *
+   * @return string[]
+   *   The plugin settings.
+   */
+  public function settingsSummary(Paragraph $paragraph);
+
 }

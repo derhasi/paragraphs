@@ -5,6 +5,7 @@ namespace Drupal\paragraphs;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\Entity\ParagraphsType;
 
 abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBehaviorInterface {
@@ -83,4 +84,10 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
     return TRUE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary(Paragraph $paragraph) {
+    return [];
+  }
 }
