@@ -26,4 +26,11 @@ class TestDummyBehavior extends ParagraphsBehaviorBase {
     $build['#attributes']['class'][] = 'dummy_plugin_text';
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function buildBehaviorForm(Paragraph $paragraphs_entity) {
+    // Used to test that returning NULL does not return an error.
+    return NULL;
+  }
 }

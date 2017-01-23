@@ -617,7 +617,9 @@ class ParagraphsWidget extends WidgetBase {
         if ($paragraphs_type) {
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
             $element['behavior_plugins'][$plugin_id] = [];
-            $element['behavior_plugins'][$plugin_id] = $plugin->buildBehaviorForm($paragraphs_entity);
+            if ($plugin_form = $plugin->buildBehaviorForm($paragraphs_entity)) {
+              $element['behavior_plugins'][$plugin_id] = $plugin_form;
+            }
           }
         }
       }
