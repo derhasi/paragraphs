@@ -14,6 +14,13 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
   use FieldUiTestTrait;
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = ['image', 'file', 'views'];
+
+  /**
    * Tests the behavior plugins for paragraphs.
    */
   public function testBehaviorPluginsFields() {
@@ -111,10 +118,18 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $this->addParagraphsType($paragraph_type);
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text_test', 'Text', 'text_long', [], []);
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'image', 'Image', 'image', [], []);
     // Assert if the plugin is listed on the edit form of the paragraphs type.
     $this->drupalGet('admin/structure/paragraphs_type/' . $paragraph_type);
     $this->assertNoFieldByName('behavior_plugins[test_bold_text][enabled]');
     $this->assertFieldByName('behavior_plugins[test_text_color][enabled]');
+    $this->assertFieldByName('behavior_plugins[test_field_selection][enabled]');
+    $this->assertText('Choose paragraph field to be applied.');
+    // Assert that Field Selection Filter plugin properly filters field types.
+    $this->assertOptionByText('edit-behavior-plugins-test-field-selection-settings-field-selection-filter', t('Image'));
+    // Check that Field Selection Plugin does not filter any field types.
+    $this->assertOptionByText('edit-behavior-plugins-test-field-selection-settings-field-selection', t('Image'));
+    $this->assertOptionByText('edit-behavior-plugins-test-field-selection-settings-field-selection', t('Text'));
 
     // Test a plugin without behavior fields.
     $edit = [

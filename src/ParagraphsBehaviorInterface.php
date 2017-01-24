@@ -114,4 +114,19 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    */
   public function settingsSummary(Paragraph $paragraph);
 
+  /**
+   * Returns list of field names for the given paragraph type and field type.
+   *
+   *
+   * @param \Drupal\paragraphs\Entity\ParagraphsType $paragraphs_type
+   *   The paragraphs type entity.
+   * @param string $field_type
+   *   (optional) Field type to check for existence. If field type is not
+   *   provided, returns all entity fields.
+   *
+   * @return string[]
+   *   The list of field labels keyed by their field name.
+   */
+  public function getFieldNameOptions(ParagraphsType $paragraphs_type, $field_type = NULL);
+
 }
