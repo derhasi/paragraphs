@@ -85,4 +85,16 @@ abstract class ParagraphsExperimentalTestBase extends ParagraphsTestBase {
     $form_display->save();
   }
 
+  /**
+   * Removes the default paragraph type.
+   *
+   * @param $content_type
+   *   Content type name that contains the paragraphs field.
+   */
+  protected function removeDefaultParagraphType($content_type) {
+    $this->drupalGet('node/add/' . $content_type);
+    $this->drupalPostForm(NULL, [], 'Remove');
+    $this->assertNoText('No paragraphs added yet.');
+  }
+
 }

@@ -137,6 +137,7 @@ class ParagraphsAccessTest extends ParagraphsTestBase {
     $this->assertNotNull($this->xpath('//*[@name="field_paragraphs_demo_0_remove"]'));
     // Delete the Paragraph and save.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_demo_0_remove');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_demo_0_confirm_remove');
     $this->drupalPostForm(NULL, [], t('Save and keep published'));
     $node = $this->getNodeByTitle('delete_permissions');
     $this->assertUrl('node/' . $node->id());
