@@ -383,7 +383,7 @@ class ParagraphsWidget extends WidgetBase {
         $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
         $element['top']['paragraphs_remove_button_container'] = [
           '#type' => 'container',
-          '#weight' => 1,
+          '#weight' => 2,
           '#attributes' => [
             'class' => [
               'paragraphs-remove-button-container',
@@ -545,7 +545,7 @@ class ParagraphsWidget extends WidgetBase {
                 unset($element['top']['links'][$key]['#suffix']);
               }
             }
-            $element['top']['links']['#weight'] = 2;
+            $element['top']['links']['#weight'] = 1;
           }
         }
 
