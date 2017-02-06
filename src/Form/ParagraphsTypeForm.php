@@ -55,9 +55,11 @@ class ParagraphsTypeForm extends EntityForm {
 
     $paragraphs_type = $this->entity;
 
-    $form['#title'] = (t('Edit %title paragraph type', array(
-      '%title' => $paragraphs_type->label(),
-    )));
+    if (!$paragraphs_type->isNew()) {
+      $form['#title'] = (t('Edit %title paragraph type', [
+        '%title' => $paragraphs_type->label(),
+      ]));
+    }
 
     $form['label'] = array(
       '#type' => 'textfield',
