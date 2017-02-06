@@ -70,7 +70,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    *
    * @var \Drupal\paragraphs\ParagraphsBehaviorCollection
    */
-  public $behaviorCollection;
+  protected $behaviorCollection;
 
   /**
    * {@inheritdoc}
@@ -86,20 +86,14 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    * {@inheritdoc}
    */
   public function getBehaviorPlugin($instance_id) {
-    if (!isset($this->behaviorCollection)) {
-      $this->getBehaviorPlugins();
-    }
-    return $this->behaviorCollection->get($instance_id);
+    return $this->getBehaviorPlugins()->get($instance_id);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getEnabledBehaviorPlugins() {
-    if (!isset($this->behaviorCollection)) {
-      $this->getBehaviorPlugins();
-    }
-    return $this->behaviorCollection->getEnabled();
+    return $this->getBehaviorPlugins()->getEnabled();
   }
 
   /**
