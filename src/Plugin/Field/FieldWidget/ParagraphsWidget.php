@@ -1464,6 +1464,12 @@ class ParagraphsWidget extends WidgetBase {
         }
       }
     }
+    $paragraphs_type = $paragraphs_entity->getParagraphType();
+    foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
+      if ($plugin_summary = $plugin->settingsSummary($paragraphs_entity)) {
+        $summary = array_merge($summary, $plugin_summary);
+      }
+    }
     $collapsed_summary_text = implode(', ', $summary);
     return strip_tags($collapsed_summary_text);
   }
