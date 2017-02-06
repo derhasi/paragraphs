@@ -120,21 +120,4 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $this->assertUniqueText($second_paragraph_text);
   }
 
-  /**
-   * Sets the Paragraphs widget display mode.
-   *
-   * @param string $content_type
-   *   Content type name where to set the widget mode.
-   * @param string $paragraphs_field
-   *   Paragraphs field to change the mode.
-   * @param string $mode
-   *   Mode to be set. ('closed', 'preview' or 'open').
-   */
-  protected function setParagraphsWidgetMode($content_type, $paragraphs_field, $mode) {
-    $this->drupalGet('admin/structure/types/manage/' . $content_type . '/form-display');
-    $this->drupalPostAjaxForm(NULL, [], $paragraphs_field . '_settings_edit');
-    $this->drupalPostForm(NULL, ['fields[' . $paragraphs_field . '][settings_edit_form][settings][edit_mode]' => $mode], t('Update'));
-    $this->drupalPostForm(NULL, [], 'Save');
-  }
-
 }
