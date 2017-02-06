@@ -5,6 +5,7 @@ namespace Drupal\paragraphs\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\paragraphs\ParagraphsBehaviorCollection;
+use Drupal\paragraphs\ParagraphsBehaviorInterface;
 use Drupal\paragraphs\ParagraphsTypeInterface;
 
 /**
@@ -106,6 +107,20 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    */
   public function getPluginCollections() {
     return ['behavior_plugins' => $this->getBehaviorPlugins()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasEnabledBehaviourPlugin($plugin_id) {
+    $plugins = $this->getBehaviorPlugins();
+    if ($plugins->has($plugin_id)) {
+      /** @var ParagraphsBehaviorInterface $plugin */
+      $plugin = $plugins->get($plugin_id);
+      $config = $plugin->getConfiguration();
+      return (array_key_exists('enabled', $config) && $config['enabled'] === TRUE);
+    }
+    return FALSE;
   }
 
 }

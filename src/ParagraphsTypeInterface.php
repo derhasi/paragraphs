@@ -36,4 +36,15 @@ interface ParagraphsTypeInterface extends ConfigEntityInterface {
    */
   public function getEnabledBehaviorPlugins();
 
+  /**
+   * Returns TRUE if $plugin_id is enabled on this ParagraphType Entity.
+   *
+   * @param string $plugin_id
+   *   The plugin id, as specified in the plugin annotation details.
+   *
+   * @return bool
+   *   True or False dependant on plugin state
+   */
+  public function hasEnabledBehaviourPlugin($plugin_id);
+
 }
