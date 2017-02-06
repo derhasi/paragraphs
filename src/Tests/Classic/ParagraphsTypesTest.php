@@ -39,38 +39,4 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
 
   }
 
-  /**
-   * Tests the creation of a paragraphs type.
-   */
-  public function testAddParagraphsType() {
-    $this->loginAsAdmin();
-
-    // Go to the Paragraphs types page.
-    $this->drupalGet('admin/structure/paragraphs_type');
-    $this->assertTitle('Paragraphs types | Drupal');
-
-    // Add a paragraphs type.
-    $this->clickLink(t('Add paragraphs type'));
-    $this->assertText('Add paragraphs type');
-    $this->assertTitle('Add paragraphs type | Drupal');
-    $edit = [
-      'label' => 'paragraph_type_test',
-      'id' => 'paragraph_type_test',
-    ];
-    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
-    $this->assertTitle('Manage fields | Drupal');
-    $this->assertText('Saved the paragraph_type_test Paragraphs type.');
-
-    // Edit the paragraphs type.
-    $this->drupalGet('admin/structure/paragraphs_type');
-    $this->clickLink(t('Edit'));
-    $this->assertTitle('Edit paragraph_type_test paragraph type | Drupal');
-    $edit = [
-      'label' => 'paragraph_type_renamed_test',
-    ];
-    $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertTitle('Paragraphs types | Drupal');
-    $this->assertText('Saved the paragraph_type_renamed_test Paragraphs type.');
-  }
-
 }

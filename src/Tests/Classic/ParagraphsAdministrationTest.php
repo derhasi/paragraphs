@@ -157,8 +157,11 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
 
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->clickLink(t('Add paragraphs type'));
+    $this->assertTitle('Add paragraphs type | Drupal');
     // Create paragraph type text + image.
     $this->addParagraphsType('text_image');
+    $this->drupalGet('admin/structure/paragraphs_type/text_image');
+    $this->assertTitle('Edit text_image paragraph type | Drupal');
     // Create field types for text and image.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/text_image', 'text', 'Text', 'text_long', array(), array());
     $this->assertText('Saved Text configuration.');
