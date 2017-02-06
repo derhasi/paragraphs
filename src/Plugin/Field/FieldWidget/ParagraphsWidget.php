@@ -479,6 +479,24 @@ class ParagraphsWidget extends WidgetBase {
             '#paragraphs_mode' => 'edit',
           );
 
+          $links['duplicate_button'] = [
+            '#type' => 'submit',
+            '#value' => $this->t('Duplicate'),
+            '#name' => strtr($id_prefix, '-', '_') . '_duplicate',
+            '#weight' => 502,
+            '#submit' => [[get_class($this), 'duplicateSubmit']],
+            '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
+            '#delta' => $delta,
+            '#ajax' => [
+              'callback' => [get_class($this), 'itemAjax'],
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+              'effect' => 'fade',
+            ],
+            '#access' => $paragraphs_entity->access('update'),
+            '#prefix' => '<li class="duplicate">',
+            '#suffix' => '</li>',
+          ];
+
           if ($show_must_be_saved_warning) {
             $info['must_be_saved_info'] = array(
               '#type' => 'container',
@@ -1092,6 +1110,43 @@ class ParagraphsWidget extends WidgetBase {
 
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
+    $form_state->setRebuild();
+  }
+
+  /**
+   * Creates a duplicate of the paragraph entity.
+   */
+  public static function duplicateSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    // Inserting new element in the array.
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+    $delta = $button['#delta'];
+    $widget_state['items_count']++;
+    $widget_state['real_item_count']++;
+    $widget_state['original_deltas'] = array_merge($widget_state['original_deltas'], ['1' => 1]) ;
+
+    // Check if the replicate module is enabled
+    if (\Drupal::hasService('replicate.replicator')) {
+      $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($widget_state['paragraphs'][$delta]['entity']);
+      }
+    else {
+      $duplicate_entity = $widget_state['paragraphs'][$delta]['entity']->createDuplicate();
+     }
+    // Create the duplicated paragraph and insert it below the original.
+    $paragraph[] = [
+      'entity' => $duplicate_entity,
+      'display' => $widget_state['paragraphs'][$delta]['display'],
+      'mode' => 'edit'
+    ];
+
+    array_splice($widget_state['paragraphs'], $delta + 1, 0, $paragraph);
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     $form_state->setRebuild();
   }
 

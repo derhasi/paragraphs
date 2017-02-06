@@ -411,4 +411,22 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
     return array(\Drupal::currentUser()->id());
   }
 
+  /**
+  * {@inheritdoc}
+  */
+ public function createDuplicate() {
+   $duplicate = parent::createDuplicate();
+   // Loop over entity fields and duplicate nested paragraphs.
+   foreach ($duplicate->getFields() as $field) {
+     if ($field->getFieldDefinition()->getType() == 'entity_reference_revisions') {
+       if ($field->getFieldDefinition()->getTargetEntityTypeId() == "paragraph") {
+         foreach ($field as $item) {
+           $item->entity = $item->entity->createDuplicate();
+         }
+       }
+     }
+   }
+   return $duplicate;
+ }
+
 }
