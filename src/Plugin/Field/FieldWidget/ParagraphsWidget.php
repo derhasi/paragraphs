@@ -1467,6 +1467,11 @@ class ParagraphsWidget extends WidgetBase {
           $summary[] = $this->addCollapsedSummary($paragraphs_entity->get($key)->entity);
         }
       }
+      if ($field_type = $value->getType() == 'entity_reference') {
+        if ($key != 'type' && $key != 'uid' && $key != 'revision_uid') {
+          $summary[] = $paragraphs_entity->get($key)->entity->label();
+        }
+      }
     }
     $paragraphs_type = $paragraphs_entity->getParagraphType();
     foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
