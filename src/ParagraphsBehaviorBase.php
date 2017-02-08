@@ -117,20 +117,20 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
   /**
    * {@inheritdoc}
    */
-  public function buildBehaviorForm(Paragraph $paragraphs_entity) {
+  public function buildBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateBehaviorForm(array &$form, FormStateInterface $form_state) {}
+  public function validateBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {}
 
   /**
    * {@inheritdoc}
    */
-  public function submitBehaviorForm(Paragraph $paragraphs_entity, array $values) {
-    $paragraphs_entity->setBehaviorSettings($this->getPluginId(), $values);
+  public function submitBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
+    $paragraph->setBehaviorSettings($this->getPluginId(), $form_state->getValues());
   }
 
   /**

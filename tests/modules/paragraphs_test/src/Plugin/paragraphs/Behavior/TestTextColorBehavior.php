@@ -5,6 +5,7 @@ namespace Drupal\paragraphs_test\Plugin\paragraphs\Behavior;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\paragraphs\ParagraphsBehaviorBase;
 
 /**
@@ -61,12 +62,12 @@ class TestTextColorBehavior extends ParagraphsBehaviorBase {
   /**
    * {@inheritdoc}
    */
-  public function buildBehaviorForm(Paragraph $paragraphs_entity) {
+  public function buildBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
     $form['text_color'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Color'),
       '#maxlength' => 255,
-      '#default_value' => $paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'text_color', $this->configuration['default_color']),
+      '#default_value' => $paragraph->getBehaviorSetting($this->getPluginId(), 'text_color', $this->configuration['default_color']),
       '#description' => $this->t("Text color for the paragraph."),
     ];
     return $form;
@@ -75,9 +76,8 @@ class TestTextColorBehavior extends ParagraphsBehaviorBase {
   /**
    * {@inheritdoc}
    */
-  public function validateBehaviorForm(array &$form, FormStateInterface $form_state) {
-    $plugin_values = $form_state->getValue($form['#parents']);
-    if ($plugin_values['text_color'] != 'blue' && $plugin_values['text_color'] != 'red') {
+  public function validateBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
+    if ($form_state->getValue('text_color') != 'blue' && $form_state->getValue('text_color') != 'red') {
       $form_state->setError($form, 'The only allowed values are blue and red.');
     }
   }

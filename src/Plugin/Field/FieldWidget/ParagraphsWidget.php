@@ -12,6 +12,7 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs;
 
@@ -635,7 +636,8 @@ class ParagraphsWidget extends WidgetBase {
         if ($paragraphs_type) {
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
             $element['behavior_plugins'][$plugin_id] = [];
-            if ($plugin_form = $plugin->buildBehaviorForm($paragraphs_entity)) {
+            $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form, $form_state);
+            if ($plugin_form = $plugin->buildBehaviorForm($paragraphs_entity, $element['behavior_plugins'][$plugin_id], $subform_state)) {
               $element['behavior_plugins'][$plugin_id] = $plugin_form;
             }
           }
@@ -1222,7 +1224,8 @@ class ParagraphsWidget extends WidgetBase {
         // Validate all enabled behavior plugins.
         $paragraphs_type = $entity->getParagraphType();
         foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
-          $plugin_values->validateBehaviorForm($element['behavior_plugins'][$plugin_id], $form_state);
+          $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
+          $plugin_values->validateBehaviorForm($entity, $element['behavior_plugins'][$plugin_id], $subform_state);
         }
       }
     }
@@ -1285,7 +1288,8 @@ class ParagraphsWidget extends WidgetBase {
             if (!isset($item['behavior_plugins'][$plugin_id])) {
               $item['behavior_plugins'][$plugin_id] = [];
             }
-            $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id]);
+            $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
+            $plugin_values->submitBehaviorForm($paragraphs_entity, $element[$delta]['behavior_plugins'][$plugin_id], $subform_state);
           }
         }
 

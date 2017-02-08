@@ -6,6 +6,7 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\paragraphs\Entity\Paragraph;
 use Drupal\paragraphs\Entity\ParagraphsType;
+use Drupal\paragraphs\ParagraphInterface;
 use Drupal\paragraphs\ParagraphsBehaviorBase;
 
 /**
@@ -23,11 +24,11 @@ class TestBoldTextBehavior extends ParagraphsBehaviorBase {
   /**
    * {@inheritdoc}
    */
-  public function buildBehaviorForm(Paragraph $paragraphs_entity) {
+  public function buildBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
     $form['bold_text'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Bold Text'),
-      '#default_value' => $paragraphs_entity->getBehaviorSetting($this->getPluginId(), 'bold_text', FALSE),
+      '#default_value' => $paragraph->getBehaviorSetting($this->getPluginId(), 'bold_text', FALSE),
       '#description' => $this->t("Bold text for the paragraph."),
     ];
     return $form;

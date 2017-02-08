@@ -24,13 +24,17 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    * This method is responsible for building the behavior form for each
    * Paragraph so the user can set special attributes and properties.
    *
-   * @param \Drupal\paragraphs\Entity\Paragraph $paragraphs_entity
-   *   The paragraphs entity.
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The paragraph.
+   * @param array $form
+   *   An associative array containing the initial structure of the plugin form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    *
    * @return array
    *   The fields build array that the plugin creates.
    */
-  public function buildBehaviorForm(Paragraph $paragraphs_entity);
+  public function buildBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state);
 
   /**
    * Validates the behavior fields form.
@@ -38,12 +42,14 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    * This method is responsible for validating the data in the behavior fields
    * form and displaying validation messages.
    *
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The paragraph.
    * @param array $form
    *   An associative array containing the initial structure of the plugin form.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
-  public function validateBehaviorForm(array &$form, FormStateInterface $form_state);
+  public function validateBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state);
 
   /**
    * Submit the values taken from the form to store the values.
@@ -51,12 +57,14 @@ interface ParagraphsBehaviorInterface extends PluginFormInterface, ConfigurableP
    * This method is responsible for submitting the data and saving it in the
    * paragraphs entity.
    *
-   * @param \Drupal\paragraphs\Entity\Paragraph $paragraphs_entity
-   *   The paragraphs entity.
-   * @param array $values
-   *   The values taken from the form.
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The paragraph.
+   * @param array $form
+   *   An associative array containing the initial structure of the plugin form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    */
-  public function submitBehaviorForm(Paragraph $paragraphs_entity, array $values);
+  public function submitBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state);
 
   /**
    * Adds a default set of helper variables for preprocessors and templates.
