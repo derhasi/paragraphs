@@ -380,41 +380,31 @@ class ParagraphsWidget extends WidgetBase {
           '#markup' => $bundle_info['label'],
         );
 
+        $actions = [];
+        $links = [];
+
         // Hide the button when translating.
         $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
-        $element['top']['paragraphs_remove_button_container'] = [
-          '#type' => 'container',
-          '#weight' => 2,
-          '#attributes' => [
-            'class' => [
-              'paragraphs-remove-button-container',
-            ],
-          ],
-          'paragraphs_remove_button' => [
+        if($item_mode != 'remove') {
+          $links['remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
             '#name' => strtr($id_prefix, '-', '_') . '_remove',
-            '#weight' => 500,
-            '#attributes' => [
-              'class' => [
-                'paragraphs-remove-button',
-              ],
-            ],
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#weight' => 501 ,
+            '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
+            '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
             '#delta' => $delta,
-            '#ajax' => array(
+            '#ajax' => [
               'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
               'effect' => 'fade',
-            ),
+            ],
             '#access' => $button_access,
+            '#prefix' => '<li class="remove">',
+            '#suffix' => '</li>',
             '#paragraphs_mode' => 'remove',
-          ]
-        ];
-
-        $actions = array();
-        $links = array();
+          ];
+        }
 
         if ($item_mode == 'edit') {
 
@@ -461,24 +451,36 @@ class ParagraphsWidget extends WidgetBase {
           );
         }
         elseif ($item_mode == 'preview' || $item_mode == 'closed') {
-          $links['edit_button'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Edit'),
-            '#name' => strtr($id_prefix, '-', '_') . '_edit',
-            '#weight' => 501,
-            '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
-            '#delta' => $delta,
-            '#ajax' => array(
-              'callback' => array(get_class($this), 'itemAjax'),
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ),
-            '#access' => $paragraphs_entity->access('update'),
-            '#prefix' => '<li class="edit">',
-            '#suffix' => '</li>',
-            '#paragraphs_mode' => 'edit',
-          );
+          $element['top']['paragraphs_edit_button_container'] = [
+            '#type' => 'container',
+            '#weight' => 1,
+            '#attributes' => [
+              'class' => [
+                'paragraphs-edit-button-container',
+              ],
+            ],
+            'paragraphs_edit_button' => [
+              '#type' => 'submit',
+              '#value' => $this->t('Edit'),
+              '#name' => strtr($id_prefix, '-', '_') . '_edit',
+              '#weight' => 500,
+              '#attributes' => [
+                'class' => [
+                  'paragraphs-edit-button',
+                ],
+              ],
+              '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
+              '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
+              '#delta' => $delta,
+              '#ajax' => [
+                'callback' => [get_class($this), 'itemAjax'],
+                'wrapper' => $widget_state['ajax_wrapper_id'],
+                'effect' => 'fade',
+              ],
+              '#access' => $paragraphs_entity->access('update'),
+              '#paragraphs_mode' => 'edit',
+            ]
+          ];
 
           $links['duplicate_button'] = [
             '#type' => 'submit',
