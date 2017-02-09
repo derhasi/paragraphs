@@ -94,4 +94,53 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->assertNoText($preview_mode_text);
   }
 
+  /**
+   * Tests if buttons are present for each widget mode.
+   */
+  public function testButtonsVisibility() {
+    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs');
+
+    $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
+    // Add a Paragraph type.
+    $paragraph_type = 'text_paragraph';
+    $this->addParagraphsType($paragraph_type);
+    $this->addParagraphsType('text');
+
+    // Add a text field to the text_paragraph type.
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
+    $edit = [
+      'fields[field_paragraphs][type]' => 'paragraphs',
+    ];
+    $this->drupalPostForm('admin/structure/types/manage/paragraphed_test/form-display', $edit, t('Save'));
+    $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_text_paragraph_add_more');
+
+    // Create a node with a Paragraph.
+    $text = 'recognizable_text';
+    $edit = [
+      'title[0][value]' => 'paragraphs_mode_test',
+      'field_paragraphs[0][subform][field_text][0][value]' => $text,
+    ];
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');
+    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
+
+    // Checking visible buttons on "Open" mode.
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertText('Remove');
+    $this->assertText('Duplicate');
+
+    // Checking visible buttons on "Closed" mode.
+    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertText('Edit');
+    $this->assertText('Remove');
+    $this->assertText('Duplicate');
+
+    // Checking visible buttons on "Preview" mode.
+    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertText('Edit');
+    $this->assertText('Remove');
+    $this->assertText('Duplicate');
+  }
 }

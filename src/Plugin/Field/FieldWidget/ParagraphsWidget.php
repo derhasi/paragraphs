@@ -383,6 +383,24 @@ class ParagraphsWidget extends WidgetBase {
         $actions = [];
         $links = [];
 
+        $links['duplicate_button'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Duplicate'),
+          '#name' => strtr($id_prefix, '-', '_') . '_duplicate',
+          '#weight' => 502,
+          '#submit' => [[get_class($this), 'duplicateSubmit']],
+          '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
+          '#delta' => $delta,
+          '#ajax' => [
+            'callback' => [get_class($this), 'itemAjax'],
+            'wrapper' => $widget_state['ajax_wrapper_id'],
+            'effect' => 'fade',
+          ],
+          '#access' => $paragraphs_entity->access('update'),
+          '#prefix' => '<li class="duplicate">',
+          '#suffix' => '</li>',
+        ];
+
         // Hide the button when translating.
         $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
         if($item_mode != 'remove') {
@@ -480,24 +498,6 @@ class ParagraphsWidget extends WidgetBase {
               '#access' => $paragraphs_entity->access('update'),
               '#paragraphs_mode' => 'edit',
             ]
-          ];
-
-          $links['duplicate_button'] = [
-            '#type' => 'submit',
-            '#value' => $this->t('Duplicate'),
-            '#name' => strtr($id_prefix, '-', '_') . '_duplicate',
-            '#weight' => 502,
-            '#submit' => [[get_class($this), 'duplicateSubmit']],
-            '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
-            '#delta' => $delta,
-            '#ajax' => [
-              'callback' => [get_class($this), 'itemAjax'],
-              'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
-            ],
-            '#access' => $paragraphs_entity->access('update'),
-            '#prefix' => '<li class="duplicate">',
-            '#suffix' => '</li>',
           ];
 
           if ($show_must_be_saved_warning) {
