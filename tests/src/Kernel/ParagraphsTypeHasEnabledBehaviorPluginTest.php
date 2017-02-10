@@ -6,11 +6,11 @@ use Drupal\KernelTests\KernelTestBase;
 use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
- * Tests the ParagraphsType entity hasEnabledBehaviourPlugin functionality.
+ * Tests the ParagraphsType entity hasEnabledBehaviorPlugin functionality.
  *
  * @group paragraphs
  */
-class ParagraphsTypeHasEnabledBehaviourPluginTest extends KernelTestBase {
+class ParagraphsTypeHasEnabledBehaviorPluginTest extends KernelTestBase {
 
 
   /**
@@ -60,15 +60,15 @@ class ParagraphsTypeHasEnabledBehaviourPluginTest extends KernelTestBase {
    * Tests the behavior settings API.
    */
   public function testValidPluginIds() {
-    $this->assertTrue($this->paragraphsType->hasEnabledBehaviourPlugin('test_text_color'));
-    $this->assertFalse($this->paragraphsType->hasEnabledBehaviourPlugin('test_dummy_behavior'));
+    $this->assertTrue($this->paragraphsType->hasEnabledBehaviorPlugin('test_text_color'));
+    $this->assertFalse($this->paragraphsType->hasEnabledBehaviorPlugin('test_dummy_behavior'));
   }
 
   /**
    * Test that invalid plugin id's return false.
    */
   public function testInvalidPluginId() {
-    $this->assertFalse($this->paragraphsType->hasEnabledBehaviourPlugin('i_do_not_exist'));
+    $this->assertFalse($this->paragraphsType->hasEnabledBehaviorPlugin('i_do_not_exist'));
   }
 
 }

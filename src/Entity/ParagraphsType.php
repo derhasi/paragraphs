@@ -106,7 +106,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   /**
    * {@inheritdoc}
    */
-  public function hasEnabledBehaviourPlugin($plugin_id) {
+  public function hasEnabledBehaviorPlugin($plugin_id) {
     $plugins = $this->getBehaviorPlugins();
     if ($plugins->has($plugin_id)) {
       /** @var ParagraphsBehaviorInterface $plugin */

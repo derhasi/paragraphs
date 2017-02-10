@@ -45,6 +45,6 @@ interface ParagraphsTypeInterface extends ConfigEntityInterface {
    * @return bool
    *   True or False dependant on plugin state
    */
-  public function hasEnabledBehaviourPlugin($plugin_id);
+  public function hasEnabledBehaviorPlugin($plugin_id);
 
 }
