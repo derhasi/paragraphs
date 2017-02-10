@@ -36,12 +36,16 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'image', 'Image', 'image', [], ['settings[alt_field_required]' => FALSE]);
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
 
+    // Add a user Paragraph Type
+    $paragraph_type = 'user_paragraph';
+    $this->addParagraphsType($paragraph_type);
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'user', 'User', 'entity_reference', ['settings[target_type]' => 'user'], []);
+
     // Set edit mode to closed.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/form-display');
     $this->drupalPostAjaxForm(NULL, [], "field_paragraphs_settings_edit");
     $edit = ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed'];
     $this->drupalPostForm(NULL, $edit, t('Save'));
-
     // Add a paragraph.
     $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_image_text_paragraph_add_more');
 
@@ -55,10 +59,17 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
       'files[field_paragraphs_0_subform_field_image_0]' => drupal_realpath('temporary://myImage1.jpg'),
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->clickLink(t('Edit'));
+    $this->drupalPostForm(NULL, [], t('Add user_paragraph'));
+    $edit = [
+      'field_paragraphs[1][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
     $this->assertRaw('<div class="paragraphs-collapsed-description">myImage1.jpg, text_summary');
+    $this->assertRaw('<div class="paragraphs-collapsed-description">' . $this->admin_user->label());
 
     // Edit and remove alternative text.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
