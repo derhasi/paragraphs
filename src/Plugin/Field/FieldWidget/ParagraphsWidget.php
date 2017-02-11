@@ -265,10 +265,6 @@ class ParagraphsWidget extends WidgetBase {
       $item_mode = 'edit';
     }
 
-    if ($item_mode == 'collapsed') {
-      $item_mode = $default_edit_mode;
-    }
-
     if ($item_mode == 'closed') {
       // Validate closed paragraphs and expand if needed.
       // @todo Consider recursion.
@@ -426,7 +422,7 @@ class ParagraphsWidget extends WidgetBase {
 
         if ($item_mode == 'edit') {
 
-          if (isset($items[$delta]->entity) && ($default_edit_mode == 'preview' || $default_edit_mode == 'closed')) {
+          if (isset($paragraphs_entity)) {
             $links['collapse_button'] = array(
               '#type' => 'submit',
               '#value' => $this->t('Collapse'),
@@ -442,7 +438,7 @@ class ParagraphsWidget extends WidgetBase {
               '#access' => $paragraphs_entity->access('update'),
               '#prefix' => '<li class="collapse">',
               '#suffix' => '</li>',
-              '#paragraphs_mode' => 'collapsed',
+              '#paragraphs_mode' => 'closed',
               '#paragraphs_show_warning' => TRUE,
             );
           }
@@ -468,7 +464,7 @@ class ParagraphsWidget extends WidgetBase {
             '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
           );
         }
-        elseif ($item_mode == 'preview' || $item_mode == 'closed') {
+        else {
           $element['top']['paragraphs_edit_button_container'] = [
             '#type' => 'container',
             '#weight' => 1,

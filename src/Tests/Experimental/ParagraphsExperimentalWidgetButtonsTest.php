@@ -126,6 +126,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
 
     // Checking visible buttons on "Open" mode.
     $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertText('Collapse');
     $this->assertText('Remove');
     $this->assertText('Duplicate');
 
@@ -142,5 +143,23 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->assertText('Edit');
     $this->assertText('Remove');
     $this->assertText('Duplicate');
+
+    // Checking always show collapse and edit actions.
+    $this->addParagraphsType('nested_paragraph');
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/nested_paragraph', 'nested', 'Nested', 'field_ui:entity_reference_revisions:paragraph', [
+      'settings[target_type]' => 'paragraph',
+      'cardinality' => '-1',
+    ], []);
+    $this->drupalGet('admin/structure/paragraphs_type/nested_paragraph/form-display');
+    $edit = [
+      'fields[field_nested][type]' => 'paragraphs',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_nested_paragraph_add_more');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_2_subform_field_nested_nested_paragraph_add_more');
+    // Collapse is present on each nesting level.
+    $this->assertFieldByName('field_paragraphs_2_collapse');
+    $this->assertFieldByName('field_paragraphs_2_subform_field_nested_0_collapse');
   }
 }
