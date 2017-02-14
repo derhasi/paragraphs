@@ -90,6 +90,30 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
     $this->assertRaw('<div class="paragraphs-collapsed-description">text_summary');
+
+    $this->addParagraphsType('nested_paragraph');
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/nested_paragraph', 'nested_content', 'Nested Content', 'entity_reference_revisions', ['settings[target_type]' => 'paragraph'], []);
+    $this->drupalGet('admin/structure/paragraphs_type/nested_paragraph/form-display');
+    $this->drupalPostForm(NULL, ['fields[field_nested_content][type]' => 'entity_reference_paragraphs'], t('Save'));
+
+    $test_user = $this->drupalCreateUser([]);
+
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostForm(NULL, NULL, t('Add nested_paragraph'));
+    $this->drupalPostAjaxForm(NULL, NULL, t('field_paragraphs_0_subform_field_nested_content_user_paragraph_add_more'));
+    $this->drupalPostForm(NULL, [
+      'title[0][value]' => 'Node title',
+      'field_paragraphs[0][subform][field_nested_content][0][subform][field_user][0][target_id]' => $test_user->label() . ' (' . $test_user->id() . ')',
+    ], t('Save and publish'));
+
+    // Create an orphaned ER field item by deleting the target entity.
+    $test_user->delete();
+
+    $nodes = \Drupal::entityTypeManager()->getStorage('node')->loadByProperties(['title' => 'Node title']);
+    $this->drupalGet('node/' . current($nodes)->id() . '/edit');
+    $this->drupalPostAjaxForm(NULL, [], t('field_paragraphs_0_edit'));
+    $this->drupalPostAjaxForm(NULL, [], t('field_paragraphs_0_collapse'));
+    $this->assertResponse(200);
   }
 
 }

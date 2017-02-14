@@ -1467,7 +1467,9 @@ class ParagraphsWidget extends WidgetBase {
       }
       if ($field_type = $value->getType() == 'entity_reference') {
         if (!in_array($key, ['type', 'uid', 'revision_uid'])) {
-          $summary[] = $paragraphs_entity->get($key)->entity->label();
+          if ($paragraphs_entity->get($key)->entity) {
+            $summary[] = $paragraphs_entity->get($key)->entity->label();
+          }
         }
       }
     }
