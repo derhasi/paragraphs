@@ -1286,8 +1286,10 @@ class ParagraphsWidget extends WidgetBase {
             if (!isset($item['behavior_plugins'][$plugin_id])) {
               $item['behavior_plugins'][$plugin_id] = [];
             }
-            $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
-            $plugin_values->submitBehaviorForm($paragraphs_entity, $element[$delta]['behavior_plugins'][$plugin_id], $subform_state);
+            if (isset($element[$delta]) && isset($element[$delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm()) {
+              $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
+              $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id], $subform_state);
+            }
           }
         }
 
