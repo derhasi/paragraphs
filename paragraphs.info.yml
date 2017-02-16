@@ -3,6 +3,7 @@ type: module
 description: 'Enables the creation of paragraphs entities.'
 core: 8.x
 package: Paragraphs
+configure: entity.paragraphs_type.collection
 
 dependencies:
   - entity_reference_revisions:entity_reference_revisions
