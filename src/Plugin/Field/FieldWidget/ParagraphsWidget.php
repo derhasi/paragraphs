@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionableInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldFilteredMarkup;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBase;
@@ -15,6 +16,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs;
+use Drupal\paragraphs\ParagraphInterface;
 
 /**
  * Plugin implementation of the 'entity_reference_revisions paragraphs' widget.
@@ -1483,6 +1485,19 @@ class ParagraphsWidget extends WidgetBase {
     }
     $collapsed_summary_text = implode(', ', $summary);
     return strip_tags($collapsed_summary_text);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function isApplicable(FieldDefinitionInterface $field_definition) {
+    $target_type = $field_definition->getSetting('target_type');
+    $paragraph_type = \Drupal::entityTypeManager()->getDefinition($target_type);
+    if ($paragraph_type) {
+      return $paragraph_type->isSubclassOf(ParagraphInterface::class);
+    }
+
+    return FALSE;
   }
 
 }
