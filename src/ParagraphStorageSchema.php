@@ -36,7 +36,7 @@ class ParagraphStorageSchema extends SqlContentEntityStorageSchema {
     }
 
     if ($storage_definition->getName() == 'behavior_settings') {
-      $schema['fields']['behavior_settings']['initial'] = 'a:0:{}';
+      $schema['fields']['behavior_settings']['initial'] = serialize([]);
     }
     return $schema;
   }
