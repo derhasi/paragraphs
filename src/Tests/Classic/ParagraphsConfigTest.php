@@ -132,6 +132,38 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
   }
 
   /**
+   * Tests required Paragraphs field.
+   */
+  public function testRequiredParagraphsField() {
+    $this->loginAsAdmin();
+
+    // Add a Paragraph content type and 2 Paragraphs types.
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphsType('paragraph_type_test');
+    $this->addParagraphsType('text');
+
+    // Make the paragraphs field required and save configuration.
+    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.paragraphs');
+    $edit = [
+      'required' => TRUE,
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save settings');
+    $this->assertText('Saved paragraphs configuration.');
+
+    // Assert that the field is displayed in the form as required.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->assertRaw('<strong class="form-required" data-drupal-selector="edit-paragraphs-title">');
+    $edit = [
+      'title[0][value]' => 'test_title',
+    ];
+    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->assertText('This value should not be null.');
+    $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraph_type_test_add_more');
+    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->assertText('paragraphed_test test_title has been created.');
+  }
+
+  /**
    * Tests that we can use paragraphs widget only for paragraphs.
    */
   public function testAvoidUsingParagraphsWithWrongEntity() {

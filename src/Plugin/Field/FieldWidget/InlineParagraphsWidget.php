@@ -885,6 +885,10 @@ class InlineParagraphsWidget extends WidgetBase {
         ],
       ];
 
+      if ($this->fieldDefinition->isRequired()) {
+        $elements['title']['#attributes']['class'][] = 'form-required';
+      }
+
       if ($description) {
         $elements['description'] = [
           '#type' => 'container',
