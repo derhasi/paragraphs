@@ -1,13 +1,14 @@
 .js .field--widget-paragraphs .dropbutton-wrapper {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
   display: inline-flex;
-  padding-right: 0em;
-  margin-right: 0em;
-  /* Override 600px breakpoint from core. */
+  margin-right: 0;
+  padding-right: 0;
   width: auto;
 }
 
 .js .field--widget-paragraphs .dropbutton-widget {
-  position: relative;
+  position: static;
 }
 
 .js .field--widget-paragraphs .field-multiple-table {
@@ -15,64 +16,21 @@
 }
 
 .js .field--widget-paragraphs td {
-  padding: 10px 0px 10px 0px;
+  padding: 10px 0 10px 0;
 }
 
 .js .field--widget-paragraphs .field-multiple-drag {
   vertical-align: top;
 }
+
 .js .field--widget-paragraphs .draggable .tabledrag-handle {
-  padding-right: 0;
   margin-left: 0;
 }
+
 .js .field--widget-paragraphs .tabledrag-handle .handle {
   margin-left: 0;
   margin-right: 0;
   padding-right: 0.2em;
-}
-
-.js .paragraph-type-top {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-  align-items: center;
-}
-.js .paragraphs-collapsed-description {
-  height: 1.538em;
-  padding-left: 1em;
-  padding-right: 1em;
-  position: relative;
-  width: 100%;
-  color: #777;
-  overflow: hidden;
-  word-break: break-all;
-}
-.js .paragraphs-collapsed-description:after {
-  content: '\00a0';
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 1em;
-  width: 3em;
-
-  background: #fff;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #fff 100%);
-}
-.js .draggable:hover .paragraphs-collapsed-description:after,
-.js .draggable:hover .paragraphs-collapsed-description:after {
-  background: #f7fcff;
-  background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
-}
-.js .drag-previous .paragraphs-collapsed-description:after {
-  background: #ffd;
-  background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
-}
-.js .paragraph-type-title {
-  flex-basis: 25%;
-  min-width: 80px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
 }
 
 .js .field--widget-paragraphs .delta-order {
@@ -80,26 +38,79 @@
   text-align: right;
 }
 
+.js .paragraph-type-top {
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-justify-content: space-between;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.js .paragraphs-collapsed-description {
+  height: 1.538em;
+  overflow: hidden;
+  padding-left: 1em;
+  padding-right: 1em;
+  position: relative;
+  width: 100%;
+  color: #777;
+  word-break: break-all;
+}
+
+.js .paragraphs-collapsed-description:after {
+  content: '\00a0';
+  display: block;
+  position: absolute;
+  right: 1em;
+  top: 0;
+  width: 3em;
+  background: #fff;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #fff 100%);
+}
+
+.js .draggable:hover .paragraphs-collapsed-description:after {
+  background: #f7fcff;
+  background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
+}
+
+.js .drag-previous .paragraphs-collapsed-description:after {
+  background: #ffd;
+  background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
+}
+
+.js .paragraph-type-title {
+  -webkit-flex-basis: 25%;
+      -ms-flex-preferred-size: 25%;
+          flex-basis: 25%;
+  min-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .paragraph--view-mode--preview {
   padding-right: 1em;
 }
 
 .paragraphs-edit-button-container {
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  flex-flow: row-reverse;
+  -webkit-flex-flow: row-reverse;
+      -ms-flex-flow: row-reverse;
+          flex-flow: row-reverse;
+  margin-left: auto;
   padding-left: 1em;
   padding-right: 1em;
-  margin-left: auto;
 }
 
-/* Override 600px breakpoint core submit button tweaks. */
 @media screen and (max-width: 600px) {
   .js .paragraphs-edit-button-container {
     height: 40px;
     width: 50px;
   }
-}
-
-.js .paragraph-type-top .paragraphs-dropbutton-wrapper {
-  text-align: right;
 }

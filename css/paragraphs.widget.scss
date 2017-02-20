@@ -1,0 +1,134 @@
+//
+// @file
+// Experimental paragraphs widget CSS.
+//
+
+// @todo
+// - csslint warning tweaks if possible:
+//   - Investigate disabling false positive warnings for alphabetical order
+//     when prefixes are used.
+//   - Disable "Using width with padding-left can sometimes make elements larger
+//     than you expect."
+//     rule because it does not make sense for us.
+
+// We are using .js prefix here mainly because we want to apply this style rules
+// only for JS version of a widget.
+.js {
+  .field--widget-paragraphs {
+    .dropbutton-wrapper {
+      // We are using inline-flex here so 'Add type' dropdown button is inline
+      // and aligned 'to type' text.
+      display: inline-flex;
+      // Reset some CSS that are coming from core.
+      margin-right: 0;
+      padding-right: 0;
+
+      // Override 600px breakpoint from core, needed again so 'to type' is in
+      // the same line with add dropdown button.
+      width: auto;
+    }
+
+    // Reset some CSS that are coming from core.
+    .dropbutton-widget {
+      position: static;
+    }
+
+    .field-multiple-table {
+      margin-bottom: 10px;
+    }
+
+    td {
+      padding: 10px 0 10px 0;
+    }
+
+    .field-multiple-drag {
+      vertical-align: top;
+    }
+    .draggable .tabledrag-handle {
+      margin-left: 0;
+    }
+    .tabledrag-handle .handle {
+      margin-left: 0;
+      margin-right: 0;
+      padding-right: 0.2em;
+    }
+
+    .delta-order {
+      padding-right: 10px;
+      text-align: right;
+    }
+  }
+
+  .paragraph-type-top {
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+  }
+
+  .paragraphs-collapsed-description {
+    height: 1.538em;
+    overflow: hidden;
+    padding-left: 1em;
+    padding-right: 1em;
+    position: relative;
+    width: 100%;
+
+    color: #777;
+    word-break: break-all;
+
+    &:after {
+      content: '\00a0';
+      display: block;
+      position: absolute;
+      right: 1em;
+      top: 0;
+      width: 3em;
+
+      background: #fff;
+      background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #fff 100%);
+    }
+  }
+
+  .draggable:hover .paragraphs-collapsed-description {
+    &:after {
+      background: #f7fcff;
+      background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
+    }
+  }
+
+  .drag-previous .paragraphs-collapsed-description {
+    &:after {
+      background: #ffd;
+      background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
+    }
+  }
+
+  .paragraph-type-title {
+    flex-basis: 25%;
+    min-width: 80px;
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.paragraph--view-mode--preview {
+  padding-right: 1em;
+}
+
+.paragraphs-edit-button-container {
+  display: flex;
+  flex-flow: row-reverse;
+  margin-left: auto;
+  padding-left: 1em;
+  padding-right: 1em;
+
+  // Override 600px breakpoint core submit button tweaks.
+  @media screen and (max-width: 600px) {
+    .js & {
+      height: 40px;
+      width: 50px;
+    }
+  }
+}
