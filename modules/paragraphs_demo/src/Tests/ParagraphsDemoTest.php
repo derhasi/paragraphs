@@ -153,6 +153,11 @@ class ParagraphsDemoTest extends WebTestBase {
     // Search non existent text.
     $this->drupalGet('paragraphs_search', ['query' => ['search_api_fulltext' => 'foo']]);
     $this->assertNoRaw('Welcome to the Paragraphs Demo module!');
+
+    // Check that the dropbutton of Nested Paragraph has the Duplicate function.
+    // For now, this indicates that it is using the EXPERIMENTAL widget.
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('field_paragraphs_demo_3_subform_field_paragraphs_demo_0_duplicate');
   }
 
 }

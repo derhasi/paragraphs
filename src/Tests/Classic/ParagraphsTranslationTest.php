@@ -54,6 +54,14 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
       'settings[paragraph][images][fields][field_images_demo]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
+
+    // Set the form display to classic.
+    EntityFormDisplay::load('node.paragraphed_content_demo.default')
+      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs'])
+      ->save();
+    EntityFormDisplay::load('paragraph.nested_paragraph.default')
+      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs'])
+      ->save();
   }
 
   /**
@@ -68,11 +76,6 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
     $this->assertFieldChecked('edit-settings-paragraph-text-image-translatable');
     $this->assertFieldChecked('edit-settings-paragraph-images-columns-field-images-demo-alt');
     $this->assertFieldChecked('edit-settings-paragraph-images-columns-field-images-demo-title');
-
-    // Set the form display to classic.
-    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
-      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs']);
-    $form_display->save();
 
     // Check if the publish/unpublish option works.
     $this->drupalGet('admin/structure/paragraphs_type/text_image/form-display');
@@ -386,11 +389,6 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
   public function testParagraphTranslationMultilingual() {
     // Case 1: original node langcode in EN, translate in FR, change to DE.
 
-    // Set the form display to classic.
-    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
-      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs']);
-    $form_display->save();
-
     // Add 'Images' paragraph and check the paragraphs buttons are displayed.
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Images'));
@@ -566,11 +564,6 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
   public function testParagraphsMultilingualWorkflow() {
     // Case 1: Check the paragraphs buttons after changing the NODE language
     // (original node langcode in GERMAN, default site langcode in english).
-
-    // Set the form display to classic.
-    $form_display = EntityFormDisplay::load('node.paragraphed_content_demo.default')
-      ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs']);
-    $form_display->save();
 
     // Create a node and check that the node langcode is 'english'.
     $this->drupalGet('node/add/paragraphed_content_demo');
