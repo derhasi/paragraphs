@@ -2,9 +2,9 @@
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
+  width: auto;
   margin-right: 0;
   padding-right: 0;
-  width: auto;
 }
 
 .js .field--widget-paragraphs .dropbutton-widget {
@@ -16,7 +16,7 @@
 }
 
 .js .field--widget-paragraphs td {
-  padding: 10px 0 10px 0;
+  padding: 10px 0;
 }
 
 .js .field--widget-paragraphs .field-multiple-drag {
@@ -28,8 +28,8 @@
 }
 
 .js .field--widget-paragraphs .tabledrag-handle .handle {
-  margin-left: 0;
   margin-right: 0;
+  margin-left: 0;
   padding-right: 0.2em;
 }
 
@@ -39,46 +39,43 @@
 }
 
 .js .paragraph-type-top {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
   -webkit-align-items: center;
       -ms-flex-align: center;
           align-items: center;
   -webkit-justify-content: space-between;
       -ms-flex-pack: justify;
           justify-content: space-between;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
 }
 
 .js .paragraphs-collapsed-description {
-  height: 1.538em;
-  overflow: hidden;
-  padding-left: 1em;
-  padding-right: 1em;
   position: relative;
   width: 100%;
+  height: 1.538em;
+  padding-right: 1em;
+  padding-left: 1em;
   color: #777;
+  overflow: hidden;
   word-break: break-all;
 }
 
-.js .paragraphs-collapsed-description:after {
-  content: '\00a0';
+.js .paragraphs-collapsed-description::after {
   display: block;
   position: absolute;
-  right: 1em;
   top: 0;
+  right: 1em;
   width: 3em;
-  background: #fff;
   background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #fff 100%);
+  content: "\00a0";
 }
 
-.js .draggable:hover .paragraphs-collapsed-description:after {
-  background: #f7fcff;
+.js .draggable:hover .paragraphs-collapsed-description::after {
   background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
 }
 
-.js .drag-previous .paragraphs-collapsed-description:after {
-  background: #ffd;
+.js .drag-previous .paragraphs-collapsed-description::after {
   background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
 }
 
@@ -87,9 +84,9 @@
       -ms-flex-preferred-size: 25%;
           flex-basis: 25%;
   min-width: 80px;
-  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .paragraph--view-mode--preview {
@@ -104,13 +101,13 @@
       -ms-flex-flow: row-reverse;
           flex-flow: row-reverse;
   margin-left: auto;
-  padding-left: 1em;
   padding-right: 1em;
+  padding-left: 1em;
 }
 
 @media screen and (max-width: 600px) {
   .js .paragraphs-edit-button-container {
-    height: 40px;
     width: 50px;
+    height: 40px;
   }
 }

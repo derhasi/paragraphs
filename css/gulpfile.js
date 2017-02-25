@@ -6,38 +6,18 @@
 
 'use strict';
 
-// Loading of gulp libs.
-var gulp            = require('gulp'),
-  autoprefixer      = require('autoprefixer'),
-  postcss           = require('gulp-postcss'),
-  csslint           = require('gulp-csslint'),
-  sass              = require('gulp-sass');
+// Load gulp and needed lower level libs.
+var gulp = require('gulp'),
+  yaml   = require('js-yaml'),
+  fs     = require('fs');
 
-// Main gulp options.
-var config = {
-  "scssSrc": "./",
-  "cssDest": "./",
-  "browserSupport": [
-    "last 2 versions",
-    "ie >= 10",
-    "Safari >= 7"
-  ]
-};
+// Load gulp options.
+var options = yaml.safeLoad(fs.readFileSync('./gulp-options.yml', 'utf8'));
 
-// Post CSS options.
-var postCSSOptions = [autoprefixer({ browsers: config.browserSupport })];
+// Lazy load gulp plugins.
+// By default gulp-load-plugins will only load "gulp-*" and "gulp.*" tasks,
+// so we need to define additional patterns for other modules we are using.
+var plugins = require('gulp-load-plugins')(options.gulpLoadPlugins);
 
-gulp.task('sass', function() {
-  return gulp
-    .src(config.scssSrc + '/*.scss')
-    .pipe(sass({
-      outputStyle: 'expanded',
-      includePaths: config.sassIncludePaths
-    }))
-    .pipe(postcss(postCSSOptions))
-    .pipe(csslint())
-    .pipe(csslint.formatter())
-    .pipe(gulp.dest(config.cssDest));
-});
-
-gulp.task('default', ['sass']);
+// Load gulp tasks.
+require('./gulp-tasks.js')(gulp, plugins, options);
