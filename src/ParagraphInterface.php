@@ -21,4 +21,13 @@ interface ParagraphInterface extends ContentEntityInterface, EntityOwnerInterfac
    *   The parent entity.
    */
   public function getParentEntity();
+
+  /**
+   * Returns short summary for paragraph.
+   *
+   * @return string
+   *   The text without tags.
+   */
+  public function getSummary();
+
 }

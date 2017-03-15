@@ -3,10 +3,12 @@
 namespace Drupal\paragraphs\Entity;
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\entity_reference_revisions\EntityNeedsSaveInterface;
@@ -428,5 +430,154 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
    }
    return $duplicate;
  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSummary() {
+    $summary = [];
+    foreach ($this->getFieldDefinitions() as $field_name => $field_definition) {
+      if ($field_definition->getType() == 'image' || $field_definition->getType() == 'file') {
+        $file_summary = $this->getFileSummary($field_name);
+        if ($file_summary != '') {
+          $summary[] = $file_summary;
+        }
+      }
+
+      $text_summary = $this->getTextSummary($field_name, $field_definition);
+      if ($text_summary != '') {
+        $summary[] = $text_summary;
+      }
+
+      if ($field_definition->getType() == 'entity_reference_revisions') {
+        $nested_summary = $this->getNestedSummary($field_name);
+        if ($nested_summary != '') {
+          $summary[] = $nested_summary;
+        }
+      }
+
+      if ($field_type = $field_definition->getType() == 'entity_reference') {
+        if (!in_array($field_name, ['type', 'uid', 'revision_uid'])) {
+          if ($this->get($field_name)->entity) {
+            $summary[] = $this->get($field_name)->entity->label();
+          }
+        }
+      }
+
+    }
+
+    $paragraphs_type = $this->getParagraphType();
+    foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
+      if ($plugin_summary = $plugin->settingsSummary($this)) {
+        $summary = array_merge($summary, $plugin_summary);
+      }
+    }
+
+    $collapsed_summary_text = implode(', ', $summary);
+    return strip_tags($collapsed_summary_text);
+  }
+
+  /**
+   * Returns summary for file paragraph.
+   *
+   * @param string $field_name
+   *   Field name from field definition.
+   *
+   * @return string
+   *   Summary for image.
+   */
+  protected function getFileSummary($field_name) {
+    $summary = '';
+    if ($this->get($field_name)->entity) {
+      foreach ($this->get($field_name) as $file_key => $file_value) {
+
+        $text = '';
+        if ($file_value->description != '') {
+          $text = $file_value->description;
+        }
+        elseif ($file_value->title != '') {
+          $text = $file_value->title;
+        }
+        elseif ($file_value->alt != '') {
+          $text = $file_value->alt;
+        }
+        elseif ($file_value->entity->getFileName()) {
+          $text = $file_value->entity->getFileName();
+        }
+
+        if (strlen($text) > 150) {
+          $text = Unicode::truncate($text, 150);
+        }
+
+        $summary = $text;
+      }
+    }
+
+    return trim($summary);
+  }
+
+  /**
+   * Returns summary for nested paragraphs.
+   *
+   * @param string $field_name
+   *   Field definition id for paragraph.
+   *
+   * @return string
+   *   Short summary for nested paragraphs type.
+   */
+  protected function getNestedSummary($field_name) {
+    $summary = '';
+    if ($this->get($field_name)->entity) {
+      $paragraph_entity = $this->get($field_name)->entity;
+      if ($paragraph_entity instanceof ParagraphInterface) {
+        $summary = $paragraph_entity->getSummary();
+      }
+    }
+
+    return trim($summary);
+  }
+
+  /**
+   * Returns summary for all text type paragraph.
+   *
+   * @param string $field_name
+   *   Field definition id for paragraph.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   Field definition for paragraph.
+   *
+   * @return string
+   *   Short summary for text paragraph.
+   */
+  public function getTextSummary($field_name, FieldDefinitionInterface $field_definition) {
+    $text_types = [
+      'text_with_summary',
+      'text',
+      'text_long',
+      'list_string',
+      'string',
+    ];
+
+    $excluded_text_types = [
+      'parent_id',
+      'parent_type',
+      'parent_field_name',
+    ];
+
+    $summary = '';
+    if (in_array($field_definition->getType(), $text_types)) {
+      if (in_array($field_name, $excluded_text_types)) {
+        return $summary;
+      }
+
+      $text = $this->get($field_name)->value;
+      if (strlen($text) > 150) {
+        $text = Unicode::truncate($text, 150);
+      }
+
+      $summary = $text;
+    }
+
+    return trim($summary);
+  }
 
 }

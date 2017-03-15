@@ -666,7 +666,7 @@ class InlineParagraphsWidget extends WidgetBase {
         $element['subform'] = array();
         $element['behavior_plugins'] = [];
         if ($paragraphs_entity) {
-          $summary = $this->addCollapsedSummary($paragraphs_entity);
+          $summary = $paragraphs_entity->getSummary();
           $element['top']['paragraph_summary']['fields_info'] = [
             '#markup' => $summary,
             '#prefix' => '<div class="paragraphs-collapsed-description">',
@@ -1398,53 +1398,6 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     return NULL;
-  }
-
-  /**
-   * @param \Drupal\paragraphs\Entity\Paragraph $paragraphs_entity
-   *   Entity where to extract the values.
-   *
-   * @return string $collapsed_summary_text
-   *   The text without tags to return.
-   */
-  public function addCollapsedSummary(paragraphs\Entity\Paragraph $paragraphs_entity) {
-    $text_types = ['text_with_summary', 'text', 'text_long', 'list_string'];
-    $summary = [];
-    foreach ($paragraphs_entity->getFieldDefinitions() as $key => $value) {
-      if ($value->getType() == 'image') {
-        if ($paragraphs_entity->get($key)->entity) {
-          foreach ($paragraphs_entity->get($key) as $image_key => $image_value) {
-            if ($image_value->title != '') {
-              $text = $image_value->title;
-            }
-            elseif ($image_value->alt != '') {
-              $text = $image_value->alt;
-            }
-            elseif ($text = $image_value->entity->filename->value) {
-              $text = $image_value->entity->filename->value;
-            }
-            if (strlen($text) > 50) {
-              $text = strip_tags(substr($text, 0, 150));
-            }
-            $summary[] = $text;
-          }
-        }
-      }
-      if (in_array($value->getType(), $text_types)) {
-        $text = $paragraphs_entity->get($key)->value;
-        if (strlen($text) > 50) {
-          $text = strip_tags(substr($text, 0, 150));
-        }
-        $summary[] = $text;
-      }
-      if ($field_type = $value->getType() == 'entity_reference_revisions') {
-        if ($paragraphs_entity->get($key) && $paragraphs_entity->get($key)->entity) {
-          $summary[] = $this->addCollapsedSummary($paragraphs_entity->get($key)->entity);
-        }
-      }
-    }
-    $collapsed_summary_text = implode(', ', $summary);
-    return strip_tags($collapsed_summary_text);
   }
 
   /**

@@ -32,9 +32,12 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     // Add a Paragraph type.
     $paragraph_type = 'image_text_paragraph';
     $this->addParagraphsType($paragraph_type);
+    $title_paragraphs_type = 'title';
+    $this->addParagraphsType($title_paragraphs_type);
     $this->addParagraphsType('text');
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'image', 'Image', 'image', [], ['settings[alt_field_required]' => FALSE]);
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
+    static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $title_paragraphs_type, 'title', 'Title', 'string', [], []);
 
     // Add a user Paragraph Type
     $paragraph_type = 'user_paragraph';
@@ -48,6 +51,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     $this->drupalPostForm(NULL, $edit, t('Save'));
     // Add a paragraph.
     $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_image_text_paragraph_add_more');
+    $this->drupalPostAjaxForm(NULL, NULL, 'field_paragraphs_title_add_more');
 
     $text = 'Trust me I am an image';
     file_put_contents('temporary://myImage1.jpg', $text);
@@ -57,12 +61,13 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
       'title[0][value]' => 'Test article',
       'field_paragraphs[0][subform][field_text][0][value]' => 'text_summary',
       'files[field_paragraphs_0_subform_field_image_0]' => drupal_realpath('temporary://myImage1.jpg'),
+      'field_paragraphs[1][subform][field_title][0][value]' => 'Title example',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $this->clickLink(t('Edit'));
     $this->drupalPostForm(NULL, [], t('Add user_paragraph'));
     $edit = [
-      'field_paragraphs[1][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
+      'field_paragraphs[2][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
 
@@ -70,6 +75,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     $this->clickLink(t('Edit'));
     $this->assertRaw('<div class="paragraphs-collapsed-description">myImage1.jpg, text_summary');
     $this->assertRaw('<div class="paragraphs-collapsed-description">' . $this->admin_user->label());
+    $this->assertRaw('<div class="paragraphs-collapsed-description">Title example');
 
     // Edit and remove alternative text.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
