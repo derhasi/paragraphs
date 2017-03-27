@@ -37,13 +37,29 @@ interface ParagraphsTypeInterface extends ConfigEntityInterface {
   public function getEnabledBehaviorPlugins();
 
   /**
+   * Returns the icon file entity.
+   *
+   * @return \Drupal\file\FileInterface|bool
+   *   The icon's file entity or FALSE if icon does not exist.
+   */
+  public function getIconFile();
+
+  /**
+   * Returns the icon's URL.
+   *
+   * @return string|bool
+   *   The icon's URL or FALSE if icon does not exits.
+   */
+  public function getIconUrl();
+
+  /**
    * Returns TRUE if $plugin_id is enabled on this ParagraphType Entity.
    *
    * @param string $plugin_id
    *   The plugin id, as specified in the plugin annotation details.
    *
    * @return bool
-   *   True or False dependant on plugin state
+   *   TRUE if the plugin is enabled, FALSE otherwise.
    */
   public function hasEnabledBehaviorPlugin($plugin_id);
 

@@ -8,6 +8,9 @@ paragraphs.paragraphs_type.*:
     label:
       type: label
       label: 'Label'
+    icon_uuid:
+      type: string
+      label: 'Icon uuid'
     behavior_plugins:
       type: sequence
       label: 'Plugins'

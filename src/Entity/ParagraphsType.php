@@ -31,6 +31,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *   config_export = {
  *     "id",
  *     "label",
+ *     "icon_uuid",
  *     "behavior_plugins",
  *   },
  *   bundle_of = "paragraph",
@@ -58,6 +59,13 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   public $label;
 
   /**
+   * UUID of the paragraphs type icon file.
+   *
+   * @var string
+   */
+  protected $icon_uuid;
+
+  /**
    * The paragraphs type behavior plugins configuration keyed by their id.
    *
    * @var array
@@ -75,6 +83,23 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   /**
    * {@inheritdoc}
    */
+  public function getIconFile() {
+    if ($this->icon_uuid) {
+      $files = $this->entityTypeManager()
+        ->getStorage('file')
+        ->loadByProperties(['uuid' => $this->icon_uuid]);
+
+      if ($files) {
+        return array_shift($files);
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getBehaviorPlugins() {
     if (!isset($this->behaviorCollection)) {
       $this->behaviorCollection = new ParagraphsBehaviorCollection(\Drupal::service('plugin.manager.paragraphs.behavior'), $this->behavior_plugins);
@@ -85,8 +110,33 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   /**
    * {@inheritdoc}
    */
+  public function getIconUrl() {
+    if ($image = $this->getIconFile()) {
+      return file_create_url($image->getFileUri());
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getBehaviorPlugin($instance_id) {
     return $this->getBehaviorPlugins()->get($instance_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    parent::calculateDependencies();
+
+    // Add the file icon entity as dependency if a UUID was specified.
+    if ($this->icon_uuid && $file_icon = $this->getIconFile()) {
+      $this->addDependency($file_icon->getConfigDependencyKey(), $file_icon->getConfigDependencyName());
+    }
+
+    return $this->dependencies;
   }
 
   /**

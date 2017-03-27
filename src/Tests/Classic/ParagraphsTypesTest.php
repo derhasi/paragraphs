@@ -2,6 +2,8 @@
 
 namespace Drupal\paragraphs\Tests\Classic;
 
+use Drupal\paragraphs\Entity\ParagraphsType;
+
 /**
  * Tests paragraphs types.
  *
@@ -37,6 +39,38 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->clickLink(t('Delete'));
     $this->assertText('paragraph_type_test Paragraphs type is used by 1 piece of content on your site. You can not remove this paragraph_type_test Paragraphs type until you have removed all from the content.');
 
+  }
+
+  /**
+   * Tests the paragraph type icon settings.
+   */
+  public function testParagraphTypeIcon() {
+    $admin_user = $this->drupalCreateUser(['administer paragraphs types']);
+    $this->drupalLogin($admin_user);
+    // Add the paragraph type with icon.
+    $this->drupalGet('admin/structure/paragraphs_type/add');
+    $this->assertText('Paragraph type icon');
+    $test_files = $this->drupalGetTestFiles('image');
+    $fileSystem = \Drupal::service('file_system');
+    $edit = [
+      'label' => 'Test paragraph type',
+      'id' => 'test_paragraph_type_icon',
+      'files[icon_file]' => $fileSystem->realpath($test_files[0]->uri),
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
+    $this->assertText('Saved the Test paragraph type Paragraphs type.');
+
+    // Check if the icon has been saved.
+    $this->drupalGet('admin/structure/paragraphs_type');
+    $this->assertRaw('image-test.png');
+    $this->clickLink('Edit');
+    $this->assertText('image-test.png');
+
+    // Tests calculateDependencies method.
+    $paragraph_type = ParagraphsType::load('test_paragraph_type_icon');
+    $dependencies = $paragraph_type->getDependencies();
+    $dependencies_uuid[] = explode(':', $dependencies['content'][0]);
+    $this->assertEqual($paragraph_type->get('icon_uuid'), $dependencies_uuid[0][2]);
   }
 
 }

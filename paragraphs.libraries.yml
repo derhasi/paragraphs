@@ -16,3 +16,9 @@ drupal.paragraphs.widget:
   css:
     theme:
       css/paragraphs.widget.css: {}
+
+drupal.paragraphs.list_builder:
+  version: VERSION
+  css:
+    theme:
+      css/paragraphs.list-builder.css: {}

@@ -634,9 +634,6 @@ class ParagraphsWidget extends WidgetBase {
         // Build the behavior plugins fields.
         $paragraphs_type = $paragraphs_entity->getParagraphType();
         if ($paragraphs_type) {
-          $element['behavior_plugins'] = [
-            '#weight' => -10,
-          ];
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
             $element['behavior_plugins'][$plugin_id] = [];
             $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form, $form_state);

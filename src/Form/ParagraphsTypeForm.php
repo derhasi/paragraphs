@@ -79,6 +79,19 @@ class ParagraphsTypeForm extends EntityForm {
       '#disabled' => !$paragraphs_type->isNew(),
     );
 
+    $form['icon_file'] = [
+      '#title' => $this->t('Paragraph type icon'),
+      '#type' => 'managed_file',
+      '#upload_location' => 'public://paragraphs_type_icon/',
+      '#upload_validators' => [
+        'file_validate_extensions' => ['png jpg svg'],
+      ],
+    ];
+
+    if ($file = $this->entity->getIconFile()) {
+      $form['icon_file']['#default_value'] = ['target_id' => $file->id()];
+    }
+
     // Loop over the plugins that can be applied to this paragraph type.
     if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
       $form['message'] = [
@@ -129,6 +142,15 @@ class ParagraphsTypeForm extends EntityForm {
     parent::validateForm($form, $form_state);
 
     $paragraphs_type = $this->entity;
+
+    $icon_fild = $form_state->getValue(['icon_file', '0']);
+    // Set the file UUID to the paragraph configuration.
+    if (!empty($icon_fild) && $file = $this->entityTypeManager->getStorage('file')->load($icon_fild)) {
+      $paragraphs_type->set('icon_uuid', $file->uuid());
+    }
+    else {
+      $paragraphs_type->set('icon_uuid', NULL);
+    }
 
     if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
       foreach ($behavior_plugin_definitions as $id => $behavior_plugin_definition) {
