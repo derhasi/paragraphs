@@ -31,7 +31,7 @@ interface ParagraphsTypeInterface extends ConfigEntityInterface {
   /**
    * Retrieves all the enabled plugins.
    *
-   * @return array
+   * @return \Drupal\paragraphs\ParagraphsBehaviorInterface[]
    *   Array of the enabled plugins as instances.
    */
   public function getEnabledBehaviorPlugins();

@@ -223,6 +223,7 @@ class ParagraphsWidget extends WidgetBase {
     $parents = $element['#field_parents'];
     $info = [];
 
+    /** @var \Drupal\paragraphs\Entity\Paragraph $paragraphs_entity */
     $paragraphs_entity = NULL;
     $host = $items->getEntity();
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
@@ -619,13 +620,37 @@ class ParagraphsWidget extends WidgetBase {
 
       if ($item_mode == 'edit') {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
+        // Get the field definitions of the paragraphs_entity.
+        // We need them to filter out entity reference revisions fields that
+        // reference paragraphs, cause otherwise we have problems with showing
+        // and hiding the right fields in nested paragraphs.
+        $field_definitions = $paragraphs_entity->getFieldDefinitions();
+
         foreach (Element::children($element['subform']) as $field) {
+          // Do a check if we have to add a class to the form element. We need
+          // those classes (paragraphs-content and paragraphs-behavior) to show
+          // and hide elements, depending of the active perspective.
+          $omit_class = FALSE;
+          if (isset($field_definitions[$field])) {
+            $type = $field_definitions[$field]->getType();
+            if ($type == 'entity_reference_revisions') {
+              // Check if we are referencing paragraphs.
+              $target_entity_type = $field_definitions[$field]->get('entity_type');
+              if ($target_entity_type && $target_entity_type == 'paragraph') {
+                $omit_class = TRUE;
+              }
+            }
+          }
+
           if ($paragraphs_entity->hasField($field)) {
+            if (!$omit_class) {
+              $element['subform'][$field]['#attributes']['class'][] = 'paragraphs-content';
+            }
             $translatable = $paragraphs_entity->{$field}->getFieldDefinition()->isTranslatable();
             if ($translatable) {
               $element['subform'][$field]['widget']['#after_build'][] = [
                 static::class,
-                'removeTranslatabilityClue'
+                'removeTranslatabilityClue',
               ];
             }
           }
@@ -635,10 +660,16 @@ class ParagraphsWidget extends WidgetBase {
         $paragraphs_type = $paragraphs_entity->getParagraphType();
         if ($paragraphs_type) {
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
-            $element['behavior_plugins'][$plugin_id] = [];
+            $element['behavior_plugins'][$plugin_id] = [
+              '#type' => 'container',
+              '#group' => implode('][', array_merge($element_parents, ['paragraph_behavior'])),
+            ];
             $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form, $form_state);
             if ($plugin_form = $plugin->buildBehaviorForm($paragraphs_entity, $element['behavior_plugins'][$plugin_id], $subform_state)) {
               $element['behavior_plugins'][$plugin_id] = $plugin_form;
+              // Add the paragraphs-behavior class, so that we are able to show
+              // and hide behavior fields, depending on the active perspective.
+              $element['behavior_plugins'][$plugin_id]['#attributes']['class'][] = 'paragraphs-behavior';
             }
           }
         }
@@ -782,9 +813,20 @@ class ParagraphsWidget extends WidgetBase {
     $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
+    $tabs = '';
     $this->fieldIdPrefix = implode('-', array_merge($this->fieldParents, array($field_name)));
     $this->fieldWrapperId = Html::getUniqueId($this->fieldIdPrefix . '-add-more-wrapper');
-    $elements['#prefix'] = '<div id="' . $this->fieldWrapperId . '">';
+
+    // If the parent entity is paragraph add the nested class if not then add
+    // the perspective tabs.
+    $field_prefix = strtr($this->fieldIdPrefix, '_', '-');
+    if ($max > 0 && $items->getEntity()->getEntityTypeId() != 'paragraph') {
+      $tabs = '<ul class="paragraphs-tabs tabs primary clearfix"><li id="content" class="tabs__tab"><a href="#' . $field_prefix . '-values">Content</a></li><li id="behavior" class="tabs__tab"><a href="#' . $field_prefix . '-values">Behavior</a></li></ul>';
+    }
+    else {
+      $form['#attributes']['class'][] = 'paragraphs-nested';
+    }
+    $elements['#prefix'] = '<div class="is-horizontal paragraphs-tabs-wrapper" id="' . $this->fieldWrapperId . '">' . $tabs;
     $elements['#suffix'] = '</div>';
 
     $field_state['ajax_wrapper_id'] = $this->fieldWrapperId;
@@ -1273,7 +1315,9 @@ class ParagraphsWidget extends WidgetBase {
             }
             if (isset($element[$delta]) && isset($element[$delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm()) {
               $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
-              $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id], $subform_state);
+              if (isset($item['behavior_plugins'][$plugin_id])) {
+                $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id], $subform_state);
+              }
             }
           }
         }

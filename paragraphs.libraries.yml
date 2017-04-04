@@ -1,5 +1,4 @@
 drupal.paragraphs.admin:
-  version: VERSION
   dependencies:
       - core/jquery
       - core/drupal
@@ -13,9 +12,19 @@ drupal.paragraphs.admin:
       css/paragraphs.admin.css: {}
 
 drupal.paragraphs.widget:
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once
+    - core/jquery.form
+    - core/drupal.ajax
+    - core/drupal.dropbutton
   css:
     theme:
       css/paragraphs.widget.css: {}
+  js:
+    js/paragraphs.admin.js: {}
 
 drupal.paragraphs.list_builder:
   version: VERSION

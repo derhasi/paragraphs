@@ -111,3 +111,7 @@
     height: 40px;
   }
 }
+
+.is-horizontal .paragraphs-tabs .tabs__tab {
+  border-bottom: 0;
+}

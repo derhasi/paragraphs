@@ -118,7 +118,7 @@ abstract class ParagraphsBehaviorBase extends PluginBase implements ParagraphsBe
    * {@inheritdoc}
    */
   public function buildBehaviorForm(ParagraphInterface $paragraph, array &$form, FormStateInterface $form_state) {
-    return [];
+    return $form;
   }
 
   /**
