@@ -536,6 +536,18 @@ class ParagraphsWidget extends WidgetBase {
           );
         }
 
+        $context = [
+          'form' => $form,
+          'widget' => self::getWidgetState($parents, $field_name, $form_state, $widget_state),
+          'items' => $items,
+          'delta' => $delta,
+          'element' => $element,
+          'form_state' => $form_state,
+        ];
+
+        // Allow modules to register buttons for widget actions.
+        \Drupal::moduleHandler()->alter('paragraph_widget_dropbutton', $links, $context);
+
         if (count($links)) {
           $show_links = 0;
           foreach($links as $link_item) {

@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Test module for testing the paragraphs module.
+ */
+
+/**
+ * Implements hook_paragraph_widget_dropbutton_alter().
+ */
+function paragraphs_test_paragraph_widget_dropbutton_alter(&$links, &$data) {
+  if (\Drupal::state()->get('paragraphs_test_dropbutton')) {
+    $links['test_button'] = [
+      '#type' => 'submit',
+      '#value' => t('Add to library'),
+      '#delta' => 0,
+      '#name' => 'field_paragraphs_test',
+      '#weight' => 504,
+      '#paragraphs_mode' => 'remove',
+      '#access' => TRUE,
+      '#prefix' => '<li class="make-library-item">',
+      '#suffix' => '</li>',
+    ];
+  }
+}

@@ -14,6 +14,15 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
   use FieldUiTestTrait;
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  public static $modules = [
+    'paragraphs_test',
+  ];
+
+  /**
    * Tests the widget buttons of paragraphs.
    */
   public function testWidgetButtons() {
@@ -161,5 +170,15 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     // Collapse is present on each nesting level.
     $this->assertFieldByName('field_paragraphs_2_collapse');
     $this->assertFieldByName('field_paragraphs_2_subform_field_nested_0_collapse');
+
+    // Tests hook_paragraph_widget_dropbuttons_alter.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostForm(NULL, NULL, t('Add text'));
+    $this->assertNoField('edit-field-paragraphs-0-top-links-test-button');
+    \Drupal::state()->set('paragraphs_test_dropbutton', TRUE);
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostForm(NULL, NULL, t('Add text'));
+    $this->assertField('edit-field-paragraphs-0-top-links-test-button');
   }
+
 }
