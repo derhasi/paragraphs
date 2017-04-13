@@ -29,6 +29,15 @@
         $('.paragraphs-content').show();
         $('.paragraphs-behavior').hide();
       }
+      /** Checking the number of behavior elements and showing tabs only if there
+       * are behavior elements.
+       */
+      if($('.paragraphs-behavior').length != 0) {
+        $(context).find('.paragraphs-tabs-wrapper').find('.paragraphs-tabs').show();
+      }
+      else {
+        $(context).find('.paragraphs-tabs-wrapper').find('.paragraphs-tabs').hide();
+      }
       /** Create click event. **/
       $(context).find('.paragraphs-tabs').find('a').click(function(e) {
         e.preventDefault();

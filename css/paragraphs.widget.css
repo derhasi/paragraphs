@@ -115,3 +115,7 @@
 .is-horizontal .paragraphs-tabs .tabs__tab {
   border-bottom: 0;
 }
+
+.paragraphs-tabs-wrapper .paragraphs-tabs {
+  display: none;
+}
