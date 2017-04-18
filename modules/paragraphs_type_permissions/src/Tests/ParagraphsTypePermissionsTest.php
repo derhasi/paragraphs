@@ -2,7 +2,6 @@
 
 namespace Drupal\paragraphs_type_permissions\Tests;
 
-use Drupal\Core\Entity\Entity;
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\simpletest\WebTestBase;
 use Drupal\user\Entity\Role;
@@ -55,6 +54,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
       'create paragraphed_content_demo content',
       'edit any paragraphed_content_demo content',
       'bypass paragraphs type content access',
+      'administer node form display',
     ));
     $this->drupalLogin($admin_user);
 
@@ -122,9 +122,17 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
     $this->assertNoText('Paragraph type Image + Text');
     $this->assertNoText('Paragraph type Text');
 
-    // Login as admin again to unpublish the 'Image + Text' paragraph type.
+    // Login as admin
     $this->drupalLogout();
     $this->drupalLogin($admin_user);
+
+    // Set edit mode to open.
+    $this->drupalGet('admin/structure/types/manage/paragraphed_content_demo/form-display');
+    $this->drupalPostAjaxForm(NULL, [], "field_paragraphs_demo_settings_edit");
+    $edit = ['fields[field_paragraphs_demo][settings_edit_form][settings][edit_mode]' => 'open'];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+
+    // Unpublish the 'Image + Text' paragraph type.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertFieldChecked('edit-field-paragraphs-demo-0-subform-status-value');
     $edit = [

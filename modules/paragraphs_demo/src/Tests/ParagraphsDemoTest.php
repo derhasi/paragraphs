@@ -62,6 +62,13 @@ class ParagraphsDemoTest extends WebTestBase {
     ));
 
     $this->drupalLogin($admin_user);
+
+    // Set edit mode to open.
+    $this->drupalGet('admin/structure/types/manage/paragraphed_content_demo/form-display');
+    $this->drupalPostAjaxForm(NULL, [], "field_paragraphs_demo_settings_edit");
+    $edit = ['fields[field_paragraphs_demo][settings_edit_form][settings][edit_mode]' => 'open'];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+
     // Check for all pre-configured paragraphs_types.
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->assertText('Image + Text');
