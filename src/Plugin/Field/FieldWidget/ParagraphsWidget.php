@@ -670,7 +670,7 @@ class ParagraphsWidget extends WidgetBase {
 
         // Build the behavior plugins fields.
         $paragraphs_type = $paragraphs_entity->getParagraphType();
-        if ($paragraphs_type) {
+        if ($paragraphs_type && \Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
             $element['behavior_plugins'][$plugin_id] = [
               '#type' => 'container',
@@ -1277,9 +1277,11 @@ class ParagraphsWidget extends WidgetBase {
 
         // Validate all enabled behavior plugins.
         $paragraphs_type = $entity->getParagraphType();
-        foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
-          $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
-          $plugin_values->validateBehaviorForm($entity, $element['behavior_plugins'][$plugin_id], $subform_state);
+        if (\Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
+          foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_values) {
+            $subform_state = SubformState::createForSubform($element['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
+            $plugin_values->validateBehaviorForm($entity, $element['behavior_plugins'][$plugin_id], $subform_state);
+          }
         }
       }
     }
@@ -1325,7 +1327,7 @@ class ParagraphsWidget extends WidgetBase {
             if (!isset($item['behavior_plugins'][$plugin_id])) {
               $item['behavior_plugins'][$plugin_id] = [];
             }
-            if (isset($element[$delta]) && isset($element[$delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm()) {
+            if (isset($element[$delta]) && isset($element[$delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm() && \Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
               $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
               if (isset($item['behavior_plugins'][$plugin_id])) {
                 $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id], $subform_state);

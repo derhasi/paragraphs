@@ -47,6 +47,7 @@ class ParagraphsExperimentalEditPerspectivesUiTest extends JavascriptTestBase {
 
     $this->loginAsAdmin([
       'access content overview',
+      'edit behavior plugin settings'
     ]);
 
     $page = $this->getSession()->getPage();
