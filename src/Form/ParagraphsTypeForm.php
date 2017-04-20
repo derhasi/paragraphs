@@ -76,6 +76,7 @@ class ParagraphsTypeForm extends EntityForm {
       '#machine_name' => array(
         'exists' => 'paragraphs_type_load',
       ),
+      '#maxlength' => 32,
       '#disabled' => !$paragraphs_type->isNew(),
     );
 
