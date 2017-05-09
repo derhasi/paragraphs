@@ -19,6 +19,7 @@ class ParagraphsTypeListBuilder extends ConfigEntityListBuilder {
     ];
     $header['label'] = $this->t('Label');
     $header['id'] = $this->t('Machine name');
+    $header['description'] = $this->t('Description');
 
     return $header + parent::buildHeader();
   }
@@ -39,6 +40,7 @@ class ParagraphsTypeListBuilder extends ConfigEntityListBuilder {
     }
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
+    $row['description'] = $entity->getDescription();
     // You probably want a few more properties here...
     return $row + parent::buildRow($entity);
   }

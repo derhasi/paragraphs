@@ -93,6 +93,13 @@ class ParagraphsTypeForm extends EntityForm {
       $form['icon_file']['#default_value'] = ['target_id' => $file->id()];
     }
 
+    $form['description'] = [
+      '#title' => t('Description'),
+      '#type' => 'textarea',
+      '#default_value' => $paragraphs_type->getDescription(),
+      '#description' => t('This text will be displayed on the <em>Add new paragraph</em> page.'),
+    ];
+
     // Loop over the plugins that can be applied to this paragraph type.
     if ($behavior_plugin_definitions = $this->paragraphsBehaviorManager->getApplicableDefinitions($paragraphs_type)) {
       $form['message'] = [

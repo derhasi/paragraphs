@@ -73,4 +73,35 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->assertEqual($paragraph_type->get('icon_uuid'), $dependencies_uuid[0][2]);
   }
 
+  /**
+   * Test the paragraph type description settings.
+   */
+  public function testParagraphTypeDescription() {
+    $admin_user = $this->drupalCreateUser(['administer paragraphs types']);
+    $this->drupalLogin($admin_user);
+    // Add the paragraph type with description.
+    $this->drupalGet('admin/structure/paragraphs_type/add');
+    $this->assertText('Description');
+    $label = 'Test paragraph type';
+    $description = 'Paragraph type description test';
+    $edit = [
+      'label' => $label,
+      'id' => 'test_paragraph_type_description',
+      'description' => $description,
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
+    $this->assertText("Saved the $label Paragraphs type.");
+
+    // Check if the description has been saved.
+    $this->drupalGet('admin/structure/paragraphs_type');
+    $this->assertText('Description');
+    $this->assertText($description);
+    //Check if description is at Description column
+    $header_position = count($this->xpath('//table/thead/tr/th[.="Description"]/preceding-sibling::th'));
+    $row_position = count($this->xpath('//table/tbody/tr/td[.="' . $description . '"]/preceding-sibling::td'));
+    $this->assertEqual($header_position, $row_position);
+    $this->clickLink('Edit');
+    $this->assertText($description);
+  }
+
 }

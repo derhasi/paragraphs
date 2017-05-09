@@ -32,6 +32,7 @@ use Drupal\paragraphs\ParagraphsTypeInterface;
  *     "id",
  *     "label",
  *     "icon_uuid",
+ *     "description",
  *     "behavior_plugins",
  *   },
  *   bundle_of = "paragraph",
@@ -57,6 +58,13 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    * @var string
    */
   public $label;
+
+  /**
+   * A brief description of this paragraph type.
+   *
+   * @var string
+   */
+  public $description;
 
   /**
    * UUID of the paragraphs type icon file.
@@ -151,6 +159,13 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
    */
   public function getPluginCollections() {
     return ['behavior_plugins' => $this->getBehaviorPlugins()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescription() {
+    return $this->description;
   }
 
   /**
