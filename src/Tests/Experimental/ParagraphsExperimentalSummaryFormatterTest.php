@@ -34,7 +34,6 @@ class ParagraphsExperimentalSummaryFormatterTest extends ParagraphsExperimentalT
     $this->addParagraphsType($paragraph_type);
     $title_paragraphs_type = 'title';
     $this->addParagraphsType($title_paragraphs_type);
-    $this->addParagraphsType('text');
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $title_paragraphs_type, 'title', 'Title', 'string', [], []);
 
@@ -68,7 +67,6 @@ class ParagraphsExperimentalSummaryFormatterTest extends ParagraphsExperimentalT
     // Assert the summary is correctly generated.
     $this->assertText($this->admin_user->label());
     $this->assertText('Title example');
-
   }
 
 }

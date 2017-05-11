@@ -135,23 +135,23 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
 
     // Checking visible buttons on "Open" mode.
     $this->drupalGet('node/' . $node->id() . '/edit');
-    $this->assertText('Collapse');
-    $this->assertText('Remove');
-    $this->assertText('Duplicate');
+    $this->assertField('field_paragraphs_0_collapse');
+    $this->assertField('field_paragraphs_0_remove');
+    $this->assertField('field_paragraphs_0_duplicate');
 
     // Checking visible buttons on "Closed" mode.
     $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
     $this->drupalGet('node/' . $node->id() . '/edit');
-    $this->assertText('Edit');
-    $this->assertText('Remove');
-    $this->assertText('Duplicate');
+    $this->assertField('field_paragraphs_0_edit');
+    $this->assertField('field_paragraphs_0_remove');
+    $this->assertField('field_paragraphs_0_duplicate');
 
     // Checking visible buttons on "Preview" mode.
     $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
     $this->drupalGet('node/' . $node->id() . '/edit');
-    $this->assertText('Edit');
-    $this->assertText('Remove');
-    $this->assertText('Duplicate');
+    $this->assertField('field_paragraphs_0_edit');
+    $this->assertField('field_paragraphs_0_remove');
+    $this->assertField('field_paragraphs_0_duplicate');
 
     // Checking always show collapse and edit actions.
     $this->addParagraphsType('nested_paragraph');
@@ -178,7 +178,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     \Drupal::state()->set('paragraphs_test_dropbutton', TRUE);
     $this->drupalGet('node/add/paragraphed_test');
     $this->drupalPostForm(NULL, NULL, t('Add text'));
-    $this->assertField('edit-field-paragraphs-0-top-links-test-button');
+    $this->assertNoField('edit-field-paragraphs-0-top-links-test-button');
   }
 
 }

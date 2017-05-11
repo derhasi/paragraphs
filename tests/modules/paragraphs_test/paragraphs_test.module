@@ -5,12 +5,14 @@
  * Test module for testing the paragraphs module.
  */
 
+use Drupal\paragraphs\Plugin\Field\FieldWidget\ParagraphsWidget;
+
 /**
  * Implements hook_paragraph_widget_dropbutton_alter().
  */
-function paragraphs_test_paragraph_widget_dropbutton_alter(&$links, &$data) {
+function paragraphs_test_paragraph_widget_dropbutton_alter(&$links, &$context) {
   if (\Drupal::state()->get('paragraphs_test_dropbutton')) {
-    $links['test_button'] = [
+    $links['test_button'] = ParagraphsWidget::expandButton([
       '#type' => 'submit',
       '#value' => t('Add to library'),
       '#delta' => 0,
@@ -18,8 +20,6 @@ function paragraphs_test_paragraph_widget_dropbutton_alter(&$links, &$data) {
       '#weight' => 504,
       '#paragraphs_mode' => 'remove',
       '#access' => TRUE,
-      '#prefix' => '<li class="make-library-item">',
-      '#suffix' => '</li>',
-    ];
+    ]);
   }
 }

@@ -28,7 +28,6 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     // Add a Paragraph type.
     $paragraph_type = 'text_paragraph';
     $this->addParagraphsType($paragraph_type);
-    $this->addParagraphsType('text');
 
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);

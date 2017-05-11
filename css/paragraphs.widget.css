@@ -1,7 +1,10 @@
-.js .field--widget-paragraphs .dropbutton-wrapper {
+.js .field--widget-paragraphs .paragraphs-dropbutton-wrapper {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
+}
+
+.js .field--widget-paragraphs .dropbutton-wrapper {
   width: auto;
   margin-right: 0;
   padding-right: 0;
@@ -112,10 +115,10 @@
   }
 }
 
-.is-horizontal .paragraphs-tabs .tabs__tab {
-  border-bottom: 0;
-}
-
 .paragraphs-tabs-wrapper .paragraphs-tabs {
   display: none;
+}
+
+.is-horizontal .paragraphs-tabs .tabs__tab {
+  border-bottom: 0;
 }

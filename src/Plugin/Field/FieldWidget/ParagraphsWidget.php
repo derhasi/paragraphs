@@ -279,11 +279,7 @@ class ParagraphsWidget extends WidgetBase {
         foreach ($violations as $violation) {
           $messages[] = $violation->getMessage();
         }
-        $info['validation_error'] = array(
-          '#type' => 'container',
-          '#markup' => $this->t('@messages', ['@messages' => strip_tags(implode('\n', $messages))]),
-          '#attributes' => ['class' => ['messages', 'messages--warning']],
-        );
+        $info['validation_error'] = $this->createMessage($this->t('@messages', ['@messages' => strip_tags(implode('\n', $messages))]));
       }
     }
 
@@ -385,7 +381,7 @@ class ParagraphsWidget extends WidgetBase {
         $links['duplicate_button'] = [
           '#type' => 'submit',
           '#value' => $this->t('Duplicate'),
-          '#name' => strtr($id_prefix, '-', '_') . '_duplicate',
+          '#name' => $id_prefix . '_duplicate',
           '#weight' => 502,
           '#submit' => [[get_class($this), 'duplicateSubmit']],
           '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
@@ -393,20 +389,15 @@ class ParagraphsWidget extends WidgetBase {
           '#ajax' => [
             'callback' => [get_class($this), 'itemAjax'],
             'wrapper' => $widget_state['ajax_wrapper_id'],
-            'effect' => 'fade',
           ],
           '#access' => $paragraphs_entity->access('update'),
-          '#prefix' => '<li class="duplicate">',
-          '#suffix' => '</li>',
         ];
 
-        // Hide the button when translating.
-        $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
-        if($item_mode != 'remove') {
+        if ($item_mode != 'remove') {
           $links['remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
-            '#name' => strtr($id_prefix, '-', '_') . '_remove',
+            '#name' => $id_prefix . '_remove',
             '#weight' => 501 ,
             '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
             '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
@@ -414,58 +405,42 @@ class ParagraphsWidget extends WidgetBase {
             '#ajax' => [
               'callback' => array(get_class($this), 'itemAjax'),
               'wrapper' => $widget_state['ajax_wrapper_id'],
-              'effect' => 'fade',
             ],
-            '#access' => $button_access,
-            '#prefix' => '<li class="remove">',
-            '#suffix' => '</li>',
+            // Hide the button when translating.
+            '#access' => $paragraphs_entity->access('delete') && !$this->isTranslating,
             '#paragraphs_mode' => 'remove',
           ];
         }
 
         if ($item_mode == 'edit') {
-
           if (isset($paragraphs_entity)) {
-            $links['collapse_button'] = array(
-              '#type' => 'submit',
+            $links['collapse_button'] = [
               '#value' => $this->t('Collapse'),
-              '#name' => strtr($id_prefix, '-', '_') . '_collapse',
+              '#name' => $id_prefix . '_collapse',
               '#weight' => 499,
-              '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
+              '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
               '#delta' => $delta,
-              '#ajax' => array(
-                'callback' => array(get_class($this), 'itemAjax'),
+              '#ajax' => [
+                'callback' => [get_class($this), 'itemAjax'],
                 'wrapper' => $widget_state['ajax_wrapper_id'],
-                'effect' => 'fade',
-              ),
+              ],
               '#access' => $paragraphs_entity->access('update'),
-              '#prefix' => '<li class="collapse">',
-              '#suffix' => '</li>',
               '#paragraphs_mode' => 'closed',
               '#paragraphs_show_warning' => TRUE,
-            );
+            ];
           }
 
-          $info['edit_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
-          );
+          $info['edit_button_info'] = $this->createMessage($this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete')
+          ];
 
-          $info['remove_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
-          );
+          $info['remove_button_info'] = $this->createMessage($this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update')
+          ];
 
-          $info['edit_remove_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
-          );
+          $info['edit_remove_button_info'] = $this->createMessage($this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')
+          ];
         }
         else {
           $element['top']['paragraphs_edit_button_container'] = [
@@ -476,10 +451,10 @@ class ParagraphsWidget extends WidgetBase {
                 'paragraphs-edit-button-container',
               ],
             ],
-            'paragraphs_edit_button' => [
+            'paragraphs_edit_button' => $this->expandButton([
               '#type' => 'submit',
               '#value' => $this->t('Edit'),
-              '#name' => strtr($id_prefix, '-', '_') . '_edit',
+              '#name' => $id_prefix . '_edit',
               '#weight' => 500,
               '#attributes' => [
                 'class' => [
@@ -492,48 +467,31 @@ class ParagraphsWidget extends WidgetBase {
               '#ajax' => [
                 'callback' => [get_class($this), 'itemAjax'],
                 'wrapper' => $widget_state['ajax_wrapper_id'],
-                'effect' => 'fade',
               ],
               '#access' => $paragraphs_entity->access('update'),
               '#paragraphs_mode' => 'edit',
-            ]
+            ]),
           ];
 
           if ($show_must_be_saved_warning) {
-            $info['must_be_saved_info'] = array(
-              '#type' => 'container',
-              '#markup' => $this->t('You have unsaved changes on this @title item.', array('@title' => $this->getSetting('title'))),
-              '#attributes' => ['class' => ['messages', 'messages--warning']],
-            );
+            $info['must_be_saved_info'] = $this->createMessage($this->t('You have unsaved changes on this @title item.', array('@title' => $this->getSetting('title'))));
           }
 
-          $info['preview_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('view'),
-          );
+          $info['preview_info'] = $this->createMessage($this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('view')
+          ];
 
-          $info['edit_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete'),
-          );
+          $info['edit_button_info'] = $this->createMessage($this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete')
+          ];
 
-          $info['remove_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update'),
-          );
+          $info['remove_button_info'] = $this->createMessage($this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update')
+          ];
 
-          $info['edit_remove_button_info'] = array(
-            '#type' => 'container',
-            '#markup' => $this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title'))),
-            '#attributes' => ['class' => ['messages', 'messages--warning']],
-            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete'),
-          );
+          $info['edit_remove_button_info'] = $this->createMessage($this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title')))) + [
+            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')
+          ];
         }
 
         $context = [
@@ -548,6 +506,9 @@ class ParagraphsWidget extends WidgetBase {
         // Allow modules to register buttons for widget actions.
         \Drupal::moduleHandler()->alter('paragraph_widget_dropbutton', $links, $context);
 
+        // Expand all links to proper dropdown button elements.
+        $links = array_map([$this, 'expandButton'], $links);
+
         if (count($links)) {
           $show_links = 0;
           foreach($links as $link_item) {
@@ -557,27 +518,13 @@ class ParagraphsWidget extends WidgetBase {
           }
 
           if ($show_links > 0) {
-
-            $element['top']['links'] = $links;
+            // Wrap in dropbutton operations if there's more than one.
             if ($show_links > 1) {
-              $element['top']['links']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
-              $element['top']['links']['prefix'] = array(
-                '#markup' => '<ul class="dropbutton">',
-                '#weight' => -999,
-              );
-              $element['top']['links']['suffix'] = array(
-                '#markup' => '</li>',
-                '#weight' => 999,
-              );
+              $links = $this->buildDropbutton($links);
             }
-            else {
-              $element['top']['links']['#theme_wrappers'] = array('paragraphs_dropbutton_wrapper');
-              foreach($links as $key => $link_item) {
-                unset($element['top']['links'][$key]['#prefix']);
-                unset($element['top']['links'][$key]['#suffix']);
-              }
-            }
-            $element['top']['links']['#weight'] = 1;
+
+            $links['#weight'] = 1;
+            $element['top']['links'] = $links;
           }
         }
 
@@ -975,18 +922,10 @@ class ParagraphsWidget extends WidgetBase {
   protected function buildAddActions() {
     if (count($this->getAccessibleOptions()) === 0) {
       if (count($this->getAllowedTypes()) === 0) {
-        $add_more_elements['info'] = [
-          '#type' => 'container',
-          '#markup' => $this->t('You are not allowed to add any of the @title types.', ['@title' => $this->getSetting('title')]),
-          '#attributes' => ['class' => ['messages', 'messages--warning']],
-        ];
+        $add_more_elements['info'] = $this->createMessage($this->t('You are not allowed to add any of the @title types.', ['@title' => $this->getSetting('title')]));
       }
       else {
-        $add_more_elements['info'] = [
-          '#type' => 'container',
-          '#markup' => $this->t('You did not add any @title types yet.', ['@title' => $this->getSetting('title')]),
-          '#attributes' => ['class' => ['messages', 'messages--warning']],
-        ];
+        $add_more_elements['info'] = $this->createMessage($this->t('You did not add any @title types yet.', ['@title' => $this->getSetting('title')]));
       }
 
       return $add_more_elements ;
@@ -1029,56 +968,129 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Helper to create a paragraph UI message.
+   *
+   * @param string $message
+   *   Message text.
+   * @param bool $access
+   *   Form element access.
+   * @param string $type
+   *   Message type.
+   *
+   * @return array
+   *   Render array of message.
+   */
+  public function createMessage($message, $type = 'warning') {
+    return [
+      '#type' => 'container',
+      '#markup' => $message,
+      '#attributes' => ['class' => ['messages', 'messages--' . $type]],
+    ];
+  }
+
+  /**
+   * Expand link array into a paragrpah widget action button.
+   *
+   * @param array $link
+   *   Link render array.
+   *
+   * @return array
+   *   Button render array.
+   */
+  public static function expandButton(array $link) {
+    $button = $link + [
+      '#type' => 'submit',
+      '#theme_wrappers' => ['input__submit__paragraph_action'],
+    ];
+
+    // Html::getId will give us '-' char in name but we want '_' for now so
+    // we use strtr to search&replace '-' to '_'.
+    $button['#name'] = strtr(Html::getId($link['#name']), '-', '_');
+    $button['#id'] = Html::getUniqueId($button['#name']);
+
+    if (isset($button['#ajax'])) {
+      $button['#ajax'] += [
+        'effect' => 'fade',
+        // Since a normal throbber is added inline, this has the potential to
+        // break a layout if the button is located in dropbuttons. Instead,
+        // it's safer to just show the fullscreen progress element instead.
+        'progress' => ['type' => 'fullscreen'],
+      ];
+    }
+
+    return $button;
+  }
+
+  /**
+   * Build drop button.
+   *
+   * @param array $elements
+   *   Elements for drup button.
+   *
+   * @return array
+   *   Drop button array.
+   */
+  protected function buildDropbutton(array $elements = []) {
+    $build = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['paragraphs-dropbutton-wrapper']],
+    ];
+
+    $operations = [];
+    // Because we are cloning the elements into title sub element we need to
+    // sort children first.
+    foreach (Element::children($elements, TRUE) as $child) {
+      // Clone the element as an operation.
+      $operations[$child] = ['title' => $elements[$child]];
+
+      // Flag the original element as printed so it doesn't render twice.
+      $elements[$child]['#printed'] = TRUE;
+    }
+
+    $build['operations'] = [
+      '#type' => 'paragraph_operations',
+      // Even though operations are run through the "links" element type, the
+      // theme system will render any render array passed as a link "title".
+      '#links' => $operations,
+    ];
+
+    return $build + $elements;
+  }
+
+  /**
    * Builds dropdown button for adding new paragraph.
    *
    * @return array
    *   The form element array.
    */
   protected function buildButtonsAddMode() {
-    // Hide the button when translating.
-    $add_more_elements = [
-      '#type' => 'container',
-      '#theme_wrappers' => ['paragraphs_dropbutton_wrapper'],
-    ];
-    $field_name = $this->fieldDefinition->getName();
-    $title = $this->fieldDefinition->getLabel();
+    $options = $this->getAccessibleOptions();
 
-    $drop_button = FALSE;
-    if (count($this->getAccessibleOptions()) > 1 && $this->getSetting('add_mode') == 'dropdown') {
-      $drop_button = TRUE;
-      $add_more_elements['#theme_wrappers'] = ['dropbutton_wrapper'];
-      $add_more_elements['prefix'] = [
-        '#markup' => '<ul class="dropbutton">',
-        '#weight' => -999,
-      ];
-      $add_more_elements['suffix'] = [
-        '#markup' => '</ul>',
-        '#weight' => 999,
-      ];
-      $add_more_elements['#suffix'] = $this->t(' to %type', ['%type' => $title]);
-    }
-
-    foreach ($this->getAccessibleOptions() as $machine_name => $label) {
-      $add_more_elements['add_more_button_' . $machine_name] = [
+    // Build the buttons.
+    $add_more_elements = [];
+    foreach ($options as $machine_name => $label) {
+      $add_more_elements['add_more_button_' . $machine_name] = $this->expandButton([
         '#type' => 'submit',
-        '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_' . $machine_name . '_add_more',
+        '#name' => $this->fieldIdPrefix . '_' . $machine_name . '_add_more',
         '#value' => $this->t('Add @type', ['@type' => $label]),
         '#attributes' => ['class' => ['field-add-more-submit']],
-        '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'add_more'])],
+        '#limit_validation_errors' => [array_merge($this->fieldParents, [$this->fieldDefinition->getName(), 'add_more'])],
         '#submit' => [[get_class($this), 'addMoreSubmit']],
         '#ajax' => [
           'callback' => [get_class($this), 'addMoreAjax'],
           'wrapper' => $this->fieldWrapperId,
-          'effect' => 'fade',
         ],
         '#bundle_machine_name' => $machine_name,
-      ];
-
-      if ($drop_button) {
-        $add_more_elements['add_more_button_' . $machine_name]['#prefix'] = '<li>';
-        $add_more_elements['add_more_button_' . $machine_name]['#suffix'] = '</li>';
-      }
+      ]);
     }
+
+    // Determine if buttons should be rendered as dropbuttons.
+    if (count($options) > 1 && $this->getSetting('add_mode') == 'dropdown') {
+      $add_more_elements = $this->buildDropbutton($add_more_elements);
+      $add_more_elements['#suffix'] = $this->t('to %type', ['%type' => $this->fieldDefinition->getLabel()]);
+    }
+
+    $add_more_elements['#weight'] = 1;
 
     return $add_more_elements;
   }

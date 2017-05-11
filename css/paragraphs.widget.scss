@@ -7,11 +7,13 @@
 // only for JS version of a widget.
 .js {
   .field--widget-paragraphs {
-    .dropbutton-wrapper {
+    .paragraphs-dropbutton-wrapper {
       // We are using inline-flex here so 'Add type' dropdown button is inline
       // and aligned 'to type' text.
       display: inline-flex;
+    }
 
+    .dropbutton-wrapper {
       // Override 600px breakpoint from core, needed again so 'to type' is in
       // the same line with add dropdown button.
       width: auto;
@@ -121,6 +123,12 @@
     }
   }
 
+}
+
+.paragraphs-tabs-wrapper {
+  .paragraphs-tabs {
+    display: none;
+  }
 }
 
 .is-horizontal .paragraphs-tabs .tabs__tab {

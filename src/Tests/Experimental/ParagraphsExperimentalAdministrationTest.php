@@ -224,10 +224,6 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
 
     // Add two Text + Image paragraphs in article.
     $this->drupalGet('node/add/article');
-
-    // Checking changes on article.
-    $this->assertRaw('<div class="paragraphs-dropbutton-wrapper"><input', 'Updated value in article.');
-
     $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_image_add_more');
     $this->drupalPostAjaxForm(NULL, array(), 'field_paragraphs_text_image_add_more');
     // Create an 'image' file, upload it.
