@@ -28,7 +28,7 @@ class ParagraphsTypeListBuilder extends ConfigEntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $row['icon_file'] = '';
+    $row['icon_file'] = [];
     if ($icon_url = $entity->getIconUrl()) {
       $row['icon_file']['class'][] = 'paragraphs-type-icon';
       $row['icon_file']['data'] = [
