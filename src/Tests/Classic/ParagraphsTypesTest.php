@@ -83,11 +83,12 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->drupalGet('admin/structure/paragraphs_type/add');
     $this->assertText('Description');
     $label = 'Test paragraph type';
-    $description = 'Paragraph type description test';
+    $description_markup = 'Use <em>Test paragraph type</em> to test the functionality of descriptions.';
+    $description_text = 'Use Test paragraph type to test the functionality of descriptions.';
     $edit = [
       'label' => $label,
       'id' => 'test_paragraph_type_description',
-      'description' => $description,
+      'description' => $description_markup,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
     $this->assertText("Saved the $label Paragraphs type.");
@@ -95,13 +96,14 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     // Check if the description has been saved.
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->assertText('Description');
-    $this->assertText($description);
+    $this->assertText($description_text);
+    $this->assertRaw($description_markup);
     //Check if description is at Description column
     $header_position = count($this->xpath('//table/thead/tr/th[.="Description"]/preceding-sibling::th'));
-    $row_position = count($this->xpath('//table/tbody/tr/td[.="' . $description . '"]/preceding-sibling::td'));
+    $row_position = count($this->xpath('//table/tbody/tr/td[.="' . $description_text . '"]/preceding-sibling::td'));
     $this->assertEqual($header_position, $row_position);
     $this->clickLink('Edit');
-    $this->assertText($description);
+    $this->assertText('Use &lt;em&gt;Test paragraph type&lt;/em&gt; to test the functionality of descriptions.');
   }
 
 }

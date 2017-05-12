@@ -40,7 +40,7 @@ class ParagraphsTypeListBuilder extends ConfigEntityListBuilder {
     }
     $row['label'] = $entity->label();
     $row['id'] = $entity->id();
-    $row['description'] = $entity->getDescription();
+    $row['description']['data'] = ['#markup' => $entity->getDescription()];
     // You probably want a few more properties here...
     return $row + parent::buildRow($entity);
   }
