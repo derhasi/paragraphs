@@ -17,6 +17,7 @@ use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs;
 use Drupal\paragraphs\ParagraphInterface;
+use Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphSelection;
 
 /**
  * Plugin implementation of the 'entity_reference_revisions paragraphs' widget.
@@ -675,40 +676,26 @@ class ParagraphsWidget extends WidgetBase {
     return $element;
   }
 
+  /**
+   * Returns the sorted allowed types for a entity reference field.
+   *
+   * @return array
+   *   A list of arrays keyed by the paragraph type machine name with the following properties.
+   *     - label: The label of the paragraph type.
+   *     - weight: The weight of the paragraph type.
+   */
   public function getAllowedTypes() {
 
     $return_bundles = array();
-
-    $target_type = $this->getFieldSetting('target_type');
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
-
-    if ($this->getSelectionHandlerSetting('target_bundles') !== NULL) {
-      $bundles = array_intersect_key($bundles, $this->getSelectionHandlerSetting('target_bundles'));
-    }
-
-    // Support for the paragraphs reference type.
-    $drag_drop_settings = $this->getSelectionHandlerSetting('target_bundles_drag_drop');
-    if ($drag_drop_settings) {
-      $max_weight = count($bundles);
-
-      foreach ($drag_drop_settings as $bundle_info) {
-        if (isset($bundle_info['weight']) && $bundle_info['weight'] && $bundle_info['weight'] > $max_weight) {
-          $max_weight = $bundle_info['weight'];
-        }
-      }
-
-      // Default weight for new items.
-      $weight = $max_weight + 1;
-      foreach ($bundles as $machine_name => $bundle) {
-        $return_bundles[$machine_name] = array(
-          'label' => $bundle['label'],
-          'weight' => isset($drag_drop_settings[$machine_name]['weight']) ? $drag_drop_settings[$machine_name]['weight'] : $weight,
-        );
-        $weight++;
-      }
+    /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager */
+    $selection_manager = \Drupal::service('plugin.manager.entity_reference_selection');
+    $handler = $selection_manager->getSelectionHandler($this->fieldDefinition);
+    if ($handler instanceof ParagraphSelection) {
+      $return_bundles = $handler->getSortedAllowedTypes();
     }
     // Support for other reference types.
     else {
+      $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($this->getFieldSetting('target_type'));
       $weight = 0;
       foreach ($bundles as $machine_name => $bundle) {
         if (!count($this->getSelectionHandlerSetting('target_bundles'))
@@ -724,7 +711,6 @@ class ParagraphsWidget extends WidgetBase {
       }
     }
 
-    uasort($return_bundles, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
 
     return $return_bundles;
   }

@@ -154,4 +154,58 @@ class ParagraphSelection extends DefaultSelection {
     $parents = array_merge(array_slice($element['#parents'], 0, -1), array('target_bundles'));
     NestedArray::setValue($values, $parents, $bundle_options);
   }
+
+  /**
+   * Returns the sorted allowed types for the field.
+   *
+   * @return array
+   *   A list of arrays keyed by the paragraph type machine name with the following properties.
+   *     - label: The label of the paragraph type.
+   *     - weight: The weight of the paragraph type.
+   */
+  public function getSortedAllowedTypes() {
+    $return_bundles = [];
+
+    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    if (!empty($this->configuration['handler_settings']['target_bundles'])) {
+      $bundles = array_intersect_key($bundles, $this->configuration['handler_settings']['target_bundles']);
+    }
+
+    // Support for the paragraphs reference type.
+    if (!empty($this->configuration['handler_settings']['target_bundles_drag_drop'])) {
+      $drag_drop_settings = $this->configuration['handler_settings']['target_bundles_drag_drop'];
+      $max_weight = count($bundles);
+
+      foreach ($drag_drop_settings as $bundle_info) {
+        if (isset($bundle_info['weight']) && $bundle_info['weight'] && $bundle_info['weight'] > $max_weight) {
+          $max_weight = $bundle_info['weight'];
+        }
+      }
+
+      // Default weight for new items.
+      $weight = $max_weight + 1;
+      foreach ($bundles as $machine_name => $bundle) {
+        $return_bundles[$machine_name] = [
+          'label' => $bundle['label'],
+          'weight' => isset($drag_drop_settings[$machine_name]['weight']) ? $drag_drop_settings[$machine_name]['weight'] : $weight,
+        ];
+        $weight++;
+      }
+    }
+    else {
+      $weight = 0;
+
+      foreach ($bundles as $machine_name => $bundle) {
+        $return_bundles[$machine_name] = [
+          'label' => $bundle['label'],
+          'weight' => $weight,
+        ];
+
+        $weight++;
+      }
+    }
+    uasort($return_bundles, 'Drupal\Component\Utility\SortArray::sortByWeightElement');
+
+    return $return_bundles;
+  }
 }
