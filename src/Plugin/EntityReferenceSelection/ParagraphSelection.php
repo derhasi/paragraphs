@@ -31,6 +31,7 @@ class ParagraphSelection extends DefaultSelection {
     // Merge-in default values.
     $selection_handler_settings += array(
       'target_bundles' => array(),
+      'negate' => 0,
       'target_bundles_drag_drop' => array(),
     );
 
@@ -49,6 +50,17 @@ class ParagraphSelection extends DefaultSelection {
       );
       $weight++;
     }
+
+    // Do negate the selection.
+    $form['negate'] = [
+      '#type' => 'radios',
+      '#options' => [
+        1 => $this->t('Exclude the selected below'),
+        0 => $this->t('Include the selected below'),
+      ],
+      '#title' => $this->t('Which paragraph types should be allowed?'),
+      '#default_value' => isset($selection_handler_settings['negate']) ? $selection_handler_settings['negate'] : 0,
+    ];
 
     // Kept for compatibility with other entity reference widgets.
     $form['target_bundles'] = array(
@@ -70,7 +82,7 @@ class ParagraphSelection extends DefaultSelection {
           'id' => 'bundles',
         ],
         '#prefix' => '<h5>' . $this->t('Paragraph types') . '</h5>',
-        '#suffix' => '<div class="description">' . $this->t('The paragraph types that are allowed to be created in this field. Select none to allow all paragraph types.') .'</div>',
+        '#suffix' => '<div class="description">' . $this->t('Selection of paragraph types for this field. Select none to allow all paragraph types.') .'</div>',
       ];
 
       $form['target_bundles_drag_drop']['#tabledrag'][] = [
@@ -168,7 +180,12 @@ class ParagraphSelection extends DefaultSelection {
 
     $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
     if (!empty($this->configuration['handler_settings']['target_bundles'])) {
-      $bundles = array_intersect_key($bundles, $this->configuration['handler_settings']['target_bundles']);
+      if (isset($this->configuration['handler_settings']['negate']) && $this->configuration['handler_settings']['negate'] == '1') {
+        $bundles = array_diff_key($bundles, $this->configuration['handler_settings']['target_bundles']);
+      }
+      else {
+        $bundles = array_intersect_key($bundles, $this->configuration['handler_settings']['target_bundles']);
+      }
     }
 
     // Support for the paragraphs reference type.
@@ -208,4 +225,5 @@ class ParagraphSelection extends DefaultSelection {
 
     return $return_bundles;
   }
+
 }

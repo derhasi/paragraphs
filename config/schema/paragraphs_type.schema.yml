@@ -37,6 +37,8 @@ paragraphs.behavior.settings.*:
 entity_reference_selection.default:paragraph:
   type: entity_reference_selection.default
   mapping:
+    negate:
+      type: integer
     target_bundles_drag_drop:
       type: sequence
       sequence:
