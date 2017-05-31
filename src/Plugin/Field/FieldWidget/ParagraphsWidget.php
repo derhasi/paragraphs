@@ -619,6 +619,7 @@ class ParagraphsWidget extends WidgetBase {
         // Build the behavior plugins fields.
         $paragraphs_type = $paragraphs_entity->getParagraphType();
         if ($paragraphs_type && \Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
+          $element['behavior_plugins']['#weight'] = -99;
           foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
             $element['behavior_plugins'][$plugin_id] = [
               '#type' => 'container',

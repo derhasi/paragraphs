@@ -95,6 +95,10 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'field_paragraphs[0][subform][field_text][0][value]' => 'amazing_plugin_test',
       'field_paragraphs[0][behavior_plugins][test_text_color][text_color]' => $plugin_text,
     ];
+    // Assert that the behavior form is after the dropbutton.
+    $behavior_xpath = $this->xpath("//div[@id = 'edit-field-paragraphs-0-top']/following-sibling::*[1][@id = 'edit-field-paragraphs-0-behavior-plugins-test-text-color']");
+    $this->assertNotEqual($behavior_xpath, FALSE, 'Behavior form position incorrect');
+
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     // Asserting that the error message is shown.
     $this->assertText('The only allowed values are blue and red.');
