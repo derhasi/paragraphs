@@ -19,6 +19,18 @@ class ParagraphViewBuilder extends EntityViewBuilder {
     // Allow enabled behavior plugin to alter the rendering.
     foreach ($build_list as $key => $value) {
       $display = EntityViewDisplay::load('paragraph.' . $value['#paragraph']->bundle() . '.' . $value['#view_mode']) ?: EntityViewDisplay::load('paragraph.' . $value['#paragraph']->bundle() . '.default');
+
+      // In case we use paragraphs type with no fields the EntityViewDisplay
+      // might not be available yet.
+      if (!$display) {
+        $display = EntityViewDisplay::create([
+          'targetEntityType' => 'paragraph',
+          'bundle' => $value['#paragraph']->bundle(),
+          'mode' => 'default',
+          'status' => TRUE,
+        ]);
+      }
+
       $paragraph_type = $value['#paragraph']->getParagraphType();
       foreach ($paragraph_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin_value) {
         $plugin_value->view($build_list[$key], $value['#paragraph'], $display, $value['#view_mode']);

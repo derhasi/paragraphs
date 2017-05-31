@@ -174,6 +174,16 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and publish'));
     $this->assertRaw('dummy_plugin_text');
+
+    // Tests behavior plugin on paragraph type with no fields.
+    $this->addParagraphsType('fieldless');
+    $this->drupalPostForm('admin/structure/paragraphs_type/fieldless', ['behavior_plugins[test_dummy_behavior][enabled]' => TRUE], t('Save'));
+
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_fieldless_add_more');
+    $this->drupalPostForm(NULL, ['title[0][value]' => t('Fieldless')], t('Save and publish'));
+
+    $this->assertResponse(200);
   }
 
   /**
