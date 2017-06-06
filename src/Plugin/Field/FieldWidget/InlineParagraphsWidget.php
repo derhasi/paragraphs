@@ -426,6 +426,7 @@ class InlineParagraphsWidget extends WidgetBase {
               '#weight' => 499,
               '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
               '#delta' => $delta,
+              '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
               '#ajax' => array(
                 'callback' => array(get_class($this), 'itemAjax'),
                 'wrapper' => $widget_state['ajax_wrapper_id'],

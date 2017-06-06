@@ -420,6 +420,7 @@ class ParagraphsWidget extends WidgetBase {
               '#name' => $id_prefix . '_collapse',
               '#weight' => 499,
               '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
+              '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
               '#delta' => $delta,
               '#ajax' => [
                 'callback' => [get_class($this), 'itemAjax'],

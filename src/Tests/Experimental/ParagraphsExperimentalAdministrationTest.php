@@ -498,8 +498,8 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     $node = $this->drupalGetNodeByTitle('choke test');
     // Attempt to edit the Paragraph.
     $this->drupalPostAjaxForm('node/' . $node->id() . '/edit', [], 'field_paragraphs_0_edit');
-    // Try to collapse with an invalid reference.
-    $this->drupalPostAjaxForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], 'field_paragraphs_0_collapse');
+    // Try to save with and invalid reference.
+    $this->drupalPostForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], t('Save and keep published'));
     $this->assertText('There are no entities matching "foo".');
     // Remove the Paragraph and save the node.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
