@@ -39,6 +39,8 @@ function hook_paragraphs_behavior_info_alter(&$paragraphs_behavior) {
  *   - delta: The order of this item in the array of subelements (0, 1, 2, etc).
  *   - element: A form element array containing basic properties for the widget.
  *   - form_state: The current state of the form.
+ *   - paragraphs_entity: the paragraphs entity for this widget. Might be
+ *     unsaved, if we have just added a new item to the widget.
  */
 function hook_paragraph_widget_dropbuttons_alter(array &$links, array &$context) {
 }

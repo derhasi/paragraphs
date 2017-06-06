@@ -503,6 +503,7 @@ class ParagraphsWidget extends WidgetBase {
           'delta' => $delta,
           'element' => $element,
           'form_state' => $form_state,
+          'paragraphs_entity' => $paragraphs_entity,
         ];
 
         // Allow modules to register buttons for widget actions.
