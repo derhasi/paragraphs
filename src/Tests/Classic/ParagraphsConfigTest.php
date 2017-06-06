@@ -157,7 +157,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
       'title[0][value]' => 'test_title',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save and publish');
-    $this->assertText('This value should not be null.');
+    $this->assertText('paragraphs field is required.');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraph_type_test_add_more');
     $this->drupalPostForm(NULL, $edit, 'Save and publish');
     $this->assertText('paragraphed_test test_title has been created.');

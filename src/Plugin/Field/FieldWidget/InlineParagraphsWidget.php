@@ -838,30 +838,33 @@ class InlineParagraphsWidget extends WidgetBase {
     $field_state['real_item_count'] = $this->realItemCount;
     static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
+    $elements += [
+      '#element_validate' => [[$this, 'multipleElementValidate']],
+      '#required' => $this->fieldDefinition->isRequired(),
+      '#field_name' => $field_name,
+      '#cardinality' => $cardinality,
+      '#max_delta' => $max - 1,
+    ];
+
     if ($this->realItemCount > 0) {
       $elements += array(
         '#theme' => 'field_multiple_value_form',
-        '#field_name' => $field_name,
-        '#cardinality' => $cardinality,
         '#cardinality_multiple' => $is_multiple,
-        '#required' => $this->fieldDefinition->isRequired(),
         '#title' => $title,
         '#description' => $description,
-        '#max_delta' => $max-1,
       );
     }
     else {
+      $classes = $this->fieldDefinition->isRequired() ? ['form-required'] : [];
       $elements += [
         '#type' => 'container',
         '#theme_wrappers' => ['container'],
-        '#field_name' => $field_name,
-        '#cardinality' => $cardinality,
         '#cardinality_multiple' => TRUE,
-        '#max_delta' => $max-1,
         'title' => [
           '#type' => 'html_tag',
           '#tag' => 'strong',
           '#value' => $title,
+          '#attributes' => ['class' => $classes],
         ],
         'text' => [
           '#type' => 'container',
@@ -1225,6 +1228,31 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Special handling to validate form elements with multiple values.
+   *
+   * @param array $elements
+   *   An associative array containing the substructure of the form to be
+   *   validated in this call.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   * @param array $form
+   *   The complete form array.
+   */
+  public function multipleElementValidate(array $elements, FormStateInterface $form_state, array $form) {
+    $field_name = $this->fieldDefinition->getName();
+    $widget_state = static::getWidgetState($elements['#field_parents'], $field_name, $form_state);
+
+    $remove_mode_item_count = $this->getNumberOfParagraphsInMode($widget_state, 'remove');
+    $non_remove_mode_item_count = $widget_state['real_item_count'] - $remove_mode_item_count;
+
+    if ($elements['#required'] && $non_remove_mode_item_count < 1) {
+      $form_state->setError($elements, t('@name field is required.', ['@name' => $this->fieldDefinition->getLabel()]));
+    }
+
+    static::setWidgetState($elements['#field_parents'], $field_name, $form_state, $widget_state);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
@@ -1386,6 +1414,33 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     return NULL;
+  }
+
+  /**
+   * Counts the number of paragraphs in a certain mode in a form substructure.
+   *
+   * @param array $widget_state
+   *   The widget state for the form substructure containing information about
+   *   the paragraphs within.
+   * @param string $mode
+   *   The mode to look for.
+   *
+   * @return int
+   *   The number of paragraphs is the given mode.
+   */
+  protected function getNumberOfParagraphsInMode(array $widget_state, $mode) {
+    if (!isset($widget_state['paragraphs'])) {
+      return 0;
+    }
+
+    $paragraphs_count = 0;
+    foreach ($widget_state['paragraphs'] as $paragraph) {
+      if ($paragraph['mode'] == $mode) {
+        $paragraphs_count++;
+      }
+    }
+
+    return $paragraphs_count;
   }
 
   /**
