@@ -2,10 +2,15 @@
 
 namespace Drupal\paragraphs\Plugin\EntityReferenceSelection;
 
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\Plugin\EntityReferenceSelection\DefaultSelection;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility\NestedArray;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Default plugin implementation of the Entity Reference Selection plugin.
@@ -21,12 +26,58 @@ use Drupal\Component\Utility\NestedArray;
 class ParagraphSelection extends DefaultSelection {
 
   /**
+   * Entity type bundle info service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  public $entityTypeBundleInfo;
+
+  /**
+   * ParagraphSelection constructor.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager service.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler service.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   Entity type bundle info service.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager, ModuleHandlerInterface $module_handler, AccountInterface $current_user, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager, $module_handler, $current_user);
+
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity.manager'),
+      $container->get('module_handler'),
+      $container->get('current_user'),
+      $container->get('entity_type.bundle.info')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $entity_type_id = $this->configuration['target_type'];
     $selection_handler_settings = $this->configuration['handler_settings'] ?: array();
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type_id);
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
 
     // Merge-in default values.
     $selection_handler_settings += array(
@@ -82,7 +133,7 @@ class ParagraphSelection extends DefaultSelection {
           'id' => 'bundles',
         ],
         '#prefix' => '<h5>' . $this->t('Paragraph types') . '</h5>',
-        '#suffix' => '<div class="description">' . $this->t('Selection of paragraph types for this field. Select none to allow all paragraph types.') .'</div>',
+        '#suffix' => '<div class="description">' . $this->t('Selection of paragraph types for this field. Select none to allow all paragraph types.') . '</div>',
       ];
 
       $form['target_bundles_drag_drop']['#tabledrag'][] = [
@@ -171,14 +222,15 @@ class ParagraphSelection extends DefaultSelection {
    * Returns the sorted allowed types for the field.
    *
    * @return array
-   *   A list of arrays keyed by the paragraph type machine name with the following properties.
+   *   A list of arrays keyed by the paragraph type machine name
+   *   with the following properties.
    *     - label: The label of the paragraph type.
    *     - weight: The weight of the paragraph type.
    */
   public function getSortedAllowedTypes() {
     $return_bundles = [];
 
-    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo('paragraph');
+    $bundles = $this->entityTypeBundleInfo->getBundleInfo('paragraph');
     if (!empty($this->configuration['handler_settings']['target_bundles'])) {
       if (isset($this->configuration['handler_settings']['negate']) && $this->configuration['handler_settings']['negate'] == '1') {
         $bundles = array_diff_key($bundles, $this->configuration['handler_settings']['target_bundles']);
