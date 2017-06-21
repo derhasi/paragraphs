@@ -71,7 +71,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_text][0][value]' => 'Test text 1',
       'field_paragraphs[1][subform][field_text][0][value]' => 'Test text 2',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     $node = $this->drupalGetNodeByTitle('TEST TITEL');
     $paragraph1 = $node->field_paragraphs[0]->target_id;
@@ -85,7 +85,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_text][0][value]' => 'Foo Bar 1',
       'revision' => FALSE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostFormSave('node/' . $node->id() . '/edit', $edit, t('Save and keep published'), t('Save'));
 
     $this->countRevisions($node, $paragraph1, $paragraph2, 1);
 
@@ -96,7 +96,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_text][0][value]' => 'Foo Bar 2',
       'revision' => TRUE,
     ];
-    $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
+    $this->drupalPostFormSave('node/' . $node->id() . '/edit', $edit, t('Save and keep published'), t('Save'));
 
     $this->countRevisions($node, $paragraph1, $paragraph2, 2);
 
@@ -241,7 +241,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[1][subform][field_text][0][value]' => 'Test text 2',
       'files[field_paragraphs_1_subform_field_image_0]' => drupal_realpath('temporary://myImage2.jpg'),
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     $node = $this->drupalGetNodeByTitle('Test article');
     $img1_url = file_create_url(\Drupal::token()->replace('public://[date:custom:Y]-[date:custom:m]/myImage1.jpg'));
@@ -325,7 +325,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_image][0][width]' => 300,
       'field_paragraphs[0][subform][field_image][0][height]' => 300,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     // Assert the paragraph is deleted after the user saves the node.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertNoRaw('<a href="' . $img2_url . '" type="image/jpeg; length=21">myImage2.jpg</a>');
@@ -350,13 +350,13 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'title[0][value]' => 'Example publish/unpublish',
       'field_paragraphs[0][subform][field_text][0][value]' => 'Example published and unpublished',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->assertText(t('Example published and unpublished'));
     $this->clickLink(t('Edit'));
     $edit = [
       'field_paragraphs[0][subform][status][value]' => FALSE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertNoText(t('Example published and unpublished'));
 
     // Set the fields as required.
@@ -382,13 +382,13 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'title[0][value]' => 'test required',
       'files[field_paragraphs_0_subform_field_paragraphs_0_subform_field_image_only_0]' => drupal_realpath('temporary://myImage2.jpg'),
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $edit = [
       'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][width]' => 100,
       'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][height]' => 100,
       'field_paragraphs[0][subform][field_paragraphs][0][subform][field_image_only][0][alt]' => 'Alternative_text',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->assertText('test required has been created.');
     $this->assertNoRaw('This value should not be null.');
 
@@ -430,7 +430,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     $edit = array(
       'title[0][value]' => 'Nested twins',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->assertText('Nested twins has been created.');
     $this->assertNoText('This entity (paragraph: ) cannot be referenced.');
 
@@ -463,7 +463,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')',
       'title[0][value]' => 'choke test',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     // Delete the referenced node.
     $node->delete();
     // Edit the node with the reference.
@@ -493,7 +493,8 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     // Restore the Paragraph and fix the broken reference.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_restore');
     $node = $this->drupalGetNodeByTitle('Example publish/unpublish');
-    $this->drupalPostForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')'], t('Save and keep published'));
+    $edit = ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => $node->label() . ' (' . $node->id() . ')'];
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertText('choke test has been updated.');
     $this->assertLink('Example publish/unpublish');
     // Delete the new referenced node.
@@ -508,14 +509,15 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     // Attempt to edit the Paragraph.
     $this->drupalPostAjaxForm('node/' . $node->id() . '/edit', [], 'field_paragraphs_0_edit');
     // Try to save with an invalid reference.
-    $this->drupalPostForm(NULL, ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'], t('Save and keep published'));
+    $edit = ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'];
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertText('There are no entities matching "foo".');
     // Remove the Paragraph and save the node.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
     $elements = $this->xpath('//*[@name="field_paragraphs_0_confirm_remove"]');
     $this->assertTrue(!empty($elements), "'Confirm removal' button appears.");
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_confirm_remove');
-    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
     $this->assertText('choke test has been updated.');
 
     // Verify that the text displayed is correct when no paragraph has been

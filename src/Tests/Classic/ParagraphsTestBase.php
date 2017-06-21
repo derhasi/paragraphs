@@ -16,7 +16,7 @@ use Drupal\simpletest\WebTestBase;
  */
 abstract class ParagraphsTestBase extends WebTestBase {
 
-  use FieldUiTestTrait;
+  use FieldUiTestTrait, ParagraphsCoreVersionUiTestTrait;
 
   /**
    * Drupal user object created by loginAsAdmin().

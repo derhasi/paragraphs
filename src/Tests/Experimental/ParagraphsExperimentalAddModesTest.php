@@ -188,7 +188,8 @@ class ParagraphsExperimentalAddModesTest extends ParagraphsExperimentalTestBase 
     // Check if default type is created only for new host
     $this->setDefaultParagraphType('paragraphed_test', 'paragraphs', 'paragraphs_settings_edit', 'text_image');
     $this->removeDefaultParagraphType('paragraphed_test');
-    $this->drupalPostForm(NULL, ['title[0][value]' => 'New Host'], 'Save and publish');
+    $edit = ['title[0][value]' => 'New Host'];
+    $this->drupalPostFormSave(NULL, $edit, 'Save and publish', 'Save', $edit + ['status[value]' => TRUE]);
     $this->drupalGet('node/1/edit');
     $this->assertText('No Paragraph added yet.');
   }

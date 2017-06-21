@@ -58,7 +58,7 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
       'files[field_paragraphs_0_subform_field_image_0]' => drupal_realpath('temporary://myImage1.jpg'),
       'field_paragraphs[1][subform][field_title][0][value]' => 'Title example',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
@@ -79,7 +79,7 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
     // Remove image.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_subform_field_image_0_remove_button');
-    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));

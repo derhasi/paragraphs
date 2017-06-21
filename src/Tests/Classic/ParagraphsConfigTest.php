@@ -52,14 +52,15 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
 
     // Create a node with a paragraph.
     $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'paragraphs_field_paragraph_type_test_add_more');
-    $this->drupalPostForm(NULL, ['title[0][value]' => 'paragraphed_title'], t('Save and publish'));
+    $edit = ['title[0][value]' => 'paragraphed_title'];
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Attempt to add a translation.
     $node = $this->drupalGetNodeByTitle('paragraphed_title');
     $this->drupalGet('node/' . $node->id() . '/translations');
     $this->clickLink(t('Add'));
     // Save the translation.
-    $this->drupalPostForm(NULL, [], t('Save and keep published (this translation)'));
+    $this->drupalPostFormSave(NULL, [], t('Save and keep published (this translation)'), t('Save (this translation)'));
     $this->assertText('paragraphed_test paragraphed_title has been updated.');
   }
 
@@ -156,10 +157,10 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $edit = [
       'title[0][value]' => 'test_title',
     ];
-    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->assertText('paragraphs field is required.');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraph_type_test_add_more');
-    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->assertText('paragraphed_test test_title has been created.');
   }
 

@@ -57,13 +57,13 @@ class ParagraphsSummaryFormatterTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_text][0][value]' => 'text_summary',
       'field_paragraphs[1][subform][field_title][0][value]' => 'Title example',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->clickLink(t('Edit'));
     $this->drupalPostForm(NULL, [], t('Add user_paragraph'));
     $edit = [
       'field_paragraphs[2][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
 
     // Assert the summary is correctly generated.
     $this->assertText($this->admin_user->label());

@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs_type_permissions\Tests;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\paragraphs\Tests\Classic\ParagraphsCoreVersionUiTestTrait;
 use Drupal\simpletest\WebTestBase;
 use Drupal\user\Entity\Role;
 
@@ -13,7 +14,7 @@ use Drupal\user\Entity\Role;
  */
 class ParagraphsTypePermissionsTest extends WebTestBase {
 
-  use FieldUiTestTrait;
+  use FieldUiTestTrait, ParagraphsCoreVersionUiTestTrait;
 
   /**
    * Modules to enable.
@@ -91,7 +92,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Paragraph type Image + Text',
       'field_paragraphs_demo[2][subform][field_text_demo][0][value]' => 'Paragraph type Text',
     ];
-    $this->drupalPostForm(NULL, $edit, 'Save and publish');
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Get the node to edit it later.
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
@@ -138,7 +139,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
     $edit = [
       'field_paragraphs_demo[0][subform][status][value]' => FALSE,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
 
     // Check that 'Image + Text' paragraph is not shown anymore for admin user.
     $this->assertNoRaw($image_text_tag);

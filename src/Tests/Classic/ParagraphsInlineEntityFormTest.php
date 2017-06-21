@@ -59,7 +59,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
       'title[0][value]' => 'Dummy1',
       'field_paragraphs[0][subform][field_article][0][inline_entity_form][title][0][value]' => 'Dummy2',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Go back into edit page.
     $node = $this->getNodeByTitle('Dummy1');
@@ -121,7 +121,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
       'field_paragraphs[0][subform][field_article][0][inline_entity_form][title][0][value]' => 'Basic page 1',
     ];
 
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Go back into edit page.
     $node = $this->getNodeByTitle('Article 1');
@@ -136,7 +136,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
       'field_paragraphs[0][_weight]' => -1,
       'field_paragraphs[1][_weight]' => -2,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
   }
 
 }

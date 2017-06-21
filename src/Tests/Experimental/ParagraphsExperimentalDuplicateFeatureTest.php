@@ -39,7 +39,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
       'title[0][value]' => 'paragraphs_mode_test',
       'field_paragraphs[0][subform][field_text][0][value]' => $text,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     // Change edit mode to "closed".
@@ -53,7 +53,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', $text);
 
     // Save and check if both paragraphs are present.
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertNoUniqueText($text);
   }
 
@@ -85,7 +85,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $edit = [
       'title[0][value]' => 'paragraphs_mode_test',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     // Add a text field to nested paragraph.
@@ -94,7 +94,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $edit = [
       'field_paragraphs[0][subform][field_nested][0][subform][field_text][0][value]' => $text,
     ];
-    $this->drupalPostForm(NULL, $edit, 'Save and keep published');
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
 
     // Switch mode to closed.
     $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
@@ -114,7 +114,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
 
     // Save and check if the changed text paragraph value of the duplicated
     // paragraph is not the same as in the original paragraph.
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertUniqueText($text);
     $this->assertUniqueText($second_paragraph_text);
   }

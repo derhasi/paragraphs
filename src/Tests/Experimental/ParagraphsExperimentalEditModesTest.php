@@ -63,13 +63,13 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
       'files[field_paragraphs_0_subform_field_image_0]' => drupal_realpath('temporary://myImage1.jpg'),
       'field_paragraphs[1][subform][field_title][0][value]' => 'Title example',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $this->clickLink(t('Edit'));
     $this->drupalPostForm(NULL, [], t('Add user_paragraph'));
     $edit = [
       'field_paragraphs[2][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
@@ -91,7 +91,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     // Remove image.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_subform_field_image_0_remove_button');
-    $this->drupalPostForm(NULL, [], t('Save and keep published'));
+    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
@@ -107,10 +107,11 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     $this->drupalGet('node/add/paragraphed_test');
     $this->drupalPostForm(NULL, NULL, t('Add nested_paragraph'));
     $this->drupalPostAjaxForm(NULL, NULL, t('field_paragraphs_0_subform_field_nested_content_user_paragraph_add_more'));
-    $this->drupalPostForm(NULL, [
+    $edit = [
       'title[0][value]' => 'Node title',
       'field_paragraphs[0][subform][field_nested_content][0][subform][field_user][0][target_id]' => $test_user->label() . ' (' . $test_user->id() . ')',
-    ], t('Save and publish'));
+    ];
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
     // Create an orphaned ER field item by deleting the target entity.
     $test_user->delete();

@@ -65,6 +65,6 @@ class ParagraphsFieldGroupTest extends ParagraphsTestBase {
       'title[0][value]' => 'paragraphed_title',
       'field_paragraphs[0][subform][field_text][0][value]' => 'paragraph_value',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
   }
 }
