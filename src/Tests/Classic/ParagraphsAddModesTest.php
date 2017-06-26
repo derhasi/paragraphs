@@ -19,7 +19,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
    */
   public function testNoDefaultValue() {
     $this->loginAsAdmin();
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'entity_reference_paragraphs');
 
     // Edit the field.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields');
@@ -37,7 +37,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
    */
   public function testEmptyAllowedTypes() {
     $this->loginAsAdmin();
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
 
     // Edit the field and save when there are no paragraphs types available.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields');
@@ -55,7 +55,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
     $this->addParagraphsType('btext');
     $this->addParagraphsType('dtext');
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     // Enter to the field config since the weight is set through the form.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.paragraphs');
     $this->drupalPostForm(NULL, [], 'Save settings');
@@ -89,7 +89,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
     $this->addParagraphsType('btext');
     $this->addParagraphsType('dtext');
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     // Enter to the field config since the weight is set through the form.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.paragraphs');
     $this->drupalPostForm(NULL, [], 'Save settings');
@@ -153,7 +153,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
    * Tests if setting for default paragraph type is working properly.
    */
   public function testSettingDefaultParagraphType() {
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin([
       'administer content types',
       'administer node form display',
@@ -199,7 +199,7 @@ class ParagraphsAddModesTest extends ParagraphsTestBase {
    * Tests the default paragraph type behavior for a field with a single type.
    */
   public function testDefaultParagraphTypeWithSingleType() {
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin([
       'administer content types',
       'administer node form display',

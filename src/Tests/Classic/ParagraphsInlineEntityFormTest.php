@@ -23,7 +23,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
    */
   public function testParagraphsIEFPreview() {
     // Create article content type with a paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs');
+    $this->addParagraphedContentType('article', 'field_paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin(['create article content', 'edit any article content']);
 
     // Create the paragraphs type simple.
@@ -75,7 +75,7 @@ class ParagraphsInlineEntityFormTest extends ParagraphsTestBase {
   public function testParagraphsIEFChangeOrder() {
 
     // Create article content type with a paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs');
+    $this->addParagraphedContentType('article', 'field_paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin(['create article content', 'edit any article content']);
 
     // Create the paragraphs type simple.

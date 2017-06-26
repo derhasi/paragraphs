@@ -26,7 +26,7 @@ class ParagraphsSummaryFormatterTest extends ParagraphsTestBase {
    * Tests the paragraphs summary formatter.
    */
   public function testParagraphsSummaryFormatter() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content', 'administer node display']);
 
     // Add a Paragraph type.

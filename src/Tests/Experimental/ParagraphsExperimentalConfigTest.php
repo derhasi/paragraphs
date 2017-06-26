@@ -33,8 +33,8 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     ]);
 
     // Add a paragraphed content type.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
 
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -80,7 +80,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'paragraphs');
     // Check error message is not displayed.
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
@@ -165,7 +165,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   public function testIncludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -212,7 +212,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   public function testExcludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 

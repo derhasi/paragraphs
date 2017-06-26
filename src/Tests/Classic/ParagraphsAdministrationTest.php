@@ -37,7 +37,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
    * Tests the revision of paragraphs.
    */
   public function testParagraphsRevisions() {
-    $this->addParagraphedContentType('article', 'paragraphs');
+    $this->addParagraphedContentType('article', 'paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin([
       'create paragraphs content',
       'administer node display',
@@ -128,7 +128,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
    */
   public function testParagraphsCreation() {
     // Create an article with paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs');
+    $this->addParagraphedContentType('article', 'field_paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin([
       'administer site configuration',
       'create article content',

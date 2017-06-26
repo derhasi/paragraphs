@@ -36,7 +36,7 @@ class ParagraphsExperimentalContactTest extends ParagraphsExperimentalTestBase {
     $contact_form = ContactForm::create(['id' => 'test_contact_form']);
     $contact_form->save();
     // Add a paragraphs field to the contact form.
-    $this->addParagraphsField($contact_form->id(), 'paragraphs', 'contact_message');
+    $this->addParagraphsField($contact_form->id(), 'paragraphs', 'contact_message', 'paragraphs');
     // Add a paragraph to the contact form.
     $this->drupalGet('contact/test_contact_form');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraphs_contact_add_more');

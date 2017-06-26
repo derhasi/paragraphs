@@ -27,7 +27,7 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->loginAsAdmin();
 
     // Add a Paragraphed test content.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 

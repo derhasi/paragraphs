@@ -33,7 +33,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     ]);
 
     // Add a paragraphed content type.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'entity_reference_paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -79,7 +79,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'entity_reference_paragraphs');
 
     // Check error message is not displayed.
     $this->drupalGet('admin/config/regional/content-language');
@@ -139,7 +139,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
     $this->loginAsAdmin();
 
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -197,7 +197,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
   public function testIncludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -220,7 +220,7 @@ class ParagraphsConfigTest extends ParagraphsTestBase {
   public function testExcludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'entity_reference_paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 

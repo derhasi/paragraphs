@@ -27,7 +27,7 @@ class ParagraphsPreviewTest extends ParagraphsTestBase {
    */
   public function testParagraphsPreview() {
     // Create paragraph type Headline + Block.
-    $this->addParagraphedContentType('article', 'field_paragraphs');
+    $this->addParagraphedContentType('article', 'field_paragraphs', 'entity_reference_paragraphs');
     $this->loginAsAdmin([
       'administer node display',
       'create article content',
