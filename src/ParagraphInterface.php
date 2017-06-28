@@ -24,9 +24,17 @@ interface ParagraphInterface extends ContentEntityInterface, EntityOwnerInterfac
   /**
    * Returns short summary for paragraph.
    *
+   * @param array $options
+   *   (optional) Array of additional options, with the following elements:
+   *   - 'show_behavior_summary': Whether the summary should contain the
+   *     behavior settings. Defaults to TRUE to show behavior settings in the
+   *     summary.
+   *   - 'depth_limit': Depth limit of how many nested paragraph summaries are
+   *     allowed. Defaults to 1 to show nested paragraphs only on top level.
+   *
    * @return string
    *   The text without tags.
    */
-  public function getSummary();
+  public function getSummary(array $options = []);
 
 }

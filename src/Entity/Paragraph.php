@@ -87,6 +87,13 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   protected $unserializedBehaviorSettings;
 
   /**
+   * Number of summaries.
+   *
+   * @var int
+   */
+  protected $summaryCount;
+
+  /**
    * {@inheritdoc}
    */
   public function getParentEntity() {
@@ -434,8 +441,12 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   /**
    * {@inheritdoc}
    */
-  public function getSummary() {
+  public function getSummary(array $options = []) {
+    $show_behavior_summary = isset($options['show_behavior_summary']) ? $options['show_behavior_summary'] : TRUE;
+    $depth_limit = isset($options['depth_limit']) ? $options['depth_limit'] : 1;
+    $this->summaryCount = 0;
     $summary = [];
+
     foreach ($this->getFieldDefinitions() as $field_name => $field_definition) {
       if ($field_definition->getType() == 'image' || $field_definition->getType() == 'file') {
         $file_summary = $this->getFileSummary($field_name);
@@ -450,7 +461,11 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
       }
 
       if ($field_definition->getType() == 'entity_reference_revisions') {
-        $nested_summary = $this->getNestedSummary($field_name);
+        // Decrease the depth, since we are entering a nested paragraph.
+        $nested_summary = $this->getNestedSummary($field_name, [
+          'show_behavior_summary' => $show_behavior_summary,
+          'depth_limit' => $depth_limit - 1
+        ]);
         if ($nested_summary != '') {
           $summary[] = $nested_summary;
         }
@@ -466,11 +481,17 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
 
     }
 
-    $paragraphs_type = $this->getParagraphType();
-    foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
-      if ($plugin_summary = $plugin->settingsSummary($this)) {
-        $summary = array_merge($summary, $plugin_summary);
+    if ($show_behavior_summary) {
+      $paragraphs_type = $this->getParagraphType();
+      foreach ($paragraphs_type->getEnabledBehaviorPlugins() as $plugin_id => $plugin) {
+        if ($plugin_summary = $plugin->settingsSummary($this)) {
+          $summary = array_merge($summary, $plugin_summary);
+        }
       }
+    }
+
+    if ($this->summaryCount) {
+      array_unshift($summary, (string) \Drupal::translation()->formatPlural($this->summaryCount, '1 child', '@count children'));
     }
 
     $collapsed_summary_text = implode(', ', $summary);
@@ -521,20 +542,35 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
    *
    * @param string $field_name
    *   Field definition id for paragraph.
+   * @param array $options
+   *   (optional) An associative array of additional options.
+   *   See \Drupal\paragraphs\ParagraphInterface::getSummary() for all of the
+   *   available options.
    *
    * @return string
-   *   Short summary for nested paragraphs type.
+   *   Short summary for nested paragraphs type
+   *   or NULL if the summary is empty.
    */
-  protected function getNestedSummary($field_name) {
-    $summary = '';
-    if ($this->get($field_name)->entity) {
-      $paragraph_entity = $this->get($field_name)->entity;
-      if ($paragraph_entity instanceof ParagraphInterface) {
-        $summary = $paragraph_entity->getSummary();
+  protected function getNestedSummary($field_name, array $options) {
+    $summary = [];
+    if ($options['depth_limit'] >= 0) {
+      foreach ($this->get($field_name) as $item) {
+        $entity = $item->entity;
+        if ($entity instanceof ParagraphInterface) {
+          $summary[] = $entity->getSummary($options);
+          $this->summaryCount++;
+        }
       }
     }
 
-    return trim($summary);
+    $summary = array_filter($summary);
+
+    if (empty($summary)) {
+      return NULL;
+    }
+
+    $paragraph_summary = implode(', ', $summary);
+    return $paragraph_summary;
   }
 
   /**

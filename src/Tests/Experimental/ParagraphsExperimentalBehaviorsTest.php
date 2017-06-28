@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\paragraphs\Entity\Paragraph;
 
 /**
  * Tests paragraphs behavior plugins.
@@ -243,7 +244,19 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     // Assert that the summary includes the text of the behavior plugins.
     $this->clickLink('Edit');
     $this->assertRaw('class="paragraphs-collapsed-description">first_paragraph, Text color: blue, Bold: Yes');
-    $this->assertRaw('class="paragraphs-collapsed-description">nested_paragraph, Text color: blue, Bold: No, Bold: Yes');
+    $this->assertRaw('class="paragraphs-collapsed-description">1 child, nested_paragraph, Text color: blue, Bold: No, Bold: Yes');
+
+    // Add an empty nested paragraph.
+    $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_nested_paragraph_add_more');
+    $edit = [
+      'title[0][value]' => 'collapsed_test',
+    ];
+    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+
+    // Check an empty nested paragraph summary.
+    $this->clickLink('Edit');
+    $this->assertRaw('class="paragraphs-collapsed-description">');
+
   }
 
   /**
