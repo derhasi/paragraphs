@@ -163,18 +163,4 @@ class ParagraphsCollapsedSummaryTest extends KernelTestBase {
     ]);
     $field->save();
   }
-
-  /**
-   * Adds a Paragraphs type.
-   *
-   * @param string $paragraphs_type_name
-   *   Paragraph type name used to create.
-   */
-  protected function addParagraphsType($paragraphs_type_name) {
-    $paragraphs_type = ParagraphsType::create([
-      'id' => $paragraphs_type_name,
-      'label' => $paragraphs_type_name,
-    ]);
-    $paragraphs_type->save();
-  }
 }

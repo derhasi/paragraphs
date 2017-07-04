@@ -22,7 +22,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
    * Tests duplicate paragraph feature.
    */
   public function testDuplicateButton() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
 
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
     // Add a Paragraph type.
@@ -61,7 +61,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
    * Tests duplicate paragraph feature with nested paragraphs.
    */
   public function testDuplicateButtonWithNesting() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
 
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
     // Add nested Paragraph type.

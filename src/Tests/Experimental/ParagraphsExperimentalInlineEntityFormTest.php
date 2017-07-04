@@ -23,7 +23,7 @@ class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalT
    */
   public function testParagraphsIEFPreview() {
     // Create article content type with a paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('article');
     $this->loginAsAdmin(['create article content', 'edit any article content']);
 
     // Create the paragraphs type simple.
@@ -74,7 +74,7 @@ class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalT
    */
   public function testParagraphsIEFChangeOrder() {
     // Create article content type with a paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('article');
     $this->loginAsAdmin(['create article content', 'edit any article content']);
 
     // Create the paragraphs type simple.

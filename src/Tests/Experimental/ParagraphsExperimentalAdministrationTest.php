@@ -38,7 +38,7 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
    * Tests the revision of paragraphs.
    */
   public function testParagraphsRevisions() {
-    $this->addParagraphedContentType('article', 'paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('article', 'paragraphs');
     $this->loginAsAdmin([
       'create paragraphs content',
       'administer node display',
@@ -129,7 +129,7 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
    */
   public function testParagraphsCreation() {
     // Create an article with paragraphs field.
-    $this->addParagraphedContentType('article', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('article');
     $this->loginAsAdmin([
       'administer site configuration',
       'create article content',

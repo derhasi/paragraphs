@@ -26,7 +26,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
    * Tests the collapsed summary of paragraphs.
    */
   public function testCollapsedSummary() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
 
     // Add a Paragraph type.

@@ -15,7 +15,7 @@ class ParagraphsExperimentalTypesTest extends ParagraphsExperimentalTestBase {
   public function testRemoveTypesWithContent() {
     $this->loginAsAdmin();
     // Add a Paragraphed test content.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
 
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');

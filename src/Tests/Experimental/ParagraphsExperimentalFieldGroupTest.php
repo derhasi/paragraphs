@@ -29,7 +29,7 @@ class ParagraphsExperimentalFieldGroupTest extends ParagraphsExperimentalTestBas
     $content_type = 'paragraphed_test';
 
     // Add a Paragraphed test content type.
-    $this->addParagraphedContentType($content_type, 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType($content_type);
 
     $this->addParagraphsType($paragraph_type);
     $this->addParagraphsType('text');

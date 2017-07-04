@@ -34,7 +34,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
 
     // Add a paragraphed content type.
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -47,12 +47,12 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $edit = [
       'entity_types[node]' => TRUE,
       'settings[node][paragraphed_test][translatable]' => TRUE,
-      'settings[node][paragraphed_test][fields][paragraphs_field]' => FALSE,
+      'settings[node][paragraphed_test][fields][field_paragraphs]' => FALSE,
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
 
     // Create a node with a paragraph.
-    $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'paragraphs_field_paragraph_type_test_add_more');
+    $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_paragraph_type_test_add_more');
     $edit = ['title[0][value]' => 'paragraphed_title'];
     $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
 
@@ -80,7 +80,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
 
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs_field', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     // Check error message is not displayed.
     $this->drupalGet('admin/config/regional/content-language');
     $this->assertText('(* unsupported) Paragraphs fields do not support translation.');
@@ -93,7 +93,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $edit = [
       'entity_types[node]' => TRUE,
       'settings[node][paragraphed_test][translatable]' => TRUE,
-      'settings[node][paragraphed_test][fields][paragraphs_field]' => FALSE,
+      'settings[node][paragraphed_test][fields][field_paragraphs]' => FALSE,
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
 
@@ -103,19 +103,19 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $this->assertNoRaw('<div class="messages messages--error');
 
     // Check content type field management warning.
-    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.paragraphs_field');
+    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.field_paragraphs');
     $this->assertText('Paragraphs fields do not support translation.');
 
     // Make the paragraphs field translatable.
     $edit = [
       'entity_types[node]' => TRUE,
       'settings[node][paragraphed_test][translatable]' => TRUE,
-      'settings[node][paragraphed_test][fields][paragraphs_field]' => TRUE,
+      'settings[node][paragraphed_test][fields][field_paragraphs]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
 
     // Check content type field management error.
-    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.paragraphs_field');
+    $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/node.paragraphed_test.field_paragraphs');
     $this->assertText('Paragraphs fields do not support translation.');
     $this->assertRaw('<div class="messages messages--error');
 
@@ -123,8 +123,8 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields/add-field');
     $edit = [
       'new_storage_type' => 'field_ui:entity_reference:node',
-      'label' => 'new_no_paragraphs_field',
-      'field_name' => 'new_no_paragraphs_field',
+      'label' => 'new_no_field_paragraphs',
+      'field_name' => 'new_no_field_paragraphs',
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and continue'));
     $this->drupalPostForm(NULL, [], t('Save field settings'));
@@ -165,7 +165,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   public function testIncludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 
@@ -212,7 +212,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   public function testExcludedParagraphTypes() {
     $this->loginAsAdmin();
     // Add a Paragraph content type and 2 Paragraphs types.
-    $this->addParagraphedContentType('paragraphed_test', 'paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test', 'paragraphs');
     $this->addParagraphsType('paragraph_type_test');
     $this->addParagraphsType('text');
 

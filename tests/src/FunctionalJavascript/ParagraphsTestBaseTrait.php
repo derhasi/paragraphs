@@ -20,13 +20,13 @@ trait ParagraphsTestBaseTrait {
    * @param string $content_type_name
    *   Content type name to be used.
    * @param string $paragraphs_field_name
-   *   Paragraphs field name to be used.
+   *   (optional) Field name to be used. Defaults to 'field_paragraphs'.
    * @param string $widget_type
-   *   Declares if we use experimental or classic widget. Options are:
-   *   'paragraphs' for experimental widget and 'entity_reference_paragraphs'
-   *   for classic widget.
+   *   (optional) Declares if we use experimental or classic widget.
+   *   Defaults to 'paragraphs' for experimental widget.
+   *   Use 'entity_reference_paragraphs' for classic widget.
    */
-  protected function addParagraphedContentType($content_type_name, $paragraphs_field_name, $widget_type) {
+  protected function addParagraphedContentType($content_type_name, $paragraphs_field_name = 'field_paragraphs', $widget_type = 'paragraphs') {
     // Create the content type.
     $node_type = NodeType::create([
       'type' => $content_type_name,
@@ -47,11 +47,11 @@ trait ParagraphsTestBaseTrait {
    * @param string $entity_type
    *   Entity type where to add the field.
    * @param string $widget_type
-   *   Declares if we use experimental or classic widget. Options are:
-   *   'paragraphs' for experimental widget and 'entity_reference_paragraphs'
-   *   for classic widget.
+   *   (optional) Declares if we use experimental or classic widget.
+   *   Defaults to 'paragraphs' for experimental widget.
+   *   Use 'entity_reference_paragraphs' for classic widget.
    */
-  protected function addParagraphsField($entity_type_name, $paragraphs_field_name, $entity_type, $widget_type) {
+  protected function addParagraphsField($entity_type_name, $paragraphs_field_name, $entity_type, $widget_type = 'paragraphs') {
     $field_storage = FieldStorageConfig::loadByName($entity_type, $paragraphs_field_name);
     if (!$field_storage) {
       // Add a paragraphs field.

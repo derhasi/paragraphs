@@ -26,7 +26,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
    * Tests the widget buttons of paragraphs.
    */
   public function testWidgetButtons() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
 
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
     // Add a Paragraph type.
@@ -107,7 +107,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
    * Tests if buttons are present for each widget mode.
    */
   public function testButtonsVisibility() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
 
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
     // Add a Paragraph type.

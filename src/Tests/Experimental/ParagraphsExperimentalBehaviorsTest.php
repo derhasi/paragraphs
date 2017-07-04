@@ -25,7 +25,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
    * Tests the behavior plugins for paragraphs.
    */
   public function testBehaviorPluginsFields() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     $this->loginAsAdmin(['create paragraphed_test content', 'edit any paragraphed_test content']);
 
     // Add a Paragraph type.
@@ -196,7 +196,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
    * Tests the behavior plugins summary for paragraphs closed mode.
    */
   public function testCollapsedSummary() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     $this->loginAsAdmin([
       'create paragraphed_test content',
       'edit any paragraphed_test content',
@@ -218,7 +218,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     // Add a nested Paragraph type.
     $paragraph_type = 'nested_paragraph';
     $this->addParagraphsType($paragraph_type);
-    $this->addParagraphsField('nested_paragraph', 'paragraphs', 'paragraph', 'paragraphs');
+    $this->addParagraphsField('nested_paragraph', 'paragraphs', 'paragraph');
     // Enable plugins for the nested paragraph type.
     $edit = [
       'behavior_plugins[test_bold_text][enabled]' => TRUE,
@@ -263,7 +263,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
    * Tests the behavior plugins subform state submit.
    */
   public function testBehaviorSubform() {
-    $this->addParagraphedContentType('paragraphed_test', 'field_paragraphs', 'paragraphs');
+    $this->addParagraphedContentType('paragraphed_test');
     $this->loginAsAdmin([
       'create paragraphed_test content',
       'edit any paragraphed_test content',
