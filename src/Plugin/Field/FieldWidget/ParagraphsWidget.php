@@ -475,7 +475,7 @@ class ParagraphsWidget extends WidgetBase {
             ]),
           ];
 
-          if ($show_must_be_saved_warning) {
+          if ($show_must_be_saved_warning && $paragraphs_entity->isChanged()) {
             $info['must_be_saved_info'] = $this->createMessage($this->t('You have unsaved changes on this @title item.', array('@title' => $this->getSetting('title'))));
           }
 

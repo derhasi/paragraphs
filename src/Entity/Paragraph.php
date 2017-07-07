@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\ChangedFieldItemList;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -496,6 +497,73 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
 
     $collapsed_summary_text = implode(', ', $summary);
     return strip_tags($collapsed_summary_text);
+  }
+
+  /**
+   * Returns an array of field names to skip in ::isChanged.
+   *
+   * @return array
+   *   An array of field names.
+   */
+  protected function getFieldsToSkipFromChangedCheck() {
+    // A list of revision fields which should be skipped from the comparision.
+    $fields = [
+      $this->getEntityType()->getKey('revision'),
+      'revision_uid',
+      'revision_log',
+      'revision_log_message',
+    ];
+
+    return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isChanged() {
+    if ($this->isNew()) {
+      return TRUE;
+    }
+
+    // $this->original only exists during save. If it exists we re-use it here
+    // for performance reasons.
+    /** @var \Drupal\paragraphs\ParagraphInterface $original */
+    $original = $this->original ?: NULL;
+    if (!$original) {
+      $original = $this->entityTypeManager()->getStorage($this->getEntityTypeId())->loadRevision($this->getLoadedRevisionId());
+    }
+
+    // If the current revision has just been added, we have a change.
+    if ($original->isNewRevision()) {
+      return TRUE;
+    }
+
+    // The list of fields to skip from the comparision.
+    $skip_fields = $this->getFieldsToSkipFromChangedCheck();
+
+    // Compare field item current values with the original ones to determine
+    // whether we have changes. We skip also computed fields as comparing them
+    // with their original values might not be possible or be meaningless.
+    foreach ($this->getFieldDefinitions() as $field_name => $definition) {
+      if (in_array($field_name, $skip_fields, TRUE)) {
+        continue;
+      }
+      $field = $this->get($field_name);
+      // When saving entities in the user interface, the changed timestamp is
+      // automatically incremented by ContentEntityForm::submitForm() even if
+      // nothing was actually changed. Thus, the changed time needs to be
+      // ignored when determining whether there are any actual changes in the
+      // entity.
+      if (!($field instanceof ChangedFieldItemList) && !$definition->isComputed()) {
+        $items = $field->filterEmptyItems();
+        $original_items = $original->get($field_name)->filterEmptyItems();
+        if (!$items->equals($original_items)) {
+          return TRUE;
+        }
+      }
+    }
+
+    return FALSE;
   }
 
   /**

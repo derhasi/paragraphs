@@ -37,4 +37,16 @@ interface ParagraphInterface extends ContentEntityInterface, EntityOwnerInterfac
    */
   public function getSummary(array $options = []);
 
+  /**
+   * Returns a flag whether a current revision has been changed.
+   *
+   * The current instance is being compared with the latest saved revision.
+   *
+   * @return bool
+   *   TRUE in case the current revision changed. Otherwise, FALSE.
+   *
+   * @see \Drupal\Core\Entity\ContentEntityBase::hasTranslationChanges()
+   */
+  public function isChanged();
+
 }
