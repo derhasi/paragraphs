@@ -310,10 +310,14 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $this->clickLink('Edit');
     $edit = [
       'field_paragraphs[0][_weight]' => 1,
+      'field_paragraphs[1][behavior_plugins][test_bold_text][bold_text]' => FALSE,
+      'field_paragraphs[1][behavior_plugins][test_text_color][text_color]' => 'red',
       'field_paragraphs[1][_weight]' => 0,
     ];
     $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
     $this->assertNoErrorsLogged();
+    $this->clickLink('Edit');
+    $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', 'red');
 
   }
 }

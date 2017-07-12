@@ -1375,8 +1375,9 @@ class ParagraphsWidget extends WidgetBase {
             if (!isset($item['behavior_plugins'][$plugin_id])) {
               $item['behavior_plugins'][$plugin_id] = [];
             }
-            if (isset($element[$delta]) && isset($element[$delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm() && \Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
-              $subform_state = SubformState::createForSubform($element[$delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
+            $original_delta = $item['_original_delta'];
+            if (isset($element[$original_delta]) && isset($element[$original_delta]['behavior_plugins'][$plugin_id]) && $form_state->getCompleteForm() && \Drupal::currentUser()->hasPermission('edit behavior plugin settings')) {
+              $subform_state = SubformState::createForSubform($element[$original_delta]['behavior_plugins'][$plugin_id], $form_state->getCompleteForm(), $form_state);
               if (isset($item['behavior_plugins'][$plugin_id])) {
                 $plugin_values->submitBehaviorForm($paragraphs_entity, $item['behavior_plugins'][$plugin_id], $subform_state);
               }
