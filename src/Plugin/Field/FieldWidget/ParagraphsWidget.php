@@ -1185,27 +1185,46 @@ class ParagraphsWidget extends WidgetBase {
 
     // Inserting new element in the array.
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-    $delta = $button['#delta'];
+
+    // Map the button delta to the actual delta.
+    $original_button_delta = $button['#delta'];
+    $current_button_delta = array_search($button['#delta'], $widget_state['original_deltas']);
+
     $widget_state['items_count']++;
     $widget_state['real_item_count']++;
-    $widget_state['original_deltas'] = array_merge($widget_state['original_deltas'], ['1' => 1]) ;
+
+    // Initialize the new original delta map with the new entry.
+    $new_original_deltas = [
+      $current_button_delta + 1 => count($widget_state['original_deltas']),
+    ];
+
+    $user_input = NestedArray::getValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -4));
+    $user_input[count($widget_state['original_deltas'])]['_weight'] = $current_button_delta + 1;
+
+    // Increase all original deltas bigger than the delta of the duplicated
+    // element by one.
+    foreach ($widget_state['original_deltas'] as $current_delta => $original_delta) {
+      $new_delta = $current_delta > $current_button_delta ? $current_delta + 1 : $current_delta;
+      $new_original_deltas[$new_delta] = $original_delta;
+      $user_input[$original_delta]['_weight'] = $new_delta;
+    }
+    $widget_state['original_deltas'] = $new_original_deltas;
 
     // Check if the replicate module is enabled
     if (\Drupal::hasService('replicate.replicator')) {
-      $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($widget_state['paragraphs'][$delta]['entity']);
-      }
+      $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($widget_state['paragraphs'][$original_button_delta]['entity']);
+    }
     else {
-      $duplicate_entity = $widget_state['paragraphs'][$delta]['entity']->createDuplicate();
-     }
+      $duplicate_entity = $widget_state['paragraphs'][$original_button_delta]['entity']->createDuplicate();
+    }
     // Create the duplicated paragraph and insert it below the original.
-    $paragraph[] = [
+    $widget_state['paragraphs'][] = [
       'entity' => $duplicate_entity,
-      'display' => $widget_state['paragraphs'][$delta]['display'],
+      'display' => $widget_state['paragraphs'][$original_button_delta]['display'],
       'mode' => 'edit'
     ];
 
-    array_splice($widget_state['paragraphs'], $delta + 1, 0, $paragraph);
-
+    NestedArray::setValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -4), $user_input);
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     $form_state->setRebuild();
   }

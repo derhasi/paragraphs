@@ -32,29 +32,60 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
     $this->drupalPostAjaxForm('node/add/paragraphed_test', [], 'field_paragraphs_text_paragraph_add_more');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');
 
     // Create a node with a Paragraph.
-    $text = 'recognizable_text';
+    $text_01 = 'recognizable_text_01';
+    $text_02 = 'recognizable_text_02';
     $edit = [
       'title[0][value]' => 'paragraphs_mode_test',
-      'field_paragraphs[0][subform][field_text][0][value]' => $text,
+      'field_paragraphs[0][subform][field_text][0][value]' => 'A',
+      'field_paragraphs[1][subform][field_text][0][value]' => 'B',
+      'field_paragraphs[2][subform][field_text][0][value]' => 'C',
     ];
     $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
-    // Change edit mode to "closed".
-    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
     $this->drupalGet('node/' . $node->id() . '/edit');
 
-    // Click "Duplicate" button.
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_duplicate');
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
-    $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', $text);
-    $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', $text);
+    // Click "Duplicate" button on A and move C to the first position.
+    $edit = ['field_paragraphs[2][_weight]' => -1];
+    $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_duplicate');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', 'A');
+    $this->assertFieldByName('field_paragraphs[0][_weight]', 1);
+    $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', 'B');
+    $this->assertFieldByName('field_paragraphs[1][_weight]', 3);
+    $this->assertFieldByName('field_paragraphs[2][subform][field_text][0][value]', 'C');
+    $this->assertFieldByName('field_paragraphs[2][_weight]', 0);
+    $this->assertFieldByName('field_paragraphs[3][subform][field_text][0][value]', 'A');
+    $this->assertFieldByName('field_paragraphs[3][_weight]', 2);
 
-    // Save and check if both paragraphs are present.
+    // Move C after the A's and save.
+    $edit = [
+      'field_paragraphs[0][_weight]' => -2,
+      'field_paragraphs[1][_weight]' => 2,
+      'field_paragraphs[2][_weight]' => 1,
+      'field_paragraphs[3][_weight]' => -1,
+    ];
+
+    // Save and check if all paragraphs are present in the correct order.
     $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
-    $this->assertNoUniqueText($text);
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', 'A');
+    $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', 'A');
+    $this->assertFieldByName('field_paragraphs[2][subform][field_text][0][value]', 'C');
+    $this->assertFieldByName('field_paragraphs[3][subform][field_text][0][value]', 'B');
+
+    // Delete the second A, then duplicate C.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_1_remove');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_2_duplicate');
+    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', 'A');
+    $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', 'C');
+    $this->assertFieldByName('field_paragraphs[2][subform][field_text][0][value]', 'C');
+    $this->assertFieldByName('field_paragraphs[3][subform][field_text][0][value]', 'B');
   }
 
   /**
