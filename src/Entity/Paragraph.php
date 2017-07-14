@@ -78,12 +78,14 @@ use Drupal\user\UserInterface;
  *   }
  * )
  */
-class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityNeedsSaveInterface {
+class Paragraph extends ContentEntityBase implements ParagraphInterface {
 
   use EntityNeedsSaveTrait;
 
   /**
    * The behavior plugin data for the paragraph entity.
+   *
+   * @var array
    */
   protected $unserializedBehaviorSettings;
 
@@ -152,10 +154,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   }
 
   /**
-   * Gets all the behavior settings.
-   *
-   * @return array
-   *   The array of behavior settings.
+   * {@inheritdoc}
    */
   public function getAllBehaviorSettings() {
     if ($this->unserializedBehaviorSettings === NULL) {
@@ -168,20 +167,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   }
 
   /**
-   * Gets the behavior setting of an specific plugin.
-   *
-   * @param string $plugin_id
-   *   The plugin ID for which to get the settings.
-   * @param string|array $key
-   *   Values are stored as a multi-dimensional associative array. If $key is a
-   *   string, it will return $values[$key]. If $key is an array, each element
-   *   of the array will be used as a nested key. If $key = array('foo', 'bar')
-   *   it will return $values['foo']['bar'].
-   * @param mixed $default
-   *   (optional) The default value if the specified key does not exist.
-   *
-   * @return mixed
-   *   The value for the given key.
+   * {@inheritdoc}
    */
   public function &getBehaviorSetting($plugin_id, $key, $default = NULL) {
     $settings = $this->getAllBehaviorSettings();
@@ -194,10 +180,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   }
 
   /**
-   * Sets all the behavior settings of a plugin.
-   *
-   * @param array $settings
-   *   The behavior settings from the form.
+   * {@inheritdoc}
    */
   public function setAllBehaviorSettings(array $settings) {
     // Set behavior settings fields.
@@ -205,12 +188,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface, EntityN
   }
 
   /**
-   * Sets the behavior settings of a plugin.
-   *
-   * @param string $plugin_id
-   *   The plugin ID for which to set the settings.
-   * @param array $settings
-   *   The behavior settings from the form.
+   * {@inheritdoc}
    */
   public function setBehaviorSettings($plugin_id, array $settings) {
     // Set behavior settings fields.

@@ -4,9 +4,8 @@ namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldFilteredMarkup;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -15,7 +14,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
-use Drupal\paragraphs;
 use Drupal\paragraphs\ParagraphInterface;
 use Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphSelection;
 
@@ -757,7 +755,7 @@ class ParagraphsWidget extends WidgetBase {
     $this->realItemCount = $max;
     $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
 
-    $title = $this->fieldDefinition->getLabel();
+    $field_title = $this->fieldDefinition->getLabel();
     $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
@@ -792,7 +790,7 @@ class ParagraphsWidget extends WidgetBase {
         // For multiple fields, title and description are handled by the wrapping
         // table.
         $element = array(
-          '#title' => $is_multiple ? '' : $title,
+          '#title' => $is_multiple ? '' : $field_title,
           '#description' => $is_multiple ? '' : $description,
         );
         $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
@@ -842,7 +840,7 @@ class ParagraphsWidget extends WidgetBase {
       $elements += array(
         '#theme' => 'field_multiple_value_form',
         '#cardinality_multiple' => $is_multiple,
-        '#title' => $title,
+        '#title' => $field_title,
         '#description' => $description,
       );
     }
@@ -855,7 +853,7 @@ class ParagraphsWidget extends WidgetBase {
         'title' => [
           '#type' => 'html_tag',
           '#tag' => 'strong',
-          '#value' => $title,
+          '#value' => $field_title,
           '#attributes' => ['class' => $classes],
         ],
         'text' => [
@@ -1095,18 +1093,19 @@ class ParagraphsWidget extends WidgetBase {
    */
   protected function buildSelectAddMode() {
     $field_name = $this->fieldDefinition->getName();
-    $title = $this->fieldDefinition->getLabel();
+    $field_title = $this->fieldDefinition->getLabel();
+    $setting_title = $this->getSetting('title');
     $add_more_elements['add_more_select'] = [
       '#type' => 'select',
       '#options' => $this->getAccessibleOptions(),
-      '#title' => $this->t('@title type', ['@title' => $this->getSetting('title')]),
+      '#title' => $this->t('@title type', ['@title' => $setting_title]),
       '#label_display' => 'hidden',
     ];
 
-    $text = $this->t('Add @title', ['@title' => $this->getSetting('title')]);
+    $text = $this->t('Add @title', ['@title' => $setting_title]);
 
     if ($this->realItemCount > 0) {
-      $text = $this->t('Add another @title', ['@title' => $this->getSetting('title')]);
+      $text = $this->t('Add another @title', ['@title' => $setting_title]);
     }
 
     $add_more_elements['add_more_button'] = [
@@ -1123,7 +1122,7 @@ class ParagraphsWidget extends WidgetBase {
       ],
     ];
 
-    $add_more_elements['add_more_button']['#suffix'] = $this->t(' to %type', ['%type' => $title]);
+    $add_more_elements['add_more_button']['#suffix'] = $this->t(' to %type', ['%type' => $field_title]);
     return $add_more_elements;
   }
 
@@ -1209,19 +1208,21 @@ class ParagraphsWidget extends WidgetBase {
       $user_input[$original_delta]['_weight'] = $new_delta;
     }
     $widget_state['original_deltas'] = $new_original_deltas;
+    /** @var \Drupal\Core\Entity\EntityInterface $entity */
+    $entity = $widget_state['paragraphs'][$original_button_delta]['entity'];
 
-    // Check if the replicate module is enabled
+    // Check if the replicate module is enabled.
     if (\Drupal::hasService('replicate.replicator')) {
-      $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($widget_state['paragraphs'][$original_button_delta]['entity']);
+      $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($entity);
     }
     else {
-      $duplicate_entity = $widget_state['paragraphs'][$original_button_delta]['entity']->createDuplicate();
+      $duplicate_entity = $entity->createDuplicate();
     }
     // Create the duplicated paragraph and insert it below the original.
     $widget_state['paragraphs'][] = [
       'entity' => $duplicate_entity,
       'display' => $widget_state['paragraphs'][$original_button_delta]['display'],
-      'mode' => 'edit'
+      'mode' => 'edit',
     ];
 
     NestedArray::setValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -4), $user_input);
@@ -1288,6 +1289,7 @@ class ParagraphsWidget extends WidgetBase {
     $delta = $element['#delta'];
 
     if (isset($widget_state['paragraphs'][$delta]['entity'])) {
+      /** @var \Drupal\paragraphs\ParagraphInterface $paragraphs_entity */
       $entity = $widget_state['paragraphs'][$delta]['entity'];
 
       /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
@@ -1348,10 +1350,11 @@ class ParagraphsWidget extends WidgetBase {
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
         && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
+        /** @var \Drupal\paragraphs\ParagraphInterface $paragraphs_entity */
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
 
         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
-        $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
+        $display = $widget_state['paragraphs'][$item['_original_delta']]['display'];
         if ($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'edit') {
           $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
         }
@@ -1413,9 +1416,9 @@ class ParagraphsWidget extends WidgetBase {
    * Initializes the translation form state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
-   * @param \Drupal\Core\Entity\EntityInterface $host
+   * @param \Drupal\Core\Entity\ContentEntityInterface $host
    */
-  protected function initIsTranslating(FormStateInterface $form_state, EntityInterface $host) {
+  protected function initIsTranslating(FormStateInterface $form_state, ContentEntityInterface $host) {
     if ($this->isTranslating != NULL) {
       return;
     }
@@ -1480,10 +1483,10 @@ class ParagraphsWidget extends WidgetBase {
   /**
    * Returns the default paragraph type.
    *
-   * @return string $default_paragraph_type
+   * @return string
    *   Label name for default paragraph type.
    */
-  protected function getDefaultParagraphTypeLabelName(){
+  protected function getDefaultParagraphTypeLabelName() {
     if ($this->getDefaultParagraphTypeMachineName() !== NULL) {
       $allowed_types = $this->getAllowedTypes();
       return $allowed_types[$this->getDefaultParagraphTypeMachineName()]['label'];
@@ -1551,7 +1554,7 @@ class ParagraphsWidget extends WidgetBase {
     $target_type = $field_definition->getSetting('target_type');
     $paragraph_type = \Drupal::entityTypeManager()->getDefinition($target_type);
     if ($paragraph_type) {
-      return $paragraph_type->isSubclassOf(ParagraphInterface::class);
+      return $paragraph_type->entityClassImplements(ParagraphInterface::class);
     }
 
     return FALSE;
