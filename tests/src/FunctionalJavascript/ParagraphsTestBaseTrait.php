@@ -76,21 +76,12 @@ trait ParagraphsTestBaseTrait {
     ]);
     $field->save();
 
-    $form_display = EntityFormDisplay::create([
-      'targetEntityType' => $entity_type,
-      'bundle' => $entity_type_name,
-      'mode' => 'default',
-      'status' => TRUE,
-    ])
+    $form_display = entity_get_form_display($entity_type, $entity_type_name, 'default')
       ->setComponent($paragraphs_field_name, ['type' => $widget_type]);
     $form_display->save();
 
-    $view_display = EntityViewDisplay::create([
-      'targetEntityType' => $entity_type,
-      'bundle' => $entity_type_name,
-      'mode' => 'default',
-      'status' => TRUE,
-    ])->setComponent($paragraphs_field_name, ['type' => 'entity_reference_revisions_entity_view']);
+    $view_display = entity_get_display($entity_type, $entity_type_name, 'default')
+      ->setComponent($paragraphs_field_name, ['type' => 'entity_reference_revisions_entity_view']);
     $view_display->save();
   }
 

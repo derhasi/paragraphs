@@ -766,11 +766,15 @@ class ParagraphsWidget extends WidgetBase {
     // If the parent entity is paragraph add the nested class if not then add
     // the perspective tabs.
     $field_prefix = strtr($this->fieldIdPrefix, '_', '-');
-    if ($max > 0 && $items->getEntity()->getEntityTypeId() != 'paragraph') {
-      $tabs = '<ul class="paragraphs-tabs tabs primary clearfix"><li id="content" class="tabs__tab"><a href="#' . $field_prefix . '-values">Content</a></li><li id="behavior" class="tabs__tab"><a href="#' . $field_prefix . '-values">Behavior</a></li></ul>';
+    if (count($this->fieldParents) == 0) {
+      if ($items->getEntity()->getEntityTypeId() != 'paragraph') {
+        $tabs = '<ul class="paragraphs-tabs tabs primary clearfix"><li id="content" class="tabs__tab"><a href="#' . $field_prefix . '-values">Content</a></li><li id="behavior" class="tabs__tab"><a href="#' . $field_prefix . '-values">Behavior</a></li></ul>';
+      }
     }
-    else {
-      $form['#attributes']['class'][] = 'paragraphs-nested';
+    if (count($this->fieldParents) > 0) {
+      if ($items->getEntity()->getEntityTypeId() === 'paragraph') {
+        $form['#attributes']['class'][] = 'paragraphs-nested';
+      }
     }
     $elements['#prefix'] = '<div class="is-horizontal paragraphs-tabs-wrapper" id="' . $this->fieldWrapperId . '">' . $tabs;
     $elements['#suffix'] = '</div>';
