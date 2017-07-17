@@ -61,16 +61,16 @@
       $parWidget.removeClass('behavior-active content-active is-active');
       $($parWidget).find($clickedTab.attr('href')).addClass('is-active');
 
-      if($parWidget.find('#content').hasClass('is-active')) {
-          $parWidget.find('.layout-region-node-main').addClass('content-active');
-          $parWidget.find('.paragraphs-content').show();
-          $parWidget.find('.paragraphs-behavior').hide();
+      if ($parWidget.find('#content').hasClass('is-active')) {
+        $parWidget.find('.layout-region-node-main').addClass('content-active');
+        $parWidget.find('.paragraphs-content').show();
+        $parWidget.find('.paragraphs-behavior').hide();
       }
 
-      if($parWidget.find('#behavior').hasClass('is-active')) {
-          $parWidget.find('.layout-region-node-main').addClass('behavior-active');
-          $parWidget.find('.paragraphs-content').hide();
-          $parWidget.find('.paragraphs-behavior').show();
+      if ($parWidget.find('#behavior').hasClass('is-active')) {
+        $parWidget.find('.layout-region-node-main').addClass('behavior-active');
+        $parWidget.find('.paragraphs-content').hide();
+        $parWidget.find('.paragraphs-behavior').show();
       }
   };
 
@@ -81,11 +81,11 @@
   */
   Drupal.behaviors.bodyTabs = {
     attach: function (context) {
-      var $topLevelParWidgets = $('.paragraphs-tabs-wrapper', context).filter(function(){
+      var $topLevelParWidgets = $('.paragraphs-tabs-wrapper', context).filter(function() {
         return $(this).parents('.paragraphs-nested').length === 0;
       });
 
-      //Initialization.
+      // Initialization.
       $topLevelParWidgets.once('paragraphs-bodytabs').each(function() {
         var $parWidget = $(this);
         var $parTabs = $parWidget.find('.paragraphs-tabs');
@@ -93,7 +93,7 @@
         // Create click event.
         $parTabs.find('a').click(function(e) {
           e.preventDefault();
-            switchActiveClass($parTabs, $(this), $parWidget);
+          switchActiveClass($parTabs, $(this), $parWidget);
         });
       });
 
