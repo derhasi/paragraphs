@@ -129,7 +129,8 @@ class ParagraphsWidget extends WidgetBase {
       '#options' => array(
         'select' => $this->t('Select list'),
         'button' => $this->t('Buttons'),
-        'dropdown' => $this->t('Dropdown button')
+        'dropdown' => $this->t('Dropdown button'),
+        'modal' => $this->t('Modal form'),
       ),
       '#default_value' => $this->getSetting('add_mode'),
       '#required' => TRUE,
@@ -194,6 +195,9 @@ class ParagraphsWidget extends WidgetBase {
         break;
       case 'dropdown':
         $add_mode = $this->t('Dropdown button');
+        break;
+      case 'modal':
+        $add_mode = $this->t('Modal form');
         break;
     }
 
@@ -678,6 +682,46 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Builds an add paragraph button for opening of modal form.
+   *
+   * @param array $element
+   *   Render element.
+   */
+  protected function buildModalAddForm(array &$element) {
+    // Attach the theme for the dialog template.
+    $element['#theme'] = 'paragraphs_add_dialog';
+
+    $element['add_modal_form_area'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => [
+          'paragraph-type-add-modal',
+          'first-button',
+        ],
+      ],
+      '#access' => !$this->isTranslating,
+      '#weight' => -2000,
+    ];
+
+    $element['add_modal_form_area']['add_more'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Add @title', ['@title' => $this->getSetting('title')]),
+      '#name' => 'button_add_modal',
+      '#attributes' => [
+        'class' => [
+          'paragraph-type-add-modal-button',
+          'js-show',
+        ],
+      ],
+    ];
+
+    $element['#attached']['library'][] = 'paragraphs/drupal.paragraphs.modal';
+    $element['#attached']['drupalSettings']['paragraphs'] = [
+      'title' => $this->t('Add paragraph'),
+    ];
+  }
+
+  /**
    * Returns the sorted allowed types for a entity reference field.
    *
    * @return array
@@ -830,6 +874,7 @@ class ParagraphsWidget extends WidgetBase {
 
     $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
     $field_state['real_item_count'] = $this->realItemCount;
+    $field_state['add_mode'] = $this->getSetting('add_mode');
     static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
     $elements += [
@@ -922,10 +967,10 @@ class ParagraphsWidget extends WidgetBase {
         $add_more_elements['info'] = $this->createMessage($this->t('You did not add any @title types yet.', ['@title' => $this->getSetting('title')]));
       }
 
-      return $add_more_elements ;
+      return $add_more_elements;
     }
 
-    if ($this->getSetting('add_mode') == 'button' || $this->getSetting('add_mode') == 'dropdown') {
+    if (in_array($this->getSetting('add_mode'), ['button', 'dropdown', 'modal'])) {
       return $this->buildButtonsAddMode();
     }
 
@@ -1059,6 +1104,7 @@ class ParagraphsWidget extends WidgetBase {
    */
   protected function buildButtonsAddMode() {
     $options = $this->getAccessibleOptions();
+    $add_mode = $this->getSetting('add_mode');
 
     // Build the buttons.
     $add_more_elements = [];
@@ -1066,7 +1112,7 @@ class ParagraphsWidget extends WidgetBase {
       $add_more_elements['add_more_button_' . $machine_name] = $this->expandButton([
         '#type' => 'submit',
         '#name' => $this->fieldIdPrefix . '_' . $machine_name . '_add_more',
-        '#value' => $this->t('Add @type', ['@type' => $label]),
+        '#value' => $add_mode == 'modal' ? $label : $this->t('Add @type', ['@type' => $label]),
         '#attributes' => ['class' => ['field-add-more-submit']],
         '#limit_validation_errors' => [array_merge($this->fieldParents, [$this->fieldDefinition->getName(), 'add_more'])],
         '#submit' => [[get_class($this), 'addMoreSubmit']],
@@ -1079,11 +1125,14 @@ class ParagraphsWidget extends WidgetBase {
     }
 
     // Determine if buttons should be rendered as dropbuttons.
-    if (count($options) > 1 && $this->getSetting('add_mode') == 'dropdown') {
+    if (count($options) > 1 && $add_mode == 'dropdown') {
       $add_more_elements = $this->buildDropbutton($add_more_elements);
       $add_more_elements['#suffix'] = $this->t('to %type', ['%type' => $this->fieldDefinition->getLabel()]);
     }
-
+    elseif ($add_mode == 'modal') {
+      $this->buildModalAddForm($add_more_elements);
+      $add_more_elements['add_modal_form_area']['#suffix'] = $this->t('to %type', ['%type' => $this->fieldDefinition->getLabel()]);
+    }
     $add_more_elements['#weight'] = 1;
 
     return $add_more_elements;

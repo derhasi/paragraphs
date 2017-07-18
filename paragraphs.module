@@ -57,6 +57,10 @@ function paragraphs_theme() {
     'paragraphs_dropbutton_wrapper' => array(
       'variables' => array('children' => NULL),
     ),
+    'paragraphs_add_dialog' => [
+      'render element' => 'element',
+      'template' => 'paragraphs-add-dialog',
+    ],
   );
 }
 
@@ -242,4 +246,28 @@ function template_preprocess_paragraph(&$variables) {
     $plugin_value->preprocess($variables);
   }
 
+}
+
+/**
+ * Prepares variables for modal form add widget template.
+ *
+ * Default template: paragraphs-add-dialog.html.twig
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - buttons: An array of buttons to display in the modal form.
+ */
+function template_preprocess_paragraphs_add_dialog(&$variables) {
+  // Define variables for the template.
+  $variables += ['buttons' => []];
+  foreach (Element::children($variables['element']) as $key) {
+    if ($key == 'add_modal_form_area') {
+      // $add variable for the add button.
+      $variables['add'] = $variables['element'][$key];
+    }
+    else {
+      // Buttons for the paragraph types in the modal form.
+      $variables['buttons'][$key] = $variables['element'][$key];
+    }
+  }
 }

@@ -1,0 +1,12 @@
+ul.paragraphs-add-dialog-list {
+  margin: 0;
+  list-style-type: none;
+}
+
+.paragraphs-add-dialog-row {
+  padding: 5px;
+}
+
+.paragraphs-add-dialog-row input {
+  width: 250px;
+}

@@ -102,6 +102,27 @@
     white-space: nowrap;
     overflow: hidden;
   }
+
+  @media screen and (min-width: 600px) {
+    .paragraph-type-add-modal {
+      width: 100%;
+      padding: 10px 0;
+      height: 30px;
+      margin-top: -1.8em;
+      margin-bottom: -0.2em;
+      display: inline;
+    }
+  }
+
+  .paragraph-type-add-modal-button {
+    display: inline-block;
+    margin: 0 auto;
+  }
+
+  .paragraph-type-add-modal-button:hover {
+    color: #ffffff;
+    background: #057ec7 none;
+  }
 }
 
 .paragraph--view-mode--preview {
