@@ -60,6 +60,8 @@
     // Close the dialog after a button was clicked.
     $('.field-add-more-submit', $context)
       .each(function () {
+      // Use mousedown event, because we are using ajax in the modal add mode
+      // which explicitly suppresses the click event.
       $(this).on('mousedown', function () {
         var $this = $(this);
         $this.closest('div.ui-dialog-content').dialog('close');
