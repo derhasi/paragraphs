@@ -271,3 +271,25 @@ function template_preprocess_paragraphs_add_dialog(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_HOOK() for field_multiple_value_form().
+ */
+function paragraphs_preprocess_field_multiple_value_form(&$variables) {
+  if (count($variables['element']['#field_parents']) === 0 && isset($variables['table']['#rows'])) {
+    // Find header_action and move to header.
+    // @see template_preprocess_field_multiple_value_form()
+    foreach ($variables['table']['#rows'] as $i => $row) {
+      if (isset($variables['table']['#rows'][$i]['data'][1]['data']['#attributes']['class'])) {
+        if ($variables['table']['#rows'][$i]['data'][1]['data']['#attributes']['class'][1] === 'paragraphs-header-actions') {
+          $variables['table']['#header'][0]['data'] = [
+            'title' => $variables['table']['#header'][0]['data'],
+            'button' => $variables['table']['#rows'][$i]['data'][1],
+          ];
+          unset($variables['table']['#rows'][$i]);
+          break;
+        }
+      }
+    }
+  }
+}

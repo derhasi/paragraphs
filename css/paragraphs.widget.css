@@ -142,3 +142,8 @@
 .is-horizontal .paragraphs-tabs .tabs__tab {
   border-bottom: 0;
 }
+
+.paragraphs-header-actions {
+  float: right;
+  margin-right: -10px;
+}

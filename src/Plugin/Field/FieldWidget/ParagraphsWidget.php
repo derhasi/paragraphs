@@ -892,6 +892,12 @@ class ParagraphsWidget extends WidgetBase {
         '#title' => $field_title,
         '#description' => $description,
       );
+
+      $header_actions = $this->buildHeaderActions($field_state);
+      if ($header_actions) {
+        $elements['header_actions'] = $header_actions;
+      }
+
     }
     else {
       $classes = $this->fieldDefinition->isRequired() ? ['form-required'] : [];
@@ -1367,7 +1373,7 @@ class ParagraphsWidget extends WidgetBase {
     static::setWidgetState($element['#field_parents'], $field_name, $form_state, $widget_state);
   }
 
-   /**
+  /**
    * Special handling to validate form elements with multiple values.
    *
    * @param array $elements
@@ -1462,6 +1468,21 @@ class ParagraphsWidget extends WidgetBase {
   public function extractFormValues(FieldItemListInterface $items, array $form, FormStateInterface $form_state) {
     // Filter possible empty items.
     $items->filterEmptyItems();
+
+    // Remove buttons from header actions.
+    $field_name = $this->fieldDefinition->getName();
+    $path = array_merge($form['#parents'], array($field_name));
+    $form_state_variables = $form_state->getValues();
+    $key_exists = NULL;
+    $values = NestedArray::getValue($form_state_variables, $path, $key_exists);
+
+    if ($key_exists) {
+      unset($values['header_actions']);
+
+      NestedArray::setValue($form_state_variables, $path, $values);
+      $form_state->setValues($form_state_variables);
+    }
+
     return parent::extractFormValues($items, $form, $form_state);
   }
 
@@ -1611,6 +1632,96 @@ class ParagraphsWidget extends WidgetBase {
     }
 
     return FALSE;
+  }
+
+  /**
+   * Builds header actions.
+   *
+   * @param array[] $field_state
+   *   Field widget state.
+   *
+   * @return array[]
+   *   The form element array.
+   */
+  public function buildHeaderActions(array $field_state) {
+    $elements = [];
+    if ($this->realItemCount > 1 && empty($this->fieldParents)) {
+
+      $field_name = $this->fieldDefinition->getName();
+      $id_prefix = implode('-', array_merge($this->fieldParents, [$field_name]));
+
+      $elements['collapse_all'] = $this->expandButton([
+        '#value' => $this->t('Collapse all'),
+        '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
+        '#name' => $id_prefix . '_collapse_all',
+        '#paragraphs_mode' => 'closed',
+        '#limit_validation_errors' => [
+          array_merge($this->fieldParents, [$field_name, 'collapse_all']),
+        ],
+        '#prefix' => '<div class="paragraphs-collapse-all">',
+        '#suffix' => '</div>',
+        '#ajax' => [
+          'callback' => [get_class($this), 'addMoreAjax'],
+          'wrapper' => $this->fieldWrapperId,
+        ],
+        '#paragraphs_show_warning' => TRUE,
+      ]);
+
+      $elements['edit_all'] = $this->expandButton([
+        '#type' => 'submit',
+        '#value' => $this->t('Edit all'),
+        '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
+        '#name' => $id_prefix . '_edit-all',
+        '#paragraphs_mode' => 'edit',
+        '#limit_validation_errors' => [],
+        '#prefix' => '<div class="paragraphs-edit-all">',
+        '#suffix' => '</div>',
+        '#ajax' => [
+          'callback' => [get_class($this), 'addMoreAjax'],
+          'wrapper' => $this->fieldWrapperId,
+        ],
+      ]);
+
+      // Set default action.
+      if ($field_state['paragraphs'][0]['mode'] === 'closed') {
+        $elements['edit_all']['#weight'] = -10;
+      }
+
+      $elements = $this->buildDropbutton($elements);
+      $elements['#attributes']['class'][] = 'paragraphs-header-actions';
+    }
+    return $elements;
+  }
+
+  /**
+   * Loops through all paragraphs and change mode for each paragraph instance.
+   *
+   * @param array $form
+   *   Current form state.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Current form state.
+   */
+  public static function changeAllEditModeSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $field = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+
+    $field_name = $field['#field_name'];
+    $parents = $field['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    // Change edit mode for each paragraph.
+    foreach ($widget_state['paragraphs'] as $delta => $value) {
+      $widget_state['paragraphs'][$delta]['mode'] = $button['#paragraphs_mode'];
+      if (!empty($button['#paragraphs_show_warning'])) {
+        $widget_state['paragraphs'][$delta]['show_warning'] = $button['#paragraphs_show_warning'];
+      }
+    }
+
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+    $form_state->setRebuild();
   }
 
 }
