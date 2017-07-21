@@ -62,6 +62,14 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
     EntityFormDisplay::load('paragraph.nested_paragraph.default')
       ->setComponent('field_paragraphs_demo', ['type' => 'entity_reference_paragraphs'])
       ->save();
+
+    if (version_compare(\Drupal::VERSION, '8.4', '>=')) {
+      // @todo Workaround for file usage/unable to save the node with no usages.
+      //   Remove when https://www.drupal.org/node/2801777 is fixed.
+      \Drupal::configFactory()->getEditable('file.settings')
+        ->set('make_unused_managed_files_temporary', TRUE)
+        ->save();
+    }
   }
 
   /**
@@ -549,6 +557,7 @@ class ParagraphsTranslationTest extends ParagraphsTestBase {
     $this->assertParagraphsLangcode($node->id(), 'de');
     $this->assertParagraphsButtons(3);
     $this->drupalPostFormSave(NULL, NULL, t('Save and keep published (this translation)'), t('Save (this translation)'));
+    $this->assertText('Paragraphed article Title in english has been updated.');
     // Check the original node and the paragraphs langcode are now 'en'.
     $this->assertParagraphsLangcode($node->id());
   }

@@ -12,15 +12,6 @@ use Drupal\paragraphs\Entity\ParagraphsType;
 class ParagraphsTypesTest extends ParagraphsTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = [
-    'views',
-  ];
-
-  /**
    * Tests the deletion of Paragraphs types.
    */
   public function testRemoveTypesWithContent() {
@@ -55,6 +46,13 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
    * Tests the paragraph type icon settings.
    */
   public function testParagraphTypeIcon() {
+
+    /** @var \Drupal\file\FileUsage\FileUsageInterface $file_usage */
+    $file_usage = \Drupal::service('file.usage');
+
+    /** @var \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository */
+    $entity_repository = \Drupal::service('entity.repository');
+
     $admin_user = $this->drupalCreateUser([
       'administer paragraphs types',
       'access files overview',
@@ -73,21 +71,19 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and manage fields'));
     $this->assertText('Saved the Test paragraph type Paragraphs type.');
 
-    // Check that the icon file usage has been registered.
-    $this->drupalGet('admin/content/files');
-    $this->assertLink('image-test.png');
-    $this->assertText('Permanent');
-    $this->clickLink('1 place');
-    $this->assertLink('Test paragraph type');
-
     // Check if the icon has been saved.
     $this->drupalGet('admin/structure/paragraphs_type');
     $this->assertRaw('image-test.png');
     $this->clickLink('Edit');
     $this->assertText('image-test.png');
 
-    // Tests calculateDependencies method.
+    // Check that the icon file usage has been registered.
     $paragraph_type = ParagraphsType::load('test_paragraph_type_icon');
+    $file = $entity_repository->loadEntityByUuid('file', $paragraph_type->get('icon_uuid'));
+    $usages = $file_usage->listUsage($file);
+    $this->assertEqual($usages['paragraphs']['paragraphs_type']['test_paragraph_type_icon'], 1);
+
+    // Tests calculateDependencies method.
     $dependencies = $paragraph_type->getDependencies();
     $dependencies_uuid[] = explode(':', $dependencies['content'][0]);
     $this->assertEqual($paragraph_type->get('icon_uuid'), $dependencies_uuid[0][2]);
@@ -98,12 +94,8 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->drupalPostForm(NULL, [], t('Save'));
 
     // Check that the icon file usage has been deregistered.
-    $this->drupalGet('admin/content/files');
-    $this->assertLink('image-test.png');
-    $this->assertText('Temporary');
-    $this->clickLink('0 places');
-    $this->assertText('File usage information for image-test.png');
-    $this->assertNoText('Test paragraph type');
+    $usages = $file_usage->listUsage($file);
+    $this->assertEqual($usages, []);
   }
 
   /**

@@ -47,6 +47,14 @@ class ParagraphsExperimentalTranslationTest extends ParagraphsExperimentalTestBa
       'settings[paragraph][images][fields][field_images_demo]' => TRUE,
     ];
     $this->drupalPostForm('admin/config/regional/content-language', $edit, t('Save configuration'));
+
+    if (version_compare(\Drupal::VERSION, '8.4', '>=')) {
+      // @todo Workaround for file usage/unable to save the node with no usages.
+      //   Remove when https://www.drupal.org/node/2801777 is fixed.
+      \Drupal::configFactory()->getEditable('file.settings')
+        ->set('make_unused_managed_files_temporary', TRUE)
+        ->save();
+    }
   }
 
   /**
