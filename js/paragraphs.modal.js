@@ -48,7 +48,7 @@
       modal: true,
       resizable: false,
       title: drupalSettings.paragraphs.title,
-      width: 360,
+      width: 'auto',
       close: function () {
         var $dialog = $(this);
 

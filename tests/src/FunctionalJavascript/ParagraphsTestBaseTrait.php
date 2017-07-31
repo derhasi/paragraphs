@@ -6,13 +6,17 @@ use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\file\Entity\File;
 use Drupal\node\Entity\NodeType;
 use Drupal\paragraphs\Entity\ParagraphsType;
+use Drupal\Tests\TestFileCreationTrait;
 
 /**
  * Test trait for Paragraphs JS tests.
  */
 trait ParagraphsTestBaseTrait {
+
+  use TestFileCreationTrait;
 
   /**
    * Adds a content type with a Paragraphs field.
@@ -97,6 +101,38 @@ trait ParagraphsTestBaseTrait {
       'label' => $paragraphs_type_name,
     ]);
     $paragraphs_type->save();
+  }
+
+  /**
+   * Adds an icon to a paragraphs type.
+   *
+   * @param string $paragraphs_type
+   *   Machine name of the paragraph type to add the icon to.
+   *
+   * @return \Drupal\file\Entity\File
+   *   The file entity used as the icon.
+   */
+  protected function addParagraphsTypeIcon($paragraphs_type) {
+    // Get an image.
+    $image_files = $this->getTestFiles('image');
+    $uri = current($image_files)->uri;
+
+    // Create a copy of the image, so that multiple file entities don't
+    // reference the same file.
+    $copy_uri = file_unmanaged_copy($uri);
+
+    // Create a new file entity.
+    $file_entity = File::create([
+      'uri' => $copy_uri,
+    ]);
+    $file_entity->save();
+
+    // Add the file entity to the paragraphs type as its icon.
+    $paragraphs_type_entity = ParagraphsType::load($paragraphs_type);
+    $paragraphs_type_entity->set('icon_uuid', $file_entity->uuid());
+    $paragraphs_type_entity->save();
+
+    return $file_entity;
   }
 
 }

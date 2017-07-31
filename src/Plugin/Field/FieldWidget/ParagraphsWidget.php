@@ -717,7 +717,7 @@ class ParagraphsWidget extends WidgetBase {
 
     $element['#attached']['library'][] = 'paragraphs/drupal.paragraphs.modal';
     $element['#attached']['drupalSettings']['paragraphs'] = [
-      'title' => $this->t('Add paragraph'),
+      'title' => $this->t('Add @title', ['@title' => $this->getSetting('title')]),
     ];
   }
 
@@ -1111,11 +1111,13 @@ class ParagraphsWidget extends WidgetBase {
   protected function buildButtonsAddMode() {
     $options = $this->getAccessibleOptions();
     $add_mode = $this->getSetting('add_mode');
+    $paragraphs_type_storage = \Drupal::entityTypeManager()->getStorage('paragraphs_type');
 
     // Build the buttons.
     $add_more_elements = [];
     foreach ($options as $machine_name => $label) {
-      $add_more_elements['add_more_button_' . $machine_name] = $this->expandButton([
+      $button_key = 'add_more_button_' . $machine_name;
+      $add_more_elements[$button_key] = $this->expandButton([
         '#type' => 'submit',
         '#name' => $this->fieldIdPrefix . '_' . $machine_name . '_add_more',
         '#value' => $add_mode == 'modal' ? $label : $this->t('Add @type', ['@type' => $label]),
@@ -1128,6 +1130,10 @@ class ParagraphsWidget extends WidgetBase {
         ],
         '#bundle_machine_name' => $machine_name,
       ]);
+
+      if ($add_mode === 'modal' && $icon_url = $paragraphs_type_storage->load($machine_name)->getIconUrl()) {
+        $add_more_elements[$button_key]['#attributes']['style'] = 'background-image: url(' . $icon_url . ');';
+      }
     }
 
     // Determine if buttons should be rendered as dropbuttons.

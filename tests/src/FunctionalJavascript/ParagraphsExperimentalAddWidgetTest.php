@@ -87,6 +87,10 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
     $this->addParagraphsType($paragraph_type);
     $this->addParagraphsType('text');
 
+    // Add icons to the paragraphs types.
+    $icon_one = $this->addParagraphsTypeIcon($paragraph_type);
+    $icon_two = $this->addParagraphsTypeIcon('text');
+
     // Add a text field to the text_paragraph type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/' . $paragraph_type, 'text', 'Text', 'text_long', [], []);
 
@@ -118,6 +122,12 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
     $this->assertSession()->assertWaitOnAjaxRequest();
     $page->pressButton('nested_test');
     $this->assertSession()->assertWaitOnAjaxRequest();
+
+    // Verify that the paragraphs type icons are being displayed.
+    $button_one = $this->assertSession()->buttonExists($paragraph_type);
+    $button_two = $this->assertSession()->buttonExists('text');
+    $this->assertContains($icon_one->getFilename(), $button_one->getAttribute('style'));
+    $this->assertContains($icon_two->getFilename(), $button_two->getAttribute('style'));
 
     // Find the add button in the nested paragraph with xpath.
     $element = $this->xpath('//div[contains(@class, "form-wrapper")]/div[contains(@class, "paragraph-type-add-modal")]/input');
