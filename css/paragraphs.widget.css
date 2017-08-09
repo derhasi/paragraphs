@@ -53,6 +53,10 @@
           justify-content: space-between;
 }
 
+.js .paragraphs-subform {
+  margin-top: 5px;
+}
+
 .js .paragraphs-collapsed-description {
   position: relative;
   width: 100%;
@@ -91,6 +95,7 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
 @media screen and (min-width: 600px) {
   .js .paragraph-type-add-modal {
     width: 100%;

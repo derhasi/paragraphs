@@ -525,9 +525,8 @@ class ParagraphsWidget extends WidgetBase {
           if ($show_links > 0) {
             // Wrap in dropbutton operations if there's more than one.
             if ($show_links > 1) {
-              $links = $this->buildDropbutton($links);
+              $links = $this->buildActionsElement($links);
             }
-
             $links['#weight'] = 1;
             $element['top']['links'] = $links;
           }
@@ -1070,7 +1069,7 @@ class ParagraphsWidget extends WidgetBase {
    * Build drop button.
    *
    * @param array $elements
-   *   Elements for drup button.
+   *   Elements for drop button.
    *
    * @return array
    *   Drop button array.
@@ -1097,6 +1096,31 @@ class ParagraphsWidget extends WidgetBase {
       // Even though operations are run through the "links" element type, the
       // theme system will render any render array passed as a link "title".
       '#links' => $operations,
+    ];
+
+    return $build + $elements;
+  }
+
+  /**
+   * Build actions element.
+   *
+   * @param array $elements
+   *   Elements for the actions element.
+   *
+   * @return array
+   *   Element array.
+   */
+  protected function buildActionsElement(array $elements = []) {
+    $operations = [];
+    foreach (Element::children($elements, TRUE) as $child) {
+      $operations[$child] = $elements[$child];
+      // Flag the original element as printed so it doesn't render twice.
+      $elements[$child]['#printed'] = TRUE;
+    }
+
+    $build['operations'] = [
+      '#type' => 'paragraph_actions',
+      '#buttons' => $operations,
     ];
 
     return $build + $elements;
