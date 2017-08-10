@@ -6,6 +6,7 @@ use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldFilteredMarkup;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
@@ -16,6 +17,7 @@ use Drupal\Core\Form\SubformState;
 use Drupal\Core\Render\Element;
 use Drupal\paragraphs\ParagraphInterface;
 use Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphSelection;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Plugin implementation of the 'entity_reference_revisions paragraphs' widget.
@@ -723,23 +725,27 @@ class ParagraphsWidget extends WidgetBase {
   /**
    * Returns the sorted allowed types for a entity reference field.
    *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *  (optional) The field definition forwhich the allowed types should be
+   *  returned, defaults to the current field.
+   *
    * @return array
    *   A list of arrays keyed by the paragraph type machine name with the following properties.
    *     - label: The label of the paragraph type.
    *     - weight: The weight of the paragraph type.
    */
-  public function getAllowedTypes() {
+  public function getAllowedTypes(FieldDefinitionInterface $field_definition = NULL) {
 
     $return_bundles = array();
     /** @var \Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface $selection_manager */
     $selection_manager = \Drupal::service('plugin.manager.entity_reference_selection');
-    $handler = $selection_manager->getSelectionHandler($this->fieldDefinition);
+    $handler = $selection_manager->getSelectionHandler($field_definition ?: $this->fieldDefinition);
     if ($handler instanceof ParagraphSelection) {
       $return_bundles = $handler->getSortedAllowedTypes();
     }
     // Support for other reference types.
     else {
-      $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($this->getFieldSetting('target_type'));
+      $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($field_definition ? $field_definition->getSetting('target_type') : $this->fieldDefinition->getSetting('target_type'));
       $weight = 0;
       foreach ($bundles as $machine_name => $bundle) {
         if (!count($this->getSelectionHandlerSetting('target_bundles'))
@@ -826,6 +832,18 @@ class ParagraphsWidget extends WidgetBase {
     // Persist the widget state so formElement() can access it.
     static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
+    $header_actions = $this->buildHeaderActions($field_state, $form_state);
+    if ($header_actions) {
+      $elements['header_actions'] = $header_actions;
+    }
+
+    if (!empty($field_state['dragdrop'])) {
+      $elements['#attached']['library'][] = 'paragraphs/paragraphs-dragdrop';
+      //$elements['dragdrop_mode']['#button_type'] = 'primary';
+      $elements['dragdrop'] = $this->buildNestedParagraphsFoDragDrop($form_state, NULL, []);
+      return $elements;
+    }
+
     if ($max > 0) {
       for ($delta = 0; $delta < $max; $delta++) {
 
@@ -892,11 +910,6 @@ class ParagraphsWidget extends WidgetBase {
         '#description' => $description,
       );
 
-      $header_actions = $this->buildHeaderActions($field_state);
-      if ($header_actions) {
-        $elements['header_actions'] = $header_actions;
-      }
-
     }
     else {
       $classes = $this->fieldDefinition->isRequired() ? ['form-required'] : [];
@@ -955,6 +968,172 @@ class ParagraphsWidget extends WidgetBase {
     }
 
     return parent::form($items, $form, $form_state, $get_delta);
+  }
+
+  /**
+   * Returns a list of child paragraphs for a given field to loop over.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param string $field_name
+   *   The field name for which to find child paragraphs.
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The current paragraph.
+   * @param array $array_parents
+   *   The current field parent structure.
+   *
+   * @return \Drupal\paragraphs\Entity\Paragraph[]
+   *   Child paragraphs.
+   */
+  protected function getChildParagraphs(FormStateInterface $form_state, $field_name, ParagraphInterface $paragraph = NULL, array $array_parents = []) {
+
+    // Convert the parents structure which only includes field names and delta
+    // to the full storage array key which includes a prefix and a subform.
+    $full_parents_key = ['field_storage', '#parents'];
+    foreach ($array_parents as $i => $parent) {
+      $full_parents_key[] = $parent;
+      if ($i % 2) {
+        $full_parents_key[] = 'subform';
+      }
+    }
+
+    $current_parents = array_merge($full_parents_key, ['#fields', $field_name]);
+    $child_field_state = NestedArray::getValue($form_state->getStorage(), $current_parents);
+    $entities = [];
+    if ($child_field_state && isset($child_field_state['paragraphs'])) {
+      // Fetch the paragraphs from the field state. Use the original delta
+      // to get the right position. Also reorder the paragraphs in the widget
+      // state accordingly.
+      $new_widget_paragraphs = [];
+      foreach ($child_field_state['paragraphs'] as $child_delta => $child_field_item_state) {
+        $entities[array_search($child_delta, $child_field_state['original_deltas'])] = $child_field_item_state['entity'];
+        $new_widget_paragraphs[array_search($child_delta, $child_field_state['original_deltas'])] = $child_field_item_state;
+      }
+      ksort($entities);
+
+      // Set the orderd paragraphs into the widget state and reset original
+      // deltas.
+      ksort($new_widget_paragraphs);
+      $child_field_state['paragraphs'] = $new_widget_paragraphs;
+      $child_field_state['original_deltas'] = range(0, count($child_field_state['paragraphs']) - 1);
+      NestedArray::setValue($form_state->getStorage(), $current_parents, $child_field_state);
+    }
+    elseif ($paragraph) {
+      // If there is no field state, return the paragraphs directly from the
+      // entity.
+      foreach ($paragraph->get($field_name) as $child_delta => $item) {
+        if ($item->entity) {
+          $entities[$child_delta] = $item->entity;
+        }
+      }
+    }
+
+    return $entities;
+  }
+
+  /**
+   * Builds the nested drag and drop structure.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param \Drupal\paragraphs\ParagraphInterface|null $paragraph
+   *   The parent paragraph, NULL for the initial call.
+   * @param string[] $array_parents
+   *   The array parents for nested paragraphs.
+   *
+   * @return array
+   *   The built form structure.
+   */
+  protected function buildNestedParagraphsFoDragDrop(FormStateInterface $form_state, ParagraphInterface $paragraph = NULL, array $array_parents = []) {
+    // Look for nested elements.
+    $elements = [];
+    $field_definitions = [];
+    if ($paragraph) {
+      foreach ($paragraph->getFieldDefinitions() as $child_field_name => $field_definition) {
+        /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+        if ($field_definition->getType() == 'entity_reference_revisions' && $field_definition->getSetting('target_type') == 'paragraph') {
+          $field_definitions[$child_field_name] = $field_definition;
+        }
+      }
+    }
+    else {
+      $field_definitions = [$this->fieldDefinition->getName() => $this->fieldDefinition];
+    }
+
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+    foreach ($field_definitions as $child_field_name => $field_definition) {
+      $child_path = implode('][', array_merge($array_parents, [$child_field_name]));
+      $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
+      $allowed_types = implode(array_keys($this->getAllowedTypes($field_definition)), ',');
+      $elements[$child_field_name] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['paragraphs-dragdrop-wrapper']],
+      ];
+
+      // Only show a field label if there is more than one paragraph field.
+      $label = count($field_definitions) > 1 || !$paragraph ? '<label><strong>' . $field_definition->getLabel() . '</strong></label>' : '';
+
+      $elements[$child_field_name]['list'] = [
+        '#type' => 'markup',
+        '#prefix' => $label . '<ul class="paragraphs-dragdrop" data-paragraphs-dragdrop-cardinality="' . $cardinality . '" data-paragraphs-dragdrop-allowed-types="' . $allowed_types . '" data-paragraphs-dragdrop-path="' . $child_path . '">',
+        '#suffix' => '</ul>',
+      ];
+
+      /** @var \Drupal\paragraphs\Entity\Paragraph $child_paragraph */
+      foreach ($this->getChildParagraphs($form_state, $child_field_name, $paragraph, $array_parents) as $child_delta => $child_paragraph) {
+        $element = [];
+        $element['top'] = [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['paragraphs-summary-wrapper']],
+        ];
+        $element['top']['paragraph_summary']['type'] = [
+          '#markup' => '<strong>' . $child_paragraph->getParagraphType()->label() . '</strong>',
+        ];
+
+        // We name the element '_weight' to avoid clashing with elements
+        // defined by widget.
+        $element['_weight'] = array(
+          '#type' => 'hidden',
+          '#default_value' => $child_delta,
+          '#attributes' => [
+            'class' => ['paragraphs-dragdrop__weight'],
+          ]
+        );
+
+        $element['_path'] = [
+          '#type' => 'hidden',
+          '#title' => $this->t('Current path for @number', ['@number' => $delta = 1]),
+          '#title_display' => 'invisible',
+          '#default_value' => $child_path,
+          '#attributes' => [
+            'class' => ['paragraphs-dragdrop__path'],
+          ]
+        ];
+
+        $summary_options = [];
+
+        $element['#prefix'] = '<li data-paragraphs-dragdrop-bundle="' . $child_paragraph->bundle() . '"><a href="#" class="tabledrag-handle"><div class="handle">&nbsp;</div></a>';
+        $element['#suffix'] = '</li>';
+        $child_array_parents = array_merge($array_parents,  [$child_field_name, $child_delta]);
+
+        if ($child_elements = $this->buildNestedParagraphsFoDragDrop($form_state, $child_paragraph, $child_array_parents)) {
+          $element['dragdrop'] = $child_elements;
+
+          // Set the depth limit to 0 to avoid displaying a summary for the
+          // children.
+          $summary_options['depth_limit'] = 0;
+        }
+
+        $element['top']['paragraph_summary']['fields_info'] = [
+          '#markup' => $child_paragraph->getSummary($summary_options),
+          '#prefix' => '<div class="paragraphs-collapsed-description">',
+          '#suffix' => '</div>',
+        ];
+
+        $elements[$child_field_name]['list'][$child_delta] = $element;
+      }
+    }
+    return $elements;
   }
 
   /**
@@ -1356,6 +1535,233 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Sets the form mode accordingly.
+   *
+   * @param array $form
+   *   An associate array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  public static function dragDropModeSubmit(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $field_name = $element['#field_name'];
+    $parents = $element['#field_parents'];
+
+    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+
+    if (empty($widget_state['dragdrop'])) {
+      $widget_state['dragdrop'] = TRUE;
+    }
+    else {
+      $widget_state['dragdrop'] = FALSE;
+    }
+
+    // Make sure that flag that we already reordered is unset when the mode is
+    // switched.
+    unset($widget_state['reordered']);
+
+    // Switch the form mode accordingly.
+    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+
+    $form_state->setRebuild();
+  }
+
+
+  /**
+   * Reorder paragraphs.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param $field_values_parents
+   *   The field value parents.
+   */
+  protected static function reorderParagraphs(FormStateInterface $form_state, $field_values_parents) {
+    $field_name = end($field_values_parents);
+    $field_values = NestedArray::getValue($form_state->getValues(), $field_values_parents);
+    $complete_field_storage = NestedArray::getValue(
+      $form_state->getStorage(), [
+        'field_storage',
+        '#parents'
+      ]
+    );
+    $new_field_storage = $complete_field_storage;
+
+    // Set a flag to prevent this from running twice, as the entity is built
+    // for validation as well as saving and would fail the second time as we
+    // already altered the field storage.
+    if (!empty($new_field_storage['#fields'][$field_name]['reordered'])) {
+      return;
+    }
+    $new_field_storage['#fields'][$field_name]['reordered'] = TRUE;
+
+    // Clear out all current paragraphs keys in all nested paragraph widgets
+    // as there might be fewer than before or none in a certain widget.
+    $clear_paragraphs = function ($field_storage) use (&$clear_paragraphs) {
+      foreach ($field_storage as $key => $value) {
+        if ($key === '#fields') {
+          foreach ($value as $field_name => $widget_state) {
+            if (isset($widget_state['paragraphs'])) {
+              $field_storage['#fields'][$field_name]['paragraphs'] = [];
+            }
+          }
+        }
+        else {
+          $field_storage[$key] = $clear_paragraphs($field_storage[$key]);
+        }
+      }
+      return $field_storage;
+    };
+
+    // Only clear the current field and its children to avoid deleting
+    // paragraph references in other fields.
+    $new_field_storage['#fields'][$field_name]['paragraphs'] = [];
+    if (isset($new_field_storage[$field_name])) {
+      $new_field_storage[$field_name] = $clear_paragraphs($new_field_storage[$field_name]);
+    }
+
+    $reorder_paragraphs = function ($reorder_values, $parents = [], FieldableEntityInterface $parent_entity = NULL) use ($complete_field_storage, &$new_field_storage, &$reorder_paragraphs) {
+      foreach ($reorder_values as $field_name => $values) {
+        foreach ($values['list'] as $delta => $item_values) {
+          $old_keys = array_merge(
+            $parents, [
+              '#fields',
+              $field_name,
+              'paragraphs',
+              $delta
+            ]
+          );
+          $path = explode('][', $item_values['_path']);
+          $new_field_name = array_pop($path);
+          $key_parents = [];
+          foreach ($path as $i => $key) {
+            $key_parents[] = $key;
+            if ($i % 2 == 1) {
+              $key_parents[] = 'subform';
+            }
+          }
+          $new_keys = array_merge(
+            $key_parents, [
+              '#fields',
+              $new_field_name,
+              'paragraphs',
+              $item_values['_weight']
+            ]
+          );
+          $key_exists = NULL;
+          $item_state = NestedArray::getValue($complete_field_storage, $old_keys, $key_exists);
+          if (!$key_exists && $parent_entity) {
+            // If key does not exist, then this parent widget was previously
+            // not expanded. This can only happen on nested levels. In that
+            // case, initialize a new item state and set the widget state to
+            // an empty array if it is not already set from an earlier item.
+            // If something else is placed there, it will be put in there,
+            // otherwise the widget will know that nothing is there anymore.
+            $item_state = [
+              'entity' => $parent_entity->get($field_name)->get($delta)->entity,
+              'mode' => 'closed',
+            ];
+            $widget_state_keys = array_slice($old_keys, 0, count($old_keys) - 2);
+            if (!NestedArray::getValue($new_field_storage, $widget_state_keys)) {
+              NestedArray::setValue($new_field_storage, $widget_state_keys, ['paragraphs' => []]);
+            }
+          }
+
+          // Ensure the referenced paragraph will be saved.
+          $item_state['entity']->setNeedsSave(TRUE);
+
+          NestedArray::setValue($new_field_storage, $new_keys, $item_state);
+          if (isset($item_values['dragdrop'])) {
+            $reorder_paragraphs(
+              $item_values['dragdrop'], array_merge(
+              $parents, [
+                $field_name,
+                $delta,
+                'subform'
+              ]
+            ), $item_state['entity']
+            );
+          }
+        }
+      }
+    };
+    $reorder_paragraphs($field_values['dragdrop']);
+
+    // Recalculate original deltas.
+    $recalculate_original_deltas = function ($field_storage, ContentEntityInterface $parent_entity) use (&$recalculate_original_deltas) {
+      if (isset($field_storage['#fields'])) {
+        foreach ($field_storage['#fields'] as $field_name => $widget_state) {
+          if (isset($widget_state['paragraphs'])) {
+
+            // If the parent field does not exist but we have paragraphs in
+            // widget state, something went wrong and we have a mismatch.
+            // Throw an exception.
+            if (!$parent_entity->hasField($field_name) && !empty($widget_state['paragraphs'])) {
+              throw new \LogicException('Reordering paragraphs resulted in paragraphs on non-existing field ' . $field_name . ' on parent entity ' . $parent_entity->getEntityTypeId() . '/' . $parent_entity->id());
+            }
+
+            // Sort the paragraphs by key so that they will be assigned to
+            // the entity in the right order. Reset the deltas.
+            ksort($widget_state['paragraphs']);
+            $widget_state['paragraphs'] = array_values($widget_state['paragraphs']);
+
+            $original_deltas = range(0, count($widget_state['paragraphs']) - 1);
+            $field_storage['#fields'][$field_name]['original_deltas'] = $original_deltas;
+            $field_storage['#fields'][$field_name]['items_count'] = count($widget_state['paragraphs']);
+            $field_storage['#fields'][$field_name]['real_item_count'] = count($widget_state['paragraphs']);
+
+            // Update the parent entity and point to the new children, if the
+            // parent field does not exist, we also have no paragraphs, so
+            // we can just skip this, this is a dead leaf after re-ordering.
+            // @todo Clean this up somehow?
+            if ($parent_entity->hasField($field_name)) {
+              $parent_entity->set($field_name, array_column($widget_state['paragraphs'], 'entity'));
+
+              // Next process that field recursively.
+              foreach (array_keys($widget_state['paragraphs']) as $delta) {
+                if (isset($field_storage[$field_name][$delta]['subform'])) {
+                  $field_storage[$field_name][$delta]['subform'] = $recalculate_original_deltas($field_storage[$field_name][$delta]['subform'], $parent_entity->get($field_name)->get($delta)->entity);
+                }
+              }
+            }
+
+          }
+        }
+      }
+      return $field_storage;
+    };
+
+    $parent_entity = $form_state->getFormObject()->getEntity();
+    $new_field_storage = $recalculate_original_deltas($new_field_storage, $parent_entity);
+
+    $form_state->set(['field_storage', '#parents'], $new_field_storage);
+  }
+
+  /**
+   * Ajax callback for the dragdrop mode.
+   *
+   * @param array $form
+   *   An associate array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array
+   *   The container form element.
+   */
+  public static function dragDropModeAjax(array $form, FormStateInterface $form_state) {
+    $button = $form_state->getTriggeringElement();
+    // Go one level up in the form, to the widgets container.
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+
+    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
+    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+
+    return $element;
+  }
+
+  /**
    * Returns the value of a setting for the entity reference selection handler.
    *
    * @param string $setting_name
@@ -1404,6 +1810,29 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function flagErrors(FieldItemListInterface $items, ConstraintViolationListInterface $violations, array $form, FormStateInterface $form_state) {
+    $field_name = $this->fieldDefinition->getName();
+
+    $field_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+
+    // In dragdrop mode, validation errors can not be mapped to form elements,
+    // add them on the top level widget element.
+    if (!empty($field_state['dragdrop'])) {
+      if ($violations->count()) {
+        $element = NestedArray::getValue($form_state->getCompleteForm(), $field_state['array_parents']);
+        foreach ($violations as $violation) {
+          $form_state->setError($element, $violation->getMessage());
+        }
+      }
+    }
+    else {
+      return parent::flagErrors($items, $violations, $form, $form_state);
+    }
+  }
+
+  /**
    * Special handling to validate form elements with multiple values.
    *
    * @param array $elements
@@ -1435,6 +1864,21 @@ class ParagraphsWidget extends WidgetBase {
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
     $element = NestedArray::getValue($form_state->getCompleteForm(), $widget_state['array_parents']);
+
+    if (!empty($widget_state['dragdrop'])) {
+      $path = array_merge($form['#parents'], array($field_name));
+      static::reorderParagraphs($form_state, $path);
+
+      // After re-ordering, get the updated widget state.
+      $widget_state = static::getWidgetState($form['#parents'], $field_name, $form_state);
+
+      // Re-create values based on current widget state.
+      $values = [];
+      foreach ($widget_state['paragraphs'] as $delta => $paragraph_state) {
+        $values[$delta]['entity'] = $paragraph_state['entity'];
+      }
+      return $values;
+    }
 
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
@@ -1484,7 +1928,7 @@ class ParagraphsWidget extends WidgetBase {
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
-      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove') {
+      elseif (isset($widget_state['paragraphs'][$item['_original_delta']]['mode']) && $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove') {
         $item['target_id'] = NULL;
         $item['target_revision_id'] = NULL;
       }
@@ -1669,57 +2113,102 @@ class ParagraphsWidget extends WidgetBase {
    *
    * @param array[] $field_state
    *   Field widget state.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Current form state.
    *
    * @return array[]
    *   The form element array.
    */
-  public function buildHeaderActions(array $field_state) {
+  public function buildHeaderActions(array $field_state, FormStateInterface $form_state) {
     $elements = [];
-    if ($this->realItemCount > 1 && empty($this->fieldParents)) {
-
+    if (empty($this->fieldParents)) {
       $field_name = $this->fieldDefinition->getName();
       $id_prefix = implode('-', array_merge($this->fieldParents, [$field_name]));
 
-      $elements['collapse_all'] = $this->expandButton([
-        '#value' => $this->t('Collapse all'),
-        '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
-        '#name' => $id_prefix . '_collapse_all',
-        '#paragraphs_mode' => 'closed',
-        '#limit_validation_errors' => [
-          array_merge($this->fieldParents, [$field_name, 'collapse_all']),
-        ],
-        '#prefix' => '<div class="paragraphs-collapse-all">',
-        '#suffix' => '</div>',
-        '#ajax' => [
-          'callback' => [get_class($this), 'addMoreAjax'],
-          'wrapper' => $this->fieldWrapperId,
-        ],
-        '#paragraphs_show_warning' => TRUE,
-      ]);
+      // Only show the dragdrop mode if we can find the sortable library.
+      $library_discovery = \Drupal::service('library.discovery');
+      $library = $library_discovery->getLibraryByName('paragraphs', 'paragraphs-dragdrop');
+      if ($library || \Drupal::state()->get('paragraphs_test_dragdrop_force_show', FALSE)) {
+        $elements['dragdrop_mode'] = $this->expandButton([
+          '#type' => 'submit',
+          '#name' => $this->fieldIdPrefix . '_dragdrop_mode',
+          '#value' => !empty($field_state['dragdrop']) ? $this->t('Complete drag & drop') : $this->t('Drag & drop'),
+          '#attributes' => ['class' => ['field-dragdrop-mode-submit']],
+          '#submit' => [[get_class($this), 'dragDropModeSubmit']],
+          '#weight' => 8,
+          '#ajax' => [
+            'callback' => [get_class($this), 'dragDropModeAjax'],
+            'wrapper' => $this->fieldWrapperId,
+          ],
+        ]);
 
-      $elements['edit_all'] = $this->expandButton([
-        '#type' => 'submit',
-        '#value' => $this->t('Edit all'),
-        '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
-        '#name' => $id_prefix . '_edit-all',
-        '#paragraphs_mode' => 'edit',
-        '#limit_validation_errors' => [],
-        '#prefix' => '<div class="paragraphs-edit-all">',
-        '#suffix' => '</div>',
-        '#ajax' => [
-          'callback' => [get_class($this), 'addMoreAjax'],
-          'wrapper' => $this->fieldWrapperId,
-        ],
-      ]);
-
-      // Set default action.
-      if ($field_state['paragraphs'][0]['mode'] === 'closed') {
-        $elements['edit_all']['#weight'] = -10;
+        // Make the complete button a primary button, limit validation errors
+        // only for enabling drag and drop mode.
+        if (!empty($field_state['dragdrop'])) {
+          $elements['dragdrop_mode']['#button_type'] = 'primary';
+        }
+        else {
+          $elements['dragdrop_mode']['#limit_validation_errors'] = [
+            array_merge($this->fieldParents, [$field_name, 'dragdrop_mode']),
+          ];
+        }
       }
 
-      $elements = $this->buildDropbutton($elements);
+      if ($this->realItemCount > 1 && empty($field_state['dragdrop'])) {
+        $elements['collapse_all'] = $this->expandButton([
+          '#value' => $this->t('Collapse all'),
+          '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
+          '#name' => $id_prefix . '_collapse_all',
+          '#paragraphs_mode' => 'closed',
+          '#limit_validation_errors' => [
+            array_merge($this->fieldParents, [$field_name, 'collapse_all']),
+          ],
+          '#prefix' => '<div class="paragraphs-collapse-all">',
+          '#suffix' => '</div>',
+          '#ajax' => [
+            'callback' => [get_class($this), 'addMoreAjax'],
+            'wrapper' => $this->fieldWrapperId,
+          ],
+          '#weight' => -1,
+          '#paragraphs_show_warning' => TRUE,
+        ]);
+
+        $elements['edit_all'] = $this->expandButton([
+          '#type' => 'submit',
+          '#value' => $this->t('Edit all'),
+          '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
+          '#name' => $id_prefix . '_edit-all',
+          '#paragraphs_mode' => 'edit',
+          '#limit_validation_errors' => [],
+          '#prefix' => '<div class="paragraphs-edit-all">',
+          '#suffix' => '</div>',
+          '#ajax' => [
+            'callback' => [get_class($this), 'addMoreAjax'],
+            'wrapper' => $this->fieldWrapperId,
+          ],
+        ]);
+
+        // Set default action.
+        if (isset($field_state['paragraphs'][0]['mode']) && $field_state['paragraphs'][0]['mode'] === 'closed') {
+          $elements['edit_all']['#weight'] = -10;
+          $elements['collapse_all']['#weight'] = -9;
+        }
+        else {
+          $elements['collapse_all']['#weight'] = -10;
+          $elements['edit_all']['#weight'] = -9;
+        }
+      }
+
+      if (count($elements) > 1) {
+        $elements = $this->buildDropbutton($elements);
+      }
+      else {
+        $elements['#type'] = 'container';
+      }
       $elements['#attributes']['class'][] = 'paragraphs-header-actions';
+
     }
+
     return $elements;
   }
 

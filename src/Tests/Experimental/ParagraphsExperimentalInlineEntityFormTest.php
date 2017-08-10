@@ -129,11 +129,9 @@ class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalT
     // Create second paragraph.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_simple_add_more');
 
-    // Set the values of second paragraph and change the order.
+    // Set the values of second paragraph.
     $edit = [
-      'field_paragraphs[1][subform][field_article][0][inline_entity_form][title][0][value]' => 'Basic 2',
-      'field_paragraphs[0][_weight]' => -1,
-      'field_paragraphs[1][_weight]' => -2,
+      'field_paragraphs[1][subform][field_article][0][inline_entity_form][title][0][value]' => 'Basic 2'
     ];
     $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
   }

@@ -56,4 +56,22 @@ drupal.paragraphs.modal:
     - core/drupal.dialog.ajax
     - core/jquery.once
     - core/jquery.ui.tabs
+
+sortable:
+  website: https://github.com/RubaXa/Sortable
+  license:
+    name: MIT
+    url: https://github.com/RubaXa/Sortable/blob/master/README.md
+    gpl-compatible: true
+  js: { }
+
+paragraphs-dragdrop:
+  css:
+    theme:
+      css/paragraphs.dragdrop.css: {}
+  js:
+    js/paragraphs.dragdrop.js: {}
+  dependencies:
+    - core/jquery
     - core/drupal
+    - paragraphs/sortable

@@ -135,4 +135,44 @@ trait ParagraphsTestBaseTrait {
     return $file_entity;
   }
 
+  /**
+   * Adds a field to a given paragraph type.
+   *
+   * @param string $paragraph_type_id
+   *   Paragraph type ID to be used.
+   * @param string $field_name
+   *   Field name to be used.
+   * @param string $field_type
+   *   Type of the field.
+   * @param array $storage_settings
+   *   Settings for the field storage.
+   */
+  protected function addFieldtoParagraphType($paragraph_type_id, $field_name, $field_type, array $storage_settings = []) {
+    // Add a paragraphs field.
+    $field_storage = FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'paragraph',
+      'type' => $field_type,
+      'cardinality' => 1,
+      'settings' => $storage_settings,
+    ]);
+    $field_storage->save();
+    $field = FieldConfig::create([
+      'field_storage' => $field_storage,
+      'bundle' => $paragraph_type_id,
+      'settings' => [],
+    ]);
+    $field->save();
+
+    $field_type_definition = \Drupal::service('plugin.manager.field.field_type')->getDefinition($field_type);
+
+    entity_get_form_display('paragraph', $paragraph_type_id, 'default')
+      ->setComponent($field_name, ['type' => $field_type_definition['default_widget']])
+      ->save();
+
+    entity_get_display('paragraph', $paragraph_type_id, 'default')
+      ->setComponent($field_name, ['type' => $field_type_definition['default_formatter']])
+      ->save();
+  }
+
 }
