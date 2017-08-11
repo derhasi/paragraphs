@@ -1,3 +1,11 @@
+.js .field--widget-paragraphs .paragraph-actions {
+  float: right;
+}
+
+.js .field--widget-paragraphs th .paragraph-actions {
+  margin-right: -11px;
+}
+
 .js .field--widget-paragraphs .paragraphs-dropbutton-wrapper {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
@@ -146,9 +154,4 @@
 
 .is-horizontal .paragraphs-tabs .tabs__tab {
   border-bottom: 0;
-}
-
-.paragraphs-header-actions {
-  float: right;
-  margin-right: -10px;
 }

@@ -40,8 +40,7 @@ class ParagraphActions extends RenderElement {
    * Pre render callback for #type 'paragraph_actions'.
    *
    * @param array $element
-   *   An associative array containing the properties and children of the table
-   *   element.
+   *   Element arrar of a #type 'paragraph_actions'.
    *
    * @return array
    *   The processed element.
@@ -51,22 +50,21 @@ class ParagraphActions extends RenderElement {
 
     $element['actions'] = [
       '#type' => 'container',
-      '#attributes' => array(
-        'class' => 'paragraphs-actions',
-      ),
+      '#attributes' => ['class' => 'paragraph-actions'],
     ];
 
     // Toggle button.
     $element['actions']['toggle'] = [
       '#type' => 'inline_template',
-      '#template' => '<button class="paragraphs-actions-toggle"><span class="visually-hidden">{% trans %}Toggle Actions{% endtrans %}</span></button>',
+      '#template' => '<button class="paragraph-actions-toggle"><span class="visually-hidden">{% trans %}Toggle Actions{% endtrans %}</span></button>',
     ];
 
+    // Expand #buttons attribute to buttons item_list.
     $element['actions']['buttons'] = [
       '#theme' => 'item_list',
       '#attributes' => [
         'class' => [
-          'paragraphs-actions-items',
+          'paragraph-actions-items',
         ],
       ],
     ];
@@ -74,12 +72,12 @@ class ParagraphActions extends RenderElement {
       if (isset($button['#ajax'])) {
         $button = RenderElement::preRenderAjaxForm($button);
       }
-      $button['#attributes']['class'][] = 'paragraphs-actions-action';
+      $button['#attributes']['class'][] = 'paragraph-actions-action';
 
       $element['actions']['buttons']['#items'][$key] = [
         '#wrapper_attributes' => [
           'class' => [
-            'paragraphs-actions-item',
+            'paragraph-actions-item',
           ],
         ],
         'button' => $button,

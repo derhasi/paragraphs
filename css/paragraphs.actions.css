@@ -1,8 +1,8 @@
-.paragraphs-actions {
+.paragraph-actions {
   position: relative;
 }
 
-.paragraphs-actions-toggle {
+.paragraph-actions-toggle {
   display: block;
   height: 26px;
   min-width: 26px;
@@ -12,42 +12,42 @@
   transition: all 0.1s;
 }
 
-.paragraphs-actions-toggle:hover, .paragraphs-actions-toggle:focus {
-  background-color: #f5f5f2;
+.paragraph-actions-toggle:hover, .paragraph-actions-toggle:focus {
+  background-color: #eaeae4;
   outline: none;
 }
 
-.paragraphs-actions.open .paragraphs-actions-items {
+.paragraph-actions.open .paragraph-actions-items {
   display: block;
 }
 
-.paragraphs-actions-items {
+.paragraph-actions-items {
   display: none;
   overflow: hidden;
   position: absolute;
   right: 0;
   top: 26px;
   z-index: 100;
-  background: #f5f5f2;
+  background: #eaeae4;
   border: 1px solid #a6a6a6;
   border-radius: 5px 0 5px 5px;
   box-shadow: 0 2px 6px 0 #aaa;
 }
 
-.item-list .paragraphs-actions-items {
+.item-list .paragraph-actions-items {
   list-style: none;
 }
 
-.item-list .paragraphs-actions-items li {
+.item-list .paragraph-actions-items li {
   margin: 0;
   list-style: none;
 }
 
-.paragraphs-actions-action {
+.paragraph-actions-action {
   width: 100%;
 }
 
-.paragraphs-actions-action.button {
+.paragraph-actions-action.button {
   text-align: left;
   background: transparent;
   border: 0;
@@ -57,13 +57,13 @@
   white-space: nowrap;
 }
 
-.paragraphs-actions-action.button:focus {
+.paragraph-actions-action.button:focus {
   border: none;
   box-shadow: none;
   outline: none;
 }
 
-.paragraphs-actions-item-icon {
+.paragraph-actions-item-icon {
   height: 20px;
   padding: 0 10px;
 }

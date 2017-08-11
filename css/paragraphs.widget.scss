@@ -7,6 +7,15 @@
 // only for JS version of a widget.
 .js {
   .field--widget-paragraphs {
+    .paragraph-actions {
+      float: right;
+    }
+    th .paragraph-actions {
+      // Table th padding is 12px but for some weird reason here we need to do
+      // -11px to return it back.
+      margin-right: -11px;
+    }
+
     .paragraphs-dropbutton-wrapper {
       // We are using inline-flex here so 'Add type' dropdown button is inline
       // and aligned 'to type' text.
@@ -158,9 +167,4 @@
 
 .is-horizontal .paragraphs-tabs .tabs__tab {
   border-bottom: 0;
-}
-
-.paragraphs-header-actions {
-  float: right;
-  margin-right: -10px;
 }

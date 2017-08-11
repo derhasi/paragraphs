@@ -1,7 +1,9 @@
-$hover-icon-bg: #f5f5f2 !default;
+// Common variables.
+// 5% darker so it works actions button in the table header also.
+$hover-icon-bg: darken(#f5f5f2, 5%) !default;
 $icon-size: 26px !default;
 
-.paragraphs-actions {
+.paragraph-actions {
   position: relative;
 
   &-toggle {
@@ -21,7 +23,7 @@ $icon-size: 26px !default;
   }
 
   &.open {
-    .paragraphs-actions-items {
+    .paragraph-actions-items {
       display: block;
     }
   }

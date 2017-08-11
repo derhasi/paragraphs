@@ -2199,14 +2199,20 @@ class ParagraphsWidget extends WidgetBase {
         }
       }
 
+      // @todo - with the ddo issue #2901549 'Introduce default actions for
+      // paragraph_actions dropdown' ddo issue' paragraph_actions element with
+      // only one default button should then render it self as simple button.
+      // Then we would not need this if else here but we could just simply
+      // call buildActionsElement().
       if (count($elements) > 1) {
-        $elements = $this->buildDropbutton($elements);
+        $elements = $this->buildActionsElement($elements);
       }
       else {
+        // Add container with appropriate paragraph-actions class for a case
+        // when we have only one element - for example drag & drop mode.
         $elements['#type'] = 'container';
+        $elements['#attributes']['class'][] = 'paragraph-actions';
       }
-      $elements['#attributes']['class'][] = 'paragraphs-header-actions';
-
     }
 
     return $elements;
