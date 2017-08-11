@@ -9,6 +9,15 @@
      margin-bottom: 10px;
    }
 
+  .paragraphs-dragdrop {
+    margin-left: 10px;
+    margin-right: 5px;
+
+    @media all and (min-width: 780px) {
+      margin-left: 20px;
+    }
+  }
+
   > li {
     min-height: 30px;
     margin: 10px 0;
@@ -61,15 +70,6 @@
 
 .js .field--widget-paragraphs .paragraphs-dragdrop .field--widget-paragraphs {
   margin-left: 5px;
-}
-
-.field--widget-paragraphs .field--widget-paragraphs {
-  margin-left: 10px;
-  margin-right: 5px;
-
-  @media all and (min-width: 780px) {
-    margin-left: 20px;
-  }
 }
 
 .field-dragdrop-mode-submit {
