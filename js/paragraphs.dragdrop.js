@@ -131,13 +131,13 @@
        *   The paragraph field/list, parent of the children to be updated.
        * @param parentIndex
        *   The index of the parent list item.
-       * @param parentListItem
+       * @param $parentListItem
        *   The parent list item.
        */
-      function updateNestedPath(childList, parentIndex, parentListItem) {
+      function updateNestedPath(childList, parentIndex, $parentListItem) {
 
         var sortablePath = childList.getAttribute('data-paragraphs-dragdrop-path');
-        var newParent = parentListItem.parent().attr('data-paragraphs-dragdrop-path');
+        var newParent = $parentListItem.parent().attr('data-paragraphs-dragdrop-path');
 
         // Update the data attribute of the list based on the parent index and
         // list item.
@@ -145,11 +145,12 @@
         childList.setAttribute('data-paragraphs-dragdrop-path', sortablePath);
 
         // Now update the children.
-        $(childList).children().each (function (childIndex) {
-          var $childLi = $(this);
-          updatePaths($childLi, $(childList), childIndex);
+        $(childList).children().each(function (childIndex) {
+          var $childListItem = $(this);
+          updatePaths($childListItem, $(childList), childIndex);
           $(this).find('> div > ul').each(function () {
-            updateNestedPath(childIndex, $childLi, this);
+            var nestedChildList = this;
+            updateNestedPath(nestedChildList, childIndex, $childListItem);
           });
         });
       }
