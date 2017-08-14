@@ -19,7 +19,7 @@
         .on('click', function (event) {
           var $button = $(this);
           var $add_more_wrapper = $button.parent().siblings('.paragraphs-add-dialog');
-          Drupal.paragraphsAddModal.openDialog($add_more_wrapper);
+          Drupal.paragraphsAddModal.openDialog($add_more_wrapper, $button.val());
 
           // Stop default execution of click event.
           event.preventDefault();
@@ -41,13 +41,15 @@
    * @param {Object} $context
    *   jQuery element of form wrapper used to submit request for adding new
    *   paragraph to list. Wrapper also contains dialog template.
+   * @param {string} title
+   *   The title of the modal form window.
    */
-  Drupal.paragraphsAddModal.openDialog = function ($context) {
+  Drupal.paragraphsAddModal.openDialog = function ($context, title) {
 
     $context.dialog({
       modal: true,
       resizable: false,
-      title: drupalSettings.paragraphs.title,
+      title: title,
       width: 'auto',
       close: function () {
         var $dialog = $(this);

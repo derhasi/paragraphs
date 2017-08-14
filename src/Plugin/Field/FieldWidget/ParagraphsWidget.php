@@ -788,9 +788,6 @@ class ParagraphsWidget extends WidgetBase {
     ];
 
     $element['#attached']['library'][] = 'paragraphs/drupal.paragraphs.modal';
-    $element['#attached']['drupalSettings']['paragraphs'] = [
-      'title' => $this->t('Add @title', ['@title' => $this->getSetting('title')]),
-    ];
   }
 
   /**

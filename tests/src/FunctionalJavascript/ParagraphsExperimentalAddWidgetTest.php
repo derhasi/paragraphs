@@ -120,6 +120,7 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
     // Add a nested paragraph with the add widget.
     $page->pressButton('Add Paragraph');
     $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->assertSession()->elementTextContains('css', '.ui-dialog-title', 'Add Paragraph');
     $page->pressButton('nested_test');
     $this->assertSession()->assertWaitOnAjaxRequest();
 
@@ -149,5 +150,28 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
     $this->assertText('paragraphed_test Example title has been created.');
     $this->assertRaw('paragraph--type--nested-test');
     $this->assertRaw('paragraph--type--text');
+
+    // Add a paragraphs field with another paragraphs widget title to the
+    // paragraphed_test content type.
+    $this->addParagraphsField('paragraphed_test', 'field_paragraphs_two', 'node');
+    $settings = [
+      'title' => 'Renamed paragraph',
+      'title_plural' => 'Renamed paragraphs',
+      'add_mode' => 'modal',
+    ];
+    $this->setParagraphsWidgetSettings('paragraphed_test', 'field_paragraphs_two', $settings);
+
+    // Check that the "add" buttons and modal form windows are labeled
+    // correctly.
+    $this->drupalGet('node/add/paragraphed_test');
+    $page->pressButton('Add Paragraph');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->assertSession()->elementTextContains('css', '.ui-dialog-title', 'Add Paragraph');
+    $this->assertSession()->elementTextNotContains('css', '.ui-dialog-title', 'Add Renamed paragraph');
+    $this->assertSession()->elementExists('css', '.ui-dialog-titlebar-close')->press();
+    $page->pressButton('Add Renamed paragraph');
+    $this->assertSession()->assertWaitOnAjaxRequest();
+    $this->assertSession()->elementTextContains('css', '.ui-dialog-title', 'Add Renamed paragraph');
+    $this->assertSession()->elementTextNotContains('css', '.ui-dialog-title', 'Add Paragraph');
   }
 }
