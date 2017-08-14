@@ -149,7 +149,7 @@ class ParagraphsWidget extends WidgetBase {
     $elements['closed_mode'] = [
       '#type' => 'select',
       '#title' => $this->t('Closed mode'),
-      '#description' => $this->t('How to display the paragraphs, when it is closed. Preview will render the paragraph in the preview view mode.'),
+      '#description' => $this->t('How to display the paragraphs, when the widget is closed. Preview will render the paragraph in the preview view mode and typically needs a custom admin theme.'),
       '#options' => $this->getSettingOptions('closed_mode'),
       '#default_value' => $this->getSetting('closed_mode'),
       '#required' => TRUE,
@@ -2339,7 +2339,7 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
-   * If autocollapse is enabled, returns a state with all paragraphs closed.
+   * Returns a state with all paragraphs closed, if autocollapse is enabled.
    *
    * @param array $widget_state
    *   The current widget state.
