@@ -4,6 +4,7 @@ namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\paragraphs\Entity\Paragraph;
+use Drupal\Tests\paragraphs\FunctionalJavascript\ParagraphsTestBaseTrait;
 
 /**
  * Tests the configuration of paragraphs.
@@ -13,6 +14,7 @@ use Drupal\paragraphs\Entity\Paragraph;
 class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTestBase {
 
   use FieldUiTestTrait;
+  use ParagraphsTestBaseTrait;
 
   /**
    * Modules to enable.
@@ -273,9 +275,13 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     // Test for preview option.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
     $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
-    $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'preview');
+    $edit = [
+      'fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed',
+      'fields[field_paragraphs][settings_edit_form][settings][closed_mode]' => 'preview',
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertText('Edit mode: Preview', 'Checking the settings value.');
+    $this->assertText('Edit mode: Closed', 'Checking the "Edit mode" setting value.');
+    $this->assertText('Closed mode: Preview', 'Checking the "Closed mode" settings value.');
     $this->drupalGet('node/1/edit');
     // The texts in the paragraphs should be visible.
     $this->assertNoRaw('field_paragraphs[0][subform][field_text][0][value]');
@@ -286,8 +292,9 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     // Test for open option.
     $this->drupalGet('admin/structure/types/manage/article/form-display');
     $this->drupalPostAjaxForm(NULL, array(), "field_paragraphs_settings_edit");
-    // Assert the 'Preview' option is selected.
-    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'preview', 'Updated value correctly.');
+    // Assert the "Closed" and "Preview" options are selected.
+    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-edit-mode', 'closed', 'Correctly updated the "Edit mode" value.');
+    $this->assertOptionSelected('edit-fields-field-paragraphs-settings-edit-form-settings-closed-mode', 'preview', 'Correctly updated the "Closed mode" value.');
     // Restore the value to Open for next test.
     $edit = array('fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'open');
     $this->drupalPostForm(NULL, $edit, t('Save'));
@@ -435,10 +442,13 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     $this->clickLink('Edit', 1);
     $this->drupalPostForm(NULL, ['required' => FALSE], t('Save settings'));
 
-    // Set the Paragraph field edit mode to 'Closed'.
-    $this->drupalPostAjaxForm('admin/structure/types/manage/article/form-display', [], 'field_paragraphs_settings_edit');
-    $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'closed'], t('Update'));
-    $this->drupalPostForm(NULL, [], t('Save'));
+    // Set the Paragraph field edit mode to "Closed" and the closed mode to
+    // "Summary".
+    $settings = [
+      'edit_mode' => 'closed',
+      'closed_mode' => 'summary',
+    ];
+    $this->setParagraphsWidgetSettings('article', 'field_paragraphs', $settings);
 
     $this->addParagraphsType('node_test');
 
@@ -491,14 +501,20 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     // Delete the new referenced node.
     $node->delete();
 
-    // Set the Paragraph field edit mode to 'Preview'.
-    $this->drupalPostAjaxForm('admin/structure/types/manage/article/form-display', [], 'field_paragraphs_settings_edit');
-    $this->drupalPostForm(NULL, ['fields[field_paragraphs][settings_edit_form][settings][edit_mode]' => 'preview'], t('Update'));
-    $this->drupalPostForm(NULL, [], t('Save'));
+    // Set the Paragraph field closed mode to "Preview".
+    $settings = [
+      'edit_mode' => 'closed',
+      'closed_mode' => 'preview',
+    ];
+    $this->setParagraphsWidgetSettings('article', 'field_paragraphs', $settings);
 
     $node = $this->drupalGetNodeByTitle('choke test');
     // Attempt to edit the Paragraph.
-    $this->drupalPostAjaxForm('node/' . $node->id() . '/edit', [], 'field_paragraphs_0_edit');
+    $this->drupalGet('node/' . $node->id() . '/edit');
+    // Since we have another validation error, the paragraph is by default in
+    // the edit mode again.
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][0][target_id]');
+    $this->assertFieldByName('field_paragraphs[0][subform][field_entity_reference][1][target_id]');
     // Try to save with and invalid reference.
     $edit = ['field_paragraphs[0][subform][field_entity_reference][0][target_id]' => 'foo'];
     $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));

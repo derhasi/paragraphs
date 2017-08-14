@@ -2,12 +2,16 @@
 
 namespace Drupal\paragraphs\Tests\Experimental;
 
+use Drupal\Tests\paragraphs\FunctionalJavascript\ParagraphsTestBaseTrait;
+
 /**
  * Tests the configuration of paragraphs in relation to ief.
  *
  * @group paragraphs
  */
 class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalTestBase {
+
+  use ParagraphsTestBaseTrait;
 
   /**
    * Modules to enable.
@@ -47,8 +51,13 @@ class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalT
     ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
-    // Set the paragraphs widget mode to preview.
-    $this->setParagraphsWidgetMode('article', 'field_paragraphs', 'preview');
+    // Set the paragraphs widget edit mode to "Closed" and the closed mode to
+    // "Preview".
+    $settings = [
+      'edit_mode' => 'closed',
+      'closed_mode' => 'preview',
+    ];
+    $this->setParagraphsWidgetSettings('article', 'field_paragraphs', $settings);
 
     // Create node with one paragraph.
     $this->drupalGet('node/add/article');
@@ -107,8 +116,8 @@ class ParagraphsExperimentalInlineEntityFormTest extends ParagraphsExperimentalT
     ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
-    // Set the paragraphs widget mode to preview.
-    $this->setParagraphsWidgetMode('article', 'field_paragraphs', 'preview');
+    // Set the paragraphs widget closed mode to preview.
+    $this->setParagraphsWidgetSettings('article', 'field_paragraphs', ['closed_mode' => 'preview']);
 
     // Create node with one paragraph.
     $this->drupalGet('node/add/article');

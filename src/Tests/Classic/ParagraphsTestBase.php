@@ -195,6 +195,8 @@ abstract class ParagraphsTestBase extends WebTestBase {
    *   Paragraphs field to change the mode.
    * @param string $mode
    *   Mode to be set. ('closed', 'preview' or 'open').
+   *   'preview' is only allowed in the classic widget. Use
+   *   setParagraphsWidgetSettings for the experimental widget, instead.
    */
   protected function setParagraphsWidgetMode($content_type, $paragraphs_field, $mode) {
     $this->drupalGet('admin/structure/types/manage/' . $content_type . '/form-display');

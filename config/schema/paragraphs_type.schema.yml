@@ -84,6 +84,10 @@ field.widget.settings.paragraphs:
       type: string
     edit_mode:
       type: string
+    closed_mode:
+      type: string
+    autocollapse:
+      type: string
     add_mode:
       type: string
     form_display_mode:

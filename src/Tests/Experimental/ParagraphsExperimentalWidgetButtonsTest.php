@@ -3,6 +3,7 @@
 namespace Drupal\paragraphs\Tests\Experimental;
 
 use Drupal\field_ui\Tests\FieldUiTestTrait;
+use Drupal\Tests\paragraphs\FunctionalJavascript\ParagraphsTestBaseTrait;
 
 /**
  * Tests paragraphs experimental widget buttons.
@@ -12,6 +13,7 @@ use Drupal\field_ui\Tests\FieldUiTestTrait;
 class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTestBase {
 
   use FieldUiTestTrait;
+  use ParagraphsTestBaseTrait;
 
   /**
    * Modules to enable.
@@ -52,13 +54,13 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
-    // Test the 'Open' mode.
+    // Test the 'Open' edit mode.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', $text);
     $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
     $this->assertText($text);
 
-    // Test the 'Closed' mode.
+    // Test the 'Closed' edit mode.
     $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
     $this->drupalGet('node/' . $node->id() . '/edit');
     // Click "Edit" button.
@@ -78,8 +80,8 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertText($closed_mode_text);
 
-    // Test the 'Preview' mode.
-    $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'preview');
+    // Test the 'Preview' closed mode.
+    $this->setParagraphsWidgetSettings('paragraphed_test', 'field_paragraphs', ['closed_mode' => 'preview']);
     $this->drupalGet('node/' . $node->id() . '/edit');
     // Click "Edit" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');

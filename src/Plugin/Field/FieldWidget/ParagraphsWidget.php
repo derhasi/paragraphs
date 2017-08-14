@@ -76,6 +76,30 @@ class ParagraphsWidget extends WidgetBase {
   protected $accessOptions = NULL;
 
   /**
+   * Constructs a ParagraphsWidget object.
+   *
+   * @param string $plugin_id
+   *   The plugin_id for the widget.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The definition of the field to which the widget is associated.
+   * @param array $settings
+   *   The widget settings.
+   * @param array $third_party_settings
+   *   Any third party settings.
+   */
+  public function __construct($plugin_id, $plugin_definition, FieldDefinitionInterface $field_definition, array $settings, array $third_party_settings) {
+    // Modify settings that were set before https://www.drupal.org/node/2896115.
+    if(isset($settings['edit_mode']) && $settings['edit_mode'] === 'preview') {
+      $settings['edit_mode'] = 'closed';
+      $settings['closed_mode'] = 'preview';
+    }
+
+    parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $third_party_settings);
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function defaultSettings() {
@@ -83,6 +107,8 @@ class ParagraphsWidget extends WidgetBase {
       'title' => t('Paragraph'),
       'title_plural' => t('Paragraphs'),
       'edit_mode' => 'open',
+      'closed_mode' => 'summary',
+      'autocollapse' => 'none',
       'add_mode' => 'dropdown',
       'form_display_mode' => 'default',
       'default_paragraph_type' => '',
@@ -114,26 +140,35 @@ class ParagraphsWidget extends WidgetBase {
     $elements['edit_mode'] = array(
       '#type' => 'select',
       '#title' => $this->t('Edit mode'),
-      '#description' => $this->t('The mode the paragraph is in by default. Preview will render the paragraph in the preview view mode.'),
-      '#options' => array(
-        'open' => $this->t('Open'),
-        'closed' => $this->t('Closed'),
-        'preview' => $this->t('Preview'),
-      ),
+      '#description' => $this->t('The mode the paragraph is in by default.'),
+      '#options' => $this->getSettingOptions('edit_mode'),
       '#default_value' => $this->getSetting('edit_mode'),
       '#required' => TRUE,
     );
+
+    $elements['closed_mode'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Closed mode'),
+      '#description' => $this->t('How to display the paragraphs, when it is closed. Preview will render the paragraph in the preview view mode.'),
+      '#options' => $this->getSettingOptions('closed_mode'),
+      '#default_value' => $this->getSetting('closed_mode'),
+      '#required' => TRUE,
+    ];
+
+    $elements['autocollapse'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Autocollapse'),
+      '#description' => $this->t('When a paragraph is opened for editing, close others.'),
+      '#options' => $this->getSettingOptions('autocollapse'),
+      '#default_value' => $this->getSetting('autocollapse'),
+      '#required' => TRUE,
+    ];
 
     $elements['add_mode'] = array(
       '#type' => 'select',
       '#title' => $this->t('Add mode'),
       '#description' => $this->t('The way to add new paragraphs.'),
-      '#options' => array(
-        'select' => $this->t('Select list'),
-        'button' => $this->t('Buttons'),
-        'dropdown' => $this->t('Dropdown button'),
-        'modal' => $this->t('Modal form'),
-      ),
+      '#options' => $this->getSettingOptions('add_mode'),
       '#default_value' => $this->getSetting('add_mode'),
       '#required' => TRUE,
     );
@@ -165,6 +200,56 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Returns select options for a plugin setting.
+   *
+   * This is done to allow
+   * \Drupal\paragraphs\Plugin\Field\FieldWidget\ParagraphsWidget::settingsSummary()
+   * to access option labels. Not all plugin setting are available.
+   *
+   * @param string $setting_name
+   *   The name of the widget setting. Supported settings:
+   *   - "edit_mode"
+   *   - "closed_mode"
+   *   - "autocollapse"
+   *   - "add_mode"
+   *
+   * @return array|null
+   *   An array of setting option usable as a value for a "#options" key.
+   */
+  protected function getSettingOptions($setting_name) {
+    switch($setting_name) {
+      case 'edit_mode':
+        $options = [
+          'open' => $this->t('Open'),
+          'closed' => $this->t('Closed'),
+        ];
+        break;
+      case 'closed_mode':
+        $options = [
+          'summary' => $this->t('Summary'),
+          'preview' => $this->t('Preview'),
+        ];
+        break;
+      case 'autocollapse':
+        $options = [
+          'none' => $this->t('None'),
+          'all' => $this->t('All'),
+        ];
+        break;
+      case 'add_mode':
+        $options = [
+          'select' => $this->t('Select list'),
+          'button' => $this->t('Buttons'),
+          'dropdown' => $this->t('Dropdown button'),
+          'modal' => $this->t('Modal form'),
+        ];
+        break;
+    }
+
+    return isset($options) ? $options : NULL;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function settingsSummary() {
@@ -174,37 +259,16 @@ class ParagraphsWidget extends WidgetBase {
       '@title_plural' => $this->getSetting('title_plural')
     ]);
 
-    switch($this->getSetting('edit_mode')) {
-      case 'open':
-      default:
-        $edit_mode = $this->t('Open');
-        break;
-      case 'closed':
-        $edit_mode = $this->t('Closed');
-        break;
-      case 'preview':
-        $edit_mode = $this->t('Preview');
-        break;
-    }
-
-    switch($this->getSetting('add_mode')) {
-      case 'select':
-      default:
-        $add_mode = $this->t('Select list');
-        break;
-      case 'button':
-        $add_mode = $this->t('Buttons');
-        break;
-      case 'dropdown':
-        $add_mode = $this->t('Dropdown button');
-        break;
-      case 'modal':
-        $add_mode = $this->t('Modal form');
-        break;
-    }
+    $edit_mode = $this->getSettingOptions('edit_mode')[$this->getSetting('edit_mode')];
+    $closed_mode = $this->getSettingOptions('closed_mode')[$this->getSetting('closed_mode')];
+    $autocollapse = $this->getSettingOptions('autocollapse')[$this->getSetting('autocollapse')];
+    $add_mode = $this->getSettingOptions('add_mode')[$this->getSetting('add_mode')];
 
     $summary[] = $this->t('Edit mode: @edit_mode', ['@edit_mode' => $edit_mode]);
+    $summary[] = $this->t('Closed mode: @closed_mode', ['@closed_mode' => $closed_mode]);
+    $summary[] = $this->t('Autocollapse: @autocollapse', ['@autocollapse' => $autocollapse]);
     $summary[] = $this->t('Add mode: @add_mode', ['@add_mode' => $add_mode]);
+
     $summary[] = $this->t('Form display mode: @form_display_mode', [
       '@form_display_mode' => $this->getSetting('form_display_mode')
     ]);
@@ -233,11 +297,14 @@ class ParagraphsWidget extends WidgetBase {
     $host = $items->getEntity();
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
-    $entity_manager = \Drupal::entityTypeManager();
+    $entity_type_manager = \Drupal::entityTypeManager();
     $target_type = $this->getFieldSetting('target_type');
 
     $item_mode = isset($widget_state['paragraphs'][$delta]['mode']) ? $widget_state['paragraphs'][$delta]['mode'] : 'edit';
     $default_edit_mode = $this->getSetting('edit_mode');
+
+    $closed_mode_setting = isset($widget_state['closed_mode']) ? $widget_state['closed_mode'] : $this->getSetting('closed_mode');
+    $autocollapse_setting = isset($widget_state['autocollapse']) ? $widget_state['autocollapse'] : $this->getSetting('autocollapse');
 
     $show_must_be_saved_warning = !empty($widget_state['paragraphs'][$delta]['show_warning']);
 
@@ -256,17 +323,14 @@ class ParagraphsWidget extends WidgetBase {
         elseif ($default_edit_mode == 'closed') {
           $item_mode = 'closed';
         }
-        elseif ($default_edit_mode == 'preview') {
-          $item_mode = 'preview';
-        }
       }
     }
     elseif (isset($widget_state['selected_bundle'])) {
 
-      $entity_type = $entity_manager->getDefinition($target_type);
+      $entity_type = $entity_type_manager->getDefinition($target_type);
       $bundle_key = $entity_type->getKey('bundle');
 
-      $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
+      $paragraphs_entity = $entity_type_manager->getStorage($target_type)->create(array(
         $bundle_key => $widget_state['selected_bundle'],
       ));
 
@@ -640,22 +704,27 @@ class ParagraphsWidget extends WidgetBase {
           }
         }
       }
-      elseif ($item_mode == 'preview') {
-        $element['subform'] = array();
-        $element['behavior_plugins'] = [];
-        $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
-        $element['preview']['#access'] = $paragraphs_entity->access('view');
-      }
       elseif ($item_mode == 'closed') {
-        $element['subform'] = array();
+        $element['subform'] = [];
         $element['behavior_plugins'] = [];
-        if ($paragraphs_entity) {
-          $summary = $paragraphs_entity->getSummary();
-          $element['top']['paragraph_summary']['fields_info'] = [
-            '#markup' => $summary,
-            '#prefix' => '<div class="paragraphs-collapsed-description">',
-            '#suffix' => '</div>',
-          ];
+        if ($closed_mode_setting === 'preview') {
+          // The closed paragraph is displayed as a rendered preview.
+          $view_builder = $entity_type_manager->getViewBuilder('paragraph');
+
+          $element['preview'] = $view_builder->view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
+          $element['preview']['#access'] = $paragraphs_entity->access('view');
+        }
+        else {
+          // The closed paragraph is displayed as a summary.
+          if ($paragraphs_entity) {
+            $summary = $paragraphs_entity->getSummary();
+            $element['top']['paragraph_summary']['fields_info'] = [
+              '#markup' => $summary,
+              '#prefix' => '<div class="paragraphs-collapsed-description">',
+              '#suffix' => '</div>',
+              '#access' => $paragraphs_entity->access('view'),
+            ];
+          }
         }
       }
       else {
@@ -672,6 +741,8 @@ class ParagraphsWidget extends WidgetBase {
       $widget_state['paragraphs'][$delta]['entity'] = $paragraphs_entity;
       $widget_state['paragraphs'][$delta]['display'] = $display;
       $widget_state['paragraphs'][$delta]['mode'] = $item_mode;
+      $widget_state['closed_mode'] = $closed_mode_setting;
+      $widget_state['autocollapse'] = $autocollapse_setting;
 
       static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     }
@@ -1435,6 +1506,8 @@ class ParagraphsWidget extends WidgetBase {
       $widget_state['selected_bundle'] = $element['add_more']['add_more_select']['#value'];
     }
 
+    $widget_state = static::autocollapse($widget_state);
+
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
     $form_state->setRebuild();
@@ -1479,6 +1552,8 @@ class ParagraphsWidget extends WidgetBase {
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $widget_state['paragraphs'][$original_button_delta]['entity'];
 
+    $widget_state = static::autocollapse($widget_state);
+
     // Check if the replicate module is enabled.
     if (\Drupal::hasService('replicate.replicator')) {
       $duplicate_entity = \Drupal::getContainer()->get('replicate.replicator')->replicateEntity($entity);
@@ -1512,7 +1587,13 @@ class ParagraphsWidget extends WidgetBase {
 
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
-    $widget_state['paragraphs'][$delta]['mode'] = $button['#paragraphs_mode'];
+    $new_mode = $button['#paragraphs_mode'];
+
+    if ($new_mode === 'edit') {
+      $widget_state = static::autocollapse($widget_state);
+    }
+
+    $widget_state['paragraphs'][$delta]['mode'] = $new_mode;
 
     if (!empty($button['#paragraphs_show_warning'])) {
       $widget_state['paragraphs'][$delta]['show_warning'] = $button['#paragraphs_show_warning'];
@@ -2245,8 +2326,37 @@ class ParagraphsWidget extends WidgetBase {
       }
     }
 
+    // Disable autocollapse when editing all and enable it when closing all.
+    if ($button['#paragraphs_mode'] === 'edit') {
+      $widget_state['autocollapse'] = 'none';
+    }
+    elseif ($button['#paragraphs_mode'] === 'closed') {
+      $widget_state['autocollapse'] = 'all';
+    }
+
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     $form_state->setRebuild();
+  }
+
+  /**
+   * If autocollapse is enabled, returns a state with all paragraphs closed.
+   *
+   * @param array $widget_state
+   *   The current widget state.
+   *
+   * @return array
+   *   The widget state altered by closing all paragraphs.
+   */
+  public static function autocollapse(array $widget_state) {
+    if ($widget_state['real_item_count'] > 0 && $widget_state['autocollapse'] !== 'none') {
+      foreach ($widget_state['paragraphs'] as $delta => $value) {
+        if ($widget_state['paragraphs'][$delta]['mode'] === 'edit') {
+          $widget_state['paragraphs'][$delta]['mode'] = 'closed';
+        }
+      }
+    }
+
+    return $widget_state;
   }
 
 }

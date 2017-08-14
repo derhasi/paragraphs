@@ -175,4 +175,50 @@ trait ParagraphsTestBaseTrait {
       ->save();
   }
 
+  /**
+   * Sets some of the settings of a paragraphs field widget.
+   *
+   * @param string $bundle
+   *   Machine name of the bundle (e.g., a content type for nodes, a paragraphs
+   *   type for paragraphs, etc.) with a paragraphs field.
+   * @param string $paragraphs_field
+   *   Machine name of the paragraphs field whose widget (settings) to change.
+   * @param array $settings
+   *   New setting values keyed by names of settings that are to be set.
+   * @param string|null $field_widget
+   *   (optional) Machine name of the paragraphs field widget to use. NULL to
+   *   keep the current widget.
+   * @param string $entity_type
+   *   (optional) Machine name of the content entity type that the bundle
+   *   belongs to. Defaults to "node".
+   */
+    protected function setParagraphsWidgetSettings($bundle, $paragraphs_field, array $settings, $field_widget = NULL, $entity_type = 'node') {
+    /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $default_form_display */
+    $default_form_display = \Drupal::entityTypeManager()
+      ->getStorage('entity_form_display')
+      ->load($entity_type . '.' . $bundle . '.default');
+    $component = $default_form_display->getComponent($paragraphs_field);
+
+    $updated_component = $component;
+    if ($field_widget === NULL || $field_widget === $component['type']) {
+      // The widget stays the same.
+      $updated_component['settings'] = $settings + $component['settings'];
+    }
+    else {
+      // Change the widget.
+      $updated_component['type'] = $field_widget;
+
+      $widget_definition = \Drupal::service('plugin.manager.field.widget')
+        ->getDefinition($field_widget);
+      /** @var \Drupal\Core\Field\WidgetInterface $class */
+      $class = $widget_definition['class'];
+      $default_settings = $class::defaultSettings();
+
+      $updated_component['settings'] = $settings + $default_settings;
+    }
+
+    $default_form_display->setComponent($paragraphs_field, $updated_component)
+      ->save();
+  }
+
 }
