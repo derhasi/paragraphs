@@ -1,3 +1,5 @@
+$grey--dark: #999999;
+
 .paragraphs-dragdrop {
   list-style-type: none;
   margin: 0;
@@ -5,7 +7,7 @@
   min-height: 50px;
 
   &:empty {
-     border: 1px dashed #999999;
+     border: 1px dashed $grey--dark;
      margin-bottom: 10px;
    }
 
@@ -22,11 +24,13 @@
     min-height: 30px;
     margin: 10px 0;
     padding: 3px;
-    border: 1px solid #d4d4d4;
+    border: 1px solid $grey--dark;
+    border-left-width: 10px;
+    transition: border .5s ease;
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
-    background-image: linear-gradient(to right, #999999 0, #999999 10px, transparent 10px);
+    cursor: move;
   }
 
   .paragraphs-summary-wrapper {
@@ -47,9 +51,14 @@
     flex-grow: 1;
   }
 
-  > li.sortable-ghost {
-    opacity: 0.5;
-    background-color: #dddddd;
+  .sortable-drag {
+    opacity: 0;
+  }
+
+  > .sortable-ghost,
+  .sortable-chosen {
+    opacity: 1;
+    border-left-color: black;
   }
 
   .tabledrag-handle {

@@ -25,9 +25,11 @@
   min-height: 30px;
   margin: 10px 0;
   padding: 3px;
-  border: 1px solid #d4d4d4;
+  border: 1px solid #999999;
+  border-left-width: 10px;
+  transition: border .5s ease;
   border-radius: 3px;
-  background-image: linear-gradient(to right, #999999 0, #999999 10px, transparent 10px);
+  cursor: move;
 }
 
 .paragraphs-dragdrop .paragraphs-summary-wrapper {
@@ -52,9 +54,14 @@
           flex-grow: 1;
 }
 
-.paragraphs-dragdrop > li.sortable-ghost {
-  opacity: 0.5;
-  background-color: #dddddd;
+.paragraphs-dragdrop .sortable-drag {
+  opacity: 0;
+}
+
+.paragraphs-dragdrop > .sortable-ghost,
+.paragraphs-dragdrop .sortable-chosen {
+  opacity: 1;
+  border-left-color: black;
 }
 
 .paragraphs-dragdrop .tabledrag-handle {
