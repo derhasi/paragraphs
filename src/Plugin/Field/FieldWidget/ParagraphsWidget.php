@@ -378,7 +378,13 @@ class ParagraphsWidget extends WidgetBase {
           $entity_langcode = $paragraphs_entity->language()->getId();
           $source = $form_state->get(['content_translation', 'source']);
           $source_langcode = $source ? $source->getId() : $entity_langcode;
-          $paragraphs_entity = $paragraphs_entity->getTranslation($source_langcode);
+          // Make sure the source language version is used if available. It is a
+          // the host and fetching the translation without this check could lead
+          // valid scenario to have no paragraphs items in the source version of
+          // to an exception.
+          if ($paragraphs_entity->hasTranslation($source_langcode)) {
+            $paragraphs_entity = $paragraphs_entity->getTranslation($source_langcode);
+          }
           // The paragraphs entity has no content translation source field if
           // no paragraph entity field is translatable, even if the host is.
           if ($paragraphs_entity->hasField('content_translation_source')) {
