@@ -45,6 +45,11 @@ class ParagraphsUiTest extends ParagraphsTestBase {
     ];
     $this->fieldUIAddNewField($bundle_path, $field_name, $field_title, $field_type, [], $field_edit);
 
+    $form_display_edit = [
+      'fields[field_content][type]' => 'entity_reference_paragraphs',
+    ];
+    $this->drupalPostForm($bundle_path . '/form-display', $form_display_edit, t('Save'));
+
     // Attempt to create a paragraphed node with an empty required field.
     $title = 'Empty';
     $this->drupalGet('node/add/paragraphed_content_demo');
@@ -55,8 +60,8 @@ class ParagraphsUiTest extends ParagraphsTestBase {
     // "remove" mode in the required field.
     $title = 'Remove mode';
     $this->drupalGet('node/add/paragraphed_content_demo');
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_demo_image_text_add_more');
-    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_demo_0_remove');
+    $this->drupalPostAjaxForm(NULL, [], 'field_content_image_text_add_more');
+    $this->drupalPostAjaxForm(NULL, [], 'field_content_0_remove');
     $this->assertNoText($field_title . ' field is required');
     $this->drupalPostForm(NULL, ['title[0][value]' => $title], t('Save'));
     $this->assertText($field_title . ' field is required');

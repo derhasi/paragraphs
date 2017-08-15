@@ -1931,10 +1931,7 @@ class ParagraphsWidget extends WidgetBase {
     $field_name = $this->fieldDefinition->getName();
     $widget_state = static::getWidgetState($elements['#field_parents'], $field_name, $form_state);
 
-    $remove_mode_item_count = $this->getNumberOfParagraphsInMode($widget_state, 'remove');
-    $non_remove_mode_item_count = $widget_state['real_item_count'] - $remove_mode_item_count;
-
-    if ($elements['#required'] && $non_remove_mode_item_count < 1) {
+    if ($elements['#required'] && $widget_state['real_item_count'] < 1) {
       $form_state->setError($elements, t('@name field is required.', ['@name' => $this->fieldDefinition->getLabel()]));
     }
 
