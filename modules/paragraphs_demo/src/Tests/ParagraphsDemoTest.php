@@ -46,7 +46,6 @@ class ParagraphsDemoTest extends WebTestBase {
     $basic_html_format->save();
     $admin_user = $this->drupalCreateUser(array(
       'administer site configuration',
-      'administer nodes',
       'create paragraphed_content_demo content',
       'edit any paragraphed_content_demo content',
       'delete any paragraphed_content_demo content',
@@ -142,7 +141,7 @@ class ParagraphsDemoTest extends WebTestBase {
     $edit = [
       'field_paragraphs_demo[1][subform][field_user_demo][0][target_id]' => $admin_user->label() . ' (' . $admin_user->id() . ')',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     $this->assertText('Paragraphed article Paragraph title has been created.');
     $this->assertText('Paragraph title');

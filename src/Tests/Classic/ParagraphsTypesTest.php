@@ -32,7 +32,7 @@ class ParagraphsTypesTest extends ParagraphsTestBase {
     $this->drupalGet('node/add/paragraphed_test');
     $this->drupalPostAjaxForm(NULL, [], 'paragraphs_paragraph_type_test_add_more');
     $edit = ['title[0][value]' => 'test_node'];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertText('paragraphed_test test_node has been created.');
 
     // Attempt to delete the paragraph type already used.

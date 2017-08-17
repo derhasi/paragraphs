@@ -66,7 +66,6 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
       'administer node form display',
       'edit any paragraphed_test content',
       'create paragraphed_test content',
-      'administer nodes'
     ]);
     // Set the add mode on the content type to modal form widget.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/form-display');
@@ -143,7 +142,7 @@ class ParagraphsExperimentalAddWidgetTest extends JavascriptTestBase {
     $edit = [
       'title[0][value]' => 'Example title',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
 
     // Check the created paragraphed test.

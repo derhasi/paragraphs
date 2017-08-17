@@ -46,7 +46,6 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
     // Create an admin user for test.
     $admin_user = $this->drupalCreateUser(array(
       'administer site configuration',
-      'administer nodes',
       'administer content types',
       'administer node fields',
       'administer node display',
@@ -92,7 +91,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
       'field_paragraphs_demo[0][subform][field_text_demo][0][value]' => 'Paragraph type Image + Text',
       'field_paragraphs_demo[2][subform][field_text_demo][0][value]' => 'Paragraph type Text',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Get the node to edit it later.
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
@@ -139,7 +138,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
     $edit = [
       'field_paragraphs_demo[0][subform][status][value]' => FALSE,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Check that 'Image + Text' paragraph is not shown anymore for admin user.
     $this->assertNoRaw($image_text_tag);

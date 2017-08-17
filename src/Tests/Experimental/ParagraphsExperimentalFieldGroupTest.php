@@ -66,7 +66,7 @@ class ParagraphsExperimentalFieldGroupTest extends ParagraphsExperimentalTestBas
       'title[0][value]' => 'paragraphed_title',
       'field_paragraphs[0][subform][field_text][0][value]' => 'paragraph_value',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
   }
 
 }

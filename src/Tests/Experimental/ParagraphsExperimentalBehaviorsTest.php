@@ -100,7 +100,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $behavior_xpath = $this->xpath("//div[@id = 'edit-field-paragraphs-0-top']/following-sibling::*[1][@id = 'edit-field-paragraphs-0-behavior-plugins-test-text-color']");
     $this->assertNotEqual($behavior_xpath, FALSE, 'Behavior form position incorrect');
 
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     // Asserting that the error message is shown.
     $this->assertText('The only allowed values are blue and red.');
     // Updating the text color to an allowed value.
@@ -108,7 +108,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $edit = [
       'field_paragraphs[0][behavior_plugins][test_text_color][text_color]' => $plugin_text,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     // Assert that the class has been added to the element.
     $this->assertRaw('class="red_plugin_text');
 
@@ -122,7 +122,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'field_paragraphs[0][behavior_plugins][test_text_color][text_color]' => $updated_text,
       'field_paragraphs[0][behavior_plugins][test_bold_text][bold_text]' => TRUE,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertNoRaw('class="red_plugin_text');
     $this->assertRaw('class="blue_plugin_text bold_plugin_text');
     $this->clickLink('Edit');
@@ -140,7 +140,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $this->assertNoFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', $updated_text);
     $this->assertNoFieldByName('field_paragraphs[0][behavior_plugins][test_bold_text][bold_text]', TRUE);
 
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
 
     // Make sure that values don't change if a user without the 'edit behavior
     // plugin settings' permission saves a node with paragraphs and enabled
@@ -177,7 +177,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'title[0][value]' => 'paragraph with no fields',
       'field_paragraphs[0][subform][field_text_test][0][value]' => 'my behavior plugin does not have any field',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertRaw('dummy_plugin_text');
 
     // Tests behavior plugin on paragraph type with no fields.
@@ -187,7 +187,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $this->drupalGet('node/add/paragraphed_test');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_fieldless_add_more');
     $edit = ['title[0][value]' => t('Fieldless')];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     $this->assertResponse(200);
   }
@@ -239,7 +239,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'field_paragraphs[1][subform][paragraphs][0][subform][field_text][0][value]' => 'nested_paragraph',
       'field_paragraphs[1][behavior_plugins][test_bold_text][bold_text]' => TRUE,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Assert that the summary includes the text of the behavior plugins.
     $this->clickLink('Edit');
@@ -251,7 +251,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
     $edit = [
       'title[0][value]' => 'collapsed_test',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Check an empty nested paragraph summary.
     $this->clickLink('Edit');
@@ -305,7 +305,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'field_paragraphs[1][subform][field_text][0][value]' => 'first_paragraph',
       'field_paragraphs[1][behavior_plugins][test_bold_text][bold_text]' => TRUE,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     $this->clickLink('Edit');
     $edit = [
@@ -314,7 +314,7 @@ class ParagraphsExperimentalBehaviorsTest extends ParagraphsExperimentalTestBase
       'field_paragraphs[1][behavior_plugins][test_text_color][text_color]' => 'red',
       'field_paragraphs[1][_weight]' => 0,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertNoErrorsLogged();
     $this->clickLink('Edit');
     $this->assertFieldByName('field_paragraphs[0][behavior_plugins][test_text_color][text_color]', 'red');

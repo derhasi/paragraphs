@@ -59,7 +59,6 @@ abstract class ParagraphsTestBase extends WebTestBase {
     $this->drupalPlaceBlock('page_title_block');
 
     $this->admin_permissions = [
-      'administer nodes',
       'administer content types',
       'administer node fields',
       'administer paragraphs types',

@@ -62,7 +62,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $edit = [
       'title[0][value]' => 'Test',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertText('paragraphed_test Test has been created.');
 
     $node = $this->getNodeByTitle('Test');
@@ -134,7 +134,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $edit = [
       'title[0][value]' => 'Test',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertText('paragraphed_test Test has been created.');
 
     $node = $this->getNodeByTitle('Test');
@@ -211,7 +211,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $edit = [
       'title[0][value]' => 'Test',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertText('paragraphed_test Test has been created.');
 
     $node = $this->getNodeByTitle('Test');

@@ -51,13 +51,13 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
       'field_paragraphs[0][subform][field_text][0][value]' => $text,
     ];
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     // Test the 'Open' edit mode.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', $text);
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText($text);
 
     // Test the 'Closed' edit mode.
@@ -76,7 +76,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     // Verify that we have warning message for each paragraph.
     $this->assertNoUniqueText('You have unsaved changes on this Paragraph item.');
     $this->assertRaw('<div class="paragraphs-collapsed-description">' . $closed_mode_text);
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertText($closed_mode_text);
 
@@ -92,7 +92,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
     $this->assertText('You have unsaved changes on this Paragraph item.');
     $this->assertText($preview_mode_text);
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertText($preview_mode_text);
 
@@ -100,7 +100,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->drupalGet('node/' . $node->id() . '/edit');
     // Click "Remove" button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_remove');
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
     $this->assertNoText($preview_mode_text);
   }
@@ -132,7 +132,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
       'field_paragraphs[0][subform][field_text][0][value]' => $text,
     ];
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     // Checking visible buttons on "Open" mode.

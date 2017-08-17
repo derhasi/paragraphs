@@ -63,13 +63,13 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
       'files[field_paragraphs_0_subform_field_image_0]' => drupal_realpath('temporary://myImage1.jpg'),
       'field_paragraphs[1][subform][field_title][0][value]' => 'Title example',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->clickLink(t('Edit'));
     $this->drupalPostForm(NULL, [], t('Add user_paragraph'));
     $edit = [
       'field_paragraphs[2][subform][field_user][0][target_id]' => $this->admin_user->label() . ' (' . $this->admin_user->id() . ')',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
@@ -91,7 +91,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     // Remove image.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_edit');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_0_subform_field_image_0_remove_button');
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
 
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
@@ -111,7 +111,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
       'title[0][value]' => 'Node title',
       'field_paragraphs[0][subform][field_nested_content][0][subform][field_user][0][target_id]' => $test_user->label() . ' (' . $test_user->id() . ')',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Create an orphaned ER field item by deleting the target entity.
     $test_user->delete();

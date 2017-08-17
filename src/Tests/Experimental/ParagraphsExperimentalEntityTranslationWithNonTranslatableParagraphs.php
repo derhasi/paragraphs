@@ -79,7 +79,7 @@ class ParagraphsExperimentalEntityTranslationWithNonTranslatableParagraphs exten
     $edit = [
       'title[0][value]' => 'Title English',
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Add french translation.
     $this->clickLink(t('Translate'));
@@ -90,7 +90,7 @@ class ParagraphsExperimentalEntityTranslationWithNonTranslatableParagraphs exten
     $edit = array(
       'title[0][value]' => 'Title French',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
+    $this->drupalPostForm(NULL, $edit, t('Save (this translation)'));
     $this->assertText('article Title French has been updated.');
 
     // Add german translation.
@@ -102,7 +102,7 @@ class ParagraphsExperimentalEntityTranslationWithNonTranslatableParagraphs exten
     $edit = array(
       'title[0][value]' => 'Title German',
     );
-    $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
+    $this->drupalPostForm(NULL, $edit, t('Save (this translation)'));
     $this->assertText('article Title German has been updated.');
   }
 

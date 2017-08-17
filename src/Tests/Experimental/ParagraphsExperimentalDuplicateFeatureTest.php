@@ -43,7 +43,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
       'field_paragraphs[1][subform][field_text][0][value]' => 'B',
       'field_paragraphs[2][subform][field_text][0][value]' => 'C',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     $this->drupalGet('node/' . $node->id() . '/edit');
@@ -69,7 +69,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     ];
 
     // Save and check if all paragraphs are present in the correct order.
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', 'A');
     $this->assertFieldByName('field_paragraphs[1][subform][field_text][0][value]', 'A');
@@ -79,7 +79,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     // Delete the second A, then duplicate C.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_1_remove');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_2_duplicate');
-    $this->drupalPostFormSave(NULL, [], t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, [], t('Save'));
 
     $this->drupalGet('node/' . $node->id() . '/edit');
     $this->assertFieldByName('field_paragraphs[0][subform][field_text][0][value]', 'A');
@@ -116,7 +116,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $edit = [
       'title[0][value]' => 'paragraphs_mode_test',
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and publish'), t('Save'), $edit + ['status[value]' => TRUE]);
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $node = $this->drupalGetNodeByTitle('paragraphs_mode_test');
 
     // Add a text field to nested paragraph.
@@ -125,7 +125,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
     $edit = [
       'field_paragraphs[0][subform][field_nested][0][subform][field_text][0][value]' => $text,
     ];
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
 
     // Switch mode to closed.
     $this->setParagraphsWidgetMode('paragraphed_test', 'field_paragraphs', 'closed');
@@ -145,7 +145,7 @@ class ParagraphsExperimentalDuplicateFeatureTest extends ParagraphsExperimentalT
 
     // Save and check if the changed text paragraph value of the duplicated
     // paragraph is not the same as in the original paragraph.
-    $this->drupalPostFormSave(NULL, $edit, t('Save and keep published'), t('Save'));
+    $this->drupalPostForm(NULL, $edit, t('Save'));
     $this->assertUniqueText($text);
     $this->assertUniqueText($second_paragraph_text);
   }

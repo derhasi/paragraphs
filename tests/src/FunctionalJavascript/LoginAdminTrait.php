@@ -22,7 +22,6 @@ trait LoginAdminTrait {
   public function loginAsAdmin($additional_permissions = [], $reset_permissions = FALSE) {
 
     $permissions = [
-      'administer nodes',
       'administer content types',
       'administer node fields',
       'administer paragraphs types',
