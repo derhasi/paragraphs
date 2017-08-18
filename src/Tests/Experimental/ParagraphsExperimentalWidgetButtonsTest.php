@@ -74,7 +74,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $edit = ['field_paragraphs[1][subform][field_text][0][value]' => $closed_mode_text];
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_1_collapse');
     // Verify that we have warning message for each paragraph.
-    $this->assertNoUniqueText('You have unsaved changes on this Paragraph item.');
+    $this->assertEqual(2, count($this->xpath("//*[contains(@class, 'paragraphs-icon-changed')]")));
     $this->assertRaw('<div class="paragraphs-collapsed-description">' . $closed_mode_text);
     $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');
@@ -91,6 +91,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     // Click "Collapse" button.
     $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
     $this->assertText('You have unsaved changes on this Paragraph item.');
+    $this->assertEqual(1, count($this->xpath("//*[contains(@class, 'paragraphs-icon-changed')]")));
     $this->assertText($preview_mode_text);
     $this->drupalPostForm(NULL, [], t('Save'));
     $this->assertText('paragraphed_test ' . $node->label() . ' has been updated.');

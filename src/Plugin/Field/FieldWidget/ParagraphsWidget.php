@@ -34,6 +34,17 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class ParagraphsWidget extends WidgetBase {
 
   /**
+   * Indicates that widget action position is in the base of the widget.
+   */
+  const ACTION_POSITION_BASE = 1;
+
+  /**
+   * Indicates that widget action position is in the actions section of the
+   * widget.
+   */
+  const ACTION_POSITION_ACTIONS = 2;
+
+  /**
    * Indicates whether the current widget instance is in translation.
    *
    * @var bool
@@ -426,34 +437,59 @@ class ParagraphsWidget extends WidgetBase {
       if (isset($item_bundles[$paragraphs_entity->bundle()])) {
         $bundle_info = $item_bundles[$paragraphs_entity->bundle()];
 
-        $element['top'] = array(
+        // Create top section structure with all needed subsections.
+        $element['top'] = [
           '#type' => 'container',
           '#weight' => -1000,
-          '#attributes' => array(
-            'class' => array(
-              'paragraph-type-top',
-            ),
-          ),
-        );
+          '#attributes' => ['class' => ['paragraph-type-top']],
+          // Section for paragraph type information.
+          'type' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['paragraph-type-title']],
+            'label' => ['#markup' => $bundle_info['label']],
+          ],
+          // Section for information icons.
+          'info' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['paragraph-type-info']],
+          ],
+          'summary' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['paragraph-type-summary']],
+          ],
+          // Section for action buttons which can be default_buttons and
+          // dropdown_buttons.
+          'actions' => [
+            '#type' => 'container',
+            '#attributes' => ['class' => ['paragraph-type-actions']],
+          ],
+        ];
 
-        $element['top']['paragraph_type_title'] = array(
-          '#type' => 'container',
-          '#weight' => 0,
-          '#attributes' => array(
-            'class' => array(
-              'paragraph-type-title',
-            ),
-          ),
-        );
+        // Type icon and label bundle.
+        if ($icon_url = $paragraphs_entity->type->entity->getIconUrl()) {
+          $element['top']['type']['icon'] = [
+            '#theme' => 'image',
+            '#uri' => $icon_url,
+            '#attributes' => [
+              'class' => ['paragraph-type-icon'],
+              'title' => $bundle_info['label'],
+            ],
+            '#weight' => 0,
+            // We set inline height and width so icon don't resize on first load
+            // while CSS is still not loaded.
+            '#height' => 16,
+            '#width' => 16,
+          ];
+        }
+        $element['top']['type']['label'] = [
+          '#markup' => '<span class="paragraph-type-label">' . $bundle_info['label'] . '</span>',
+          '#weight' => 1,
+        ];
 
-        $element['top']['paragraph_type_title']['info'] = array(
-          '#markup' => $bundle_info['label'],
-        );
+        // Action dropdown_buttons.
+        $dropdown_buttons = [];
 
-        $actions = [];
-        $links = [];
-
-        $links['duplicate_button'] = [
+        $dropdown_buttons['duplicate_button'] = [
           '#type' => 'submit',
           '#value' => $this->t('Duplicate'),
           '#name' => $id_prefix . '_duplicate',
@@ -469,11 +505,11 @@ class ParagraphsWidget extends WidgetBase {
         ];
 
         if ($item_mode != 'remove') {
-          $links['remove_button'] = [
+          $dropdown_buttons['remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
             '#name' => $id_prefix . '_remove',
-            '#weight' => 501 ,
+            '#weight' => 501,
             '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
             '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
             '#delta' => $delta,
@@ -489,7 +525,7 @@ class ParagraphsWidget extends WidgetBase {
 
         if ($item_mode == 'edit') {
           if (isset($paragraphs_entity)) {
-            $links['collapse_button'] = [
+            $dropdown_buttons['collapse_button'] = [
               '#value' => $this->t('Collapse'),
               '#name' => $id_prefix . '_collapse',
               '#weight' => 499,
@@ -505,68 +541,72 @@ class ParagraphsWidget extends WidgetBase {
               '#paragraphs_show_warning' => TRUE,
             ];
           }
-
-          $info['edit_button_info'] = $this->createMessage($this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete')
-          ];
-
-          $info['remove_button_info'] = $this->createMessage($this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update')
-          ];
-
-          $info['edit_remove_button_info'] = $this->createMessage($this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')
-          ];
         }
         else {
-          $element['top']['paragraphs_edit_button_container'] = [
-            '#type' => 'container',
-            '#weight' => 1,
-            '#attributes' => [
-              'class' => [
-                'paragraphs-edit-button-container',
-              ],
+          $element['top']['actions']['default_buttons']['edit_button'] = $this->expandButton([
+            '#type' => 'submit',
+            '#value' => $this->t('Edit'),
+            '#name' => $id_prefix . '_edit',
+            '#weight' => 500,
+            '#attributes' => ['class' => ['paragraphs-button']],
+            '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
+            '#limit_validation_errors' => [
+              array_merge($parents, [$field_name, 'add_more']),
             ],
-            'paragraphs_edit_button' => $this->expandButton([
-              '#type' => 'submit',
-              '#value' => $this->t('Edit'),
-              '#name' => $id_prefix . '_edit',
-              '#weight' => 500,
-              '#attributes' => [
-                'class' => [
-                  'paragraphs-edit-button',
-                ],
-              ],
-              '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
-              '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
-              '#delta' => $delta,
-              '#ajax' => [
-                'callback' => [get_class($this), 'itemAjax'],
-                'wrapper' => $widget_state['ajax_wrapper_id'],
-              ],
-              '#access' => $paragraphs_entity->access('update'),
-              '#paragraphs_mode' => 'edit',
-            ]),
-          ];
-
-          if ($show_must_be_saved_warning && $paragraphs_entity->isChanged()) {
-            $info['must_be_saved_info'] = $this->createMessage($this->t('You have unsaved changes on this @title item.', array('@title' => $this->getSetting('title'))));
+            '#delta' => $delta,
+            '#ajax' => [
+              'callback' => [get_class($this), 'itemAjax'],
+              'wrapper' => $widget_state['ajax_wrapper_id'],
+            ],
+            '#access' => $paragraphs_entity->access('update'),
+            '#paragraphs_mode' => 'edit',
+          ]);
+          // If update is disabled we will show lock icon instead of a edit
+          // button.
+          if (!$paragraphs_entity->access('update')) {
+            $element['top']['actions']['default_buttons']['edit_disabled'] = [
+              '#theme' => 'paragraphs_info_icon',
+              '#message' => $this->t('You are not allowed to edit or remove this @title.', ['@title' => $this->getSetting('title')]),
+              '#icon' => 'lock',
+            ];
           }
 
-          $info['preview_info'] = $this->createMessage($this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('view')
-          ];
+          if ($show_must_be_saved_warning && $paragraphs_entity->isChanged()) {
+            $info['changed'] = [
+              '#theme' => 'paragraphs_info_icon',
+              '#message' => $this->t('You have unsaved changes on this @title item.', ['@title' => $this->getSetting('title')]),
+              '#icon' => 'changed',
+            ];
+          }
 
-          $info['edit_button_info'] = $this->createMessage($this->t('You are not allowed to edit this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('update') && $paragraphs_entity->access('delete')
-          ];
+          if (!$paragraphs_entity->access('view')) {
+            $info['preview'] = [
+              '#theme' => 'paragraphs_info_icon',
+              '#message' => $this->t('You are not allowed to view this @title.', array('@title' => $this->getSetting('title'))),
+              '#icon' => 'view',
+            ];
+          }
+        }
 
-          $info['remove_button_info'] = $this->createMessage($this->t('You are not allowed to remove this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('delete') && $paragraphs_entity->access('update')
+        if (!$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')) {
+          $info['edit'] = [
+            '#theme' => 'paragraphs_info_icon',
+            '#message' => $this->t('You are not allowed to edit or remove this @title.', ['@title' => $this->getSetting('title')]),
+            '#icon' => 'lock',
           ];
-
-          $info['edit_remove_button_info'] = $this->createMessage($this->t('You are not allowed to edit or remove this @title.', array('@title' => $this->getSetting('title')))) + [
-            '#access' => !$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')
+        }
+        elseif (!$paragraphs_entity->access('update')) {
+          $info['edit'] = [
+            '#theme' => 'paragraphs_info_icon',
+            '#message' => $this->t('You are not allowed to edit this @title.', ['@title' => $this->getSetting('title')]),
+            '#icon' => 'edit-disabled',
+          ];
+        }
+        elseif (!$paragraphs_entity->access('delete')) {
+          $info['remove'] = [
+            '#theme' => 'paragraphs_info_icon',
+            '#message' => $this->t('You are not allowed to remove this @title.', ['@title' => $this->getSetting('title')]),
+            '#icon' => 'delete-disabled',
           ];
         }
 
@@ -581,14 +621,17 @@ class ParagraphsWidget extends WidgetBase {
         ];
 
         // Allow modules to register buttons for widget actions.
-        \Drupal::moduleHandler()->alter('paragraph_widget_dropbutton', $links, $context);
+        // @todo - change this with #2901549 - rename hook and to
+        // paragraph_widget_actions and pass subarray which holds both
+        // default buttons and dropdown buttons.
+        \Drupal::moduleHandler()->alter('paragraph_widget_dropbutton', $dropdown_buttons, $context);
 
-        // Expand all links to proper dropdown button elements.
-        $links = array_map([$this, 'expandButton'], $links);
+        // Expand all dropdown_buttons to proper dropdown button elements.
+        $dropdown_buttons = array_map([$this, 'expandButton'], $dropdown_buttons);
 
-        if (count($links)) {
+        if (count($dropdown_buttons)) {
           $show_links = 0;
-          foreach($links as $link_item) {
+          foreach ($dropdown_buttons as $link_item) {
             if (!isset($link_item['#access']) || $link_item['#access']) {
               $show_links++;
             }
@@ -597,41 +640,19 @@ class ParagraphsWidget extends WidgetBase {
           if ($show_links > 0) {
             // Wrap in dropbutton operations if there's more than one.
             if ($show_links > 1) {
-              $links = $this->buildActionsElement($links);
+              $dropdown_buttons = $this->buildActionsElement($dropdown_buttons);
             }
-            $links['#weight'] = 1;
-            $element['top']['links'] = $links;
+            $dropdown_buttons['#weight'] = 1;
+            $element['top']['actions']['dropdown_buttons'] = $dropdown_buttons;
           }
         }
 
         if (count($info)) {
-          $show_info = FALSE;
-          foreach($info as $info_item) {
+          foreach ($info as $info_item) {
             if (!isset($info_item['#access']) || $info_item['#access']) {
-              $show_info = TRUE;
+              $element['top']['info']['items'] = $info;
               break;
             }
-          }
-
-          if ($show_info) {
-            $element['info'] = $info;
-            $element['info']['#weight'] = 998;
-          }
-        }
-
-        if (count($actions)) {
-          $show_actions = FALSE;
-          foreach($actions as $action_item) {
-            if (!isset($action_item['#access']) || $action_item['#access']) {
-              $show_actions = TRUE;
-              break;
-            }
-          }
-
-          if ($show_actions) {
-            $element['actions'] = $actions;
-            $element['actions']['#type'] = 'actions';
-            $element['actions']['#weight'] = 999;
           }
         }
       }
@@ -724,12 +745,14 @@ class ParagraphsWidget extends WidgetBase {
           // The closed paragraph is displayed as a summary.
           if ($paragraphs_entity) {
             $summary = $paragraphs_entity->getSummary();
-            $element['top']['paragraph_summary']['fields_info'] = [
-              '#markup' => $summary,
-              '#prefix' => '<div class="paragraphs-collapsed-description">',
-              '#suffix' => '</div>',
-              '#access' => $paragraphs_entity->access('view'),
-            ];
+            if (!empty($summary)) {
+              $element['top']['summary']['fields_info'] = [
+                '#markup' => $summary,
+                '#prefix' => '<div class="paragraphs-collapsed-description">',
+                '#suffix' => '</div>',
+                '#access' => $paragraphs_entity->access('view'),
+              ];
+            }
           }
         }
       }
@@ -1198,7 +1221,7 @@ class ParagraphsWidget extends WidgetBase {
           $summary_options['depth_limit'] = 0;
         }
 
-        $element['top']['paragraph_summary']['fields_info'] = [
+        $element['top']['summary']['fields_info'] = [
           '#markup' => $child_paragraph->getSummary($summary_options),
           '#prefix' => '<div class="paragraphs-collapsed-description">',
           '#suffix' => '</div>',
@@ -1269,8 +1292,6 @@ class ParagraphsWidget extends WidgetBase {
    *
    * @param string $message
    *   Message text.
-   * @param bool $access
-   *   Form element access.
    * @param string $type
    *   Message type.
    *
@@ -1316,6 +1337,41 @@ class ParagraphsWidget extends WidgetBase {
     }
 
     return $button;
+  }
+
+  /**
+   * Get common submit element information for processing ajax submit handlers.
+   *
+   * @param array $form
+   *   Form array.
+   * @param FormStateInterface $form_state
+   *   Form state object.
+   * @param int $position
+   *   Position of triggering element.
+   *
+   * @return array
+   *   Submit element information.
+   */
+  public static function getSubmitElementInfo(array $form, FormStateInterface $form_state, $position = ParagraphsWidget::ACTION_POSITION_BASE) {
+    $submit['button'] = $form_state->getTriggeringElement();
+
+    // Go up in the form, to the widgets container.
+    if ($position == ParagraphsWidget::ACTION_POSITION_BASE) {
+      $submit['element'] = NestedArray::getValue($form, array_slice($submit['button']['#array_parents'], 0, -2));
+    }
+    elseif ($position == ParagraphsWidget::ACTION_POSITION_ACTIONS) {
+      $submit['element'] = NestedArray::getValue($form, array_slice($submit['button']['#array_parents'], 0, -5));
+      $delta = array_slice($submit['button']['#array_parents'], -5, -4);
+      $submit['delta'] = $delta[0];
+    }
+
+    $submit['field_name'] = $submit['element']['#field_name'];
+    $submit['parents'] = $submit['element']['#field_parents'];
+
+    // Get widget state.
+    $submit['widget_state'] = static::getWidgetState($submit['parents'], $submit['field_name'], $form_state);
+
+    return $submit;
   }
 
   /**
@@ -1472,12 +1528,11 @@ class ParagraphsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public static function addMoreAjax(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
+    $element = $submit['element'];
 
     // Add a DIV around the delta receiving the Ajax effect.
-    $delta = $element['#max_delta'];
+    $delta = $submit['element']['#max_delta'];
     $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
     $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
 
@@ -1488,30 +1543,22 @@ class ParagraphsWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public static function addMoreSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
 
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    // Increment the items count.
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    if ($widget_state['real_item_count'] < $element['#cardinality'] || $element['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
-      $widget_state['items_count']++;
+    if ($submit['widget_state']['real_item_count'] < $submit['element']['#cardinality'] || $submit['element']['#cardinality'] == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+      $submit['widget_state']['items_count']++;
     }
 
-    if (isset($button['#bundle_machine_name'])) {
-      $widget_state['selected_bundle'] = $button['#bundle_machine_name'];
+    if (isset($submit['button']['#bundle_machine_name'])) {
+      $submit['widget_state']['selected_bundle'] = $submit['button']['#bundle_machine_name'];
     }
     else {
-      $widget_state['selected_bundle'] = $element['add_more']['add_more_select']['#value'];
+      $submit['widget_state']['selected_bundle'] = $submit['element']['add_more']['add_more_select']['#value'];
     }
 
-    $widget_state = static::autocollapse($widget_state);
+    $submit['widget_state'] = static::autocollapse($submit['widget_state']);
 
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+    static::setWidgetState($submit['parents'], $submit['field_name'], $form_state, $submit['widget_state']);
 
     $form_state->setRebuild();
   }
@@ -1522,7 +1569,7 @@ class ParagraphsWidget extends WidgetBase {
   public static function duplicateSubmit(array $form, FormStateInterface $form_state) {
     $button = $form_state->getTriggeringElement();
     // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -5));
     $field_name = $element['#field_name'];
     $parents = $element['#field_parents'];
 
@@ -1541,7 +1588,7 @@ class ParagraphsWidget extends WidgetBase {
       $current_button_delta + 1 => count($widget_state['original_deltas']),
     ];
 
-    $user_input = NestedArray::getValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -4));
+    $user_input = NestedArray::getValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -5));
     $user_input[count($widget_state['original_deltas'])]['_weight'] = $current_button_delta + 1;
 
     // Increase all original deltas bigger than the delta of the duplicated
@@ -1571,51 +1618,38 @@ class ParagraphsWidget extends WidgetBase {
       'mode' => 'edit',
     ];
 
-    NestedArray::setValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -4), $user_input);
+    NestedArray::setValue($form_state->getUserInput(), array_slice($button['#parents'], 0, -5), $user_input);
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
     $form_state->setRebuild();
   }
 
   public static function paragraphsItemSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_ACTIONS);
 
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
-
-    $delta = array_slice($button['#array_parents'], -4, -3);
-    $delta = $delta[0];
-
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    $new_mode = $button['#paragraphs_mode'];
+    $new_mode = $submit['button']['#paragraphs_mode'];
 
     if ($new_mode === 'edit') {
-      $widget_state = static::autocollapse($widget_state);
+      $submit['widget_state'] = static::autocollapse($submit['widget_state']);
     }
 
-    $widget_state['paragraphs'][$delta]['mode'] = $new_mode;
+    $submit['widget_state']['paragraphs'][$submit['delta']]['mode'] = $new_mode;
 
-    if (!empty($button['#paragraphs_show_warning'])) {
-      $widget_state['paragraphs'][$delta]['show_warning'] = $button['#paragraphs_show_warning'];
+    if (!empty($submit['button']['#paragraphs_show_warning'])) {
+      $submit['widget_state']['paragraphs'][$submit['delta']]['show_warning'] = $submit['button']['#paragraphs_show_warning'];
     }
 
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+    static::setWidgetState($submit['parents'], $submit['field_name'], $form_state, $submit['widget_state']);
 
     $form_state->setRebuild();
   }
 
   public static function itemAjax(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -4));
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_ACTIONS);
 
-    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+    $submit['element']['#prefix'] = '<div class="ajax-new-content">' . (isset($submit['element']['#prefix']) ? $submit['element']['#prefix'] : '');
+    $submit['element']['#suffix'] = (isset($submit['element']['#suffix']) ? $submit['element']['#suffix'] : '') . '</div>';
 
-    return $element;
+    return $submit['element'];
   }
 
   /**
@@ -1627,28 +1661,21 @@ class ParagraphsWidget extends WidgetBase {
    *   The current state of the form.
    */
   public static function dragDropModeSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
 
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
-    $field_name = $element['#field_name'];
-    $parents = $element['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
-
-    if (empty($widget_state['dragdrop'])) {
-      $widget_state['dragdrop'] = TRUE;
+    if (empty($submit['widget_state']['dragdrop'])) {
+      $submit['widget_state']['dragdrop'] = TRUE;
     }
     else {
-      $widget_state['dragdrop'] = FALSE;
+      $submit['widget_state']['dragdrop'] = FALSE;
     }
 
     // Make sure that flag that we already reordered is unset when the mode is
     // switched.
-    unset($widget_state['reordered']);
+    unset($submit['widget_state']['reordered']);
 
     // Switch the form mode accordingly.
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+    static::setWidgetState($submit['parents'], $submit['field_name'], $form_state, $submit['widget_state']);
 
     $form_state->setRebuild();
   }
@@ -1835,14 +1862,12 @@ class ParagraphsWidget extends WidgetBase {
    *   The container form element.
    */
   public static function dragDropModeAjax(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-    // Go one level up in the form, to the widgets container.
-    $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
 
-    $element['#prefix'] = '<div class="ajax-new-content">' . (isset($element['#prefix']) ? $element['#prefix'] : '');
-    $element['#suffix'] = (isset($element['#suffix']) ? $element['#suffix'] : '') . '</div>';
+    $submit['element']['#prefix'] = '<div class="ajax-new-content">' . (isset($submit['element']['#prefix']) ? $submit['element']['#prefix'] : '');
+    $submit['element']['#suffix'] = (isset($submit['element']['#suffix']) ? $submit['element']['#suffix'] : '') . '</div>';
 
-    return $element;
+    return $submit['element'];
   }
 
   /**
@@ -2308,33 +2333,25 @@ class ParagraphsWidget extends WidgetBase {
    *   Current form state.
    */
   public static function changeAllEditModeSubmit(array $form, FormStateInterface $form_state) {
-    $button = $form_state->getTriggeringElement();
-
-    // Go one level up in the form, to the widgets container.
-    $field = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
-
-    $field_name = $field['#field_name'];
-    $parents = $field['#field_parents'];
-
-    $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
 
     // Change edit mode for each paragraph.
-    foreach ($widget_state['paragraphs'] as $delta => $value) {
-      $widget_state['paragraphs'][$delta]['mode'] = $button['#paragraphs_mode'];
-      if (!empty($button['#paragraphs_show_warning'])) {
-        $widget_state['paragraphs'][$delta]['show_warning'] = $button['#paragraphs_show_warning'];
+    foreach ($submit['widget_state']['paragraphs'] as $delta => &$paragraph) {
+      $submit['widget_state']['paragraphs'][$delta]['mode'] = $submit['button']['#paragraphs_mode'];
+      if (!empty($submit['button']['#paragraphs_show_warning'])) {
+        $submit['widget_state']['paragraphs'][$delta]['show_warning'] = $submit['button']['#paragraphs_show_warning'];
       }
     }
 
     // Disable autocollapse when editing all and enable it when closing all.
-    if ($button['#paragraphs_mode'] === 'edit') {
-      $widget_state['autocollapse'] = 'none';
+    if ($submit['button']['#paragraphs_mode'] === 'edit') {
+      $submit['widget_state']['autocollapse'] = 'none';
     }
-    elseif ($button['#paragraphs_mode'] === 'closed') {
-      $widget_state['autocollapse'] = 'all';
+    elseif ($submit['button']['#paragraphs_mode'] === 'closed') {
+      $submit['widget_state']['autocollapse'] = 'all';
     }
 
-    static::setWidgetState($parents, $field_name, $form_state, $widget_state);
+    static::setWidgetState($submit['parents'], $submit['field_name'], $form_state, $submit['widget_state']);
     $form_state->setRebuild();
   }
 

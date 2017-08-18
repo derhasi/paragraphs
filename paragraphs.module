@@ -57,6 +57,12 @@ function paragraphs_theme() {
     'paragraphs_dropbutton_wrapper' => array(
       'variables' => array('children' => NULL),
     ),
+    'paragraphs_info_icon' => [
+      'variables' => [
+        'message' => NULL,
+        'icon' => NULL,
+      ],
+    ],
     'paragraphs_add_dialog' => [
       'render element' => 'element',
       'template' => 'paragraphs-add-dialog',

@@ -226,8 +226,8 @@ class ParagraphsExperimentalDragAndDropModeTest extends BrowserTestBase {
     $this->drupalPostForm(NULL, [], 'Complete drag & drop');
 
     // Ensure the summary is displayed correctly for the collapsed paragraphs.
-    $this->assertSession()->elementTextNotContains('css', '.field--name-field-paragraphs tbody tr:nth-of-type(1) .paragraphs-collapsed-description', 'Test text 1');
-    $this->assertSession()->elementTextContains('css', '.field--name-field-paragraphs tbody tr:nth-of-type(2) .paragraphs-collapsed-description', 'Test text 1');
+    $this->assertSession()->elementTextNotContains('css', '.field--name-field-paragraphs tbody tr:nth-of-type(1) .paragraph-type-summary', 'Test text 1');
+    $this->assertSession()->elementTextContains('css', '.field--name-field-paragraphs tbody tr:nth-of-type(2) .paragraph-type-summary', 'Test text 1');
 
     // Ensure that the summary was updated correctly when going back to drag and
     // drop mode.

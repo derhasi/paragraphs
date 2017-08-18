@@ -3,6 +3,57 @@
 // Experimental paragraphs widget CSS.
 //
 
+$top-gutter: 5px !default;
+$icon-size: 16px !default;
+
+// Paragraphs state information icons.
+.paragraphs {
+  &-icon {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background: no-repeat center;
+    background-size: contain;
+
+    $icons: view edit edit-disabled delete delete-disabled lock changed warning error;
+    @each $icon in $icons {
+      &-#{$icon} {
+        background-image: url('../icons/icon-#{$icon}.svg');
+      }
+    }
+  }
+}
+
+.paragraph-type-info {
+  display: flex;
+}
+
+.paragraph-type-actions {
+  display: flex;
+
+  // We need additional .button selector here so we reset classy .button
+  // margins.
+  .paragraphs-button.button {
+    margin-left: 0;
+    margin-right: $top-gutter;
+  }
+
+  .paragraphs-icon {
+    margin-right: $top-gutter;
+  }
+
+  // Dropdown actions are on the end.
+  .paragraph-actions {
+    order: 1;
+  }
+}
+
+.paragraphs-tabs-wrapper {
+  .paragraphs-tabs {
+    display: none;
+  }
+}
+
 // We are using .js prefix here mainly because we want to apply this style rules
 // only for JS version of a widget.
 .js {
@@ -69,6 +120,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .paragraph-type-title {
+      padding-right: $top-gutter;
+    }
+
+    .paragraph-type-info {
+      padding-right: $top-gutter;
+    }
+
+    .paragraph-type-summary {
+      flex: 2;
+      padding-right: $top-gutter;
+    }
   }
 
   .paragraphs-subform {
@@ -77,43 +141,53 @@
 
   .paragraphs-collapsed-description {
     position: relative;
-    width: 100%;
     height: 1.538em;
-    padding-right: 1em;
-    padding-left: 1em;
-    color: #777;
     overflow: hidden;
+    color: #777;
     word-break: break-all;
 
+    // Fade out text element.
     &::after {
       display: block;
       position: absolute;
       top: 0;
-      right: 1em;
+      right: 0;
       width: 3em;
       background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #fff 100%);
       content: "\00a0";
     }
-  }
 
-  .draggable:hover .paragraphs-collapsed-description {
-    &::after {
-      background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
+    .draggable:hover & {
+      &::after {
+        background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
+      }
+    }
+
+    .drag-previous & {
+      &::after {
+        background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
+      }
     }
   }
 
-  .drag-previous .paragraphs-collapsed-description {
-    &::after {
-      background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
+  .paragraph-type {
+    &-title {
+      display: flex;
+      flex-basis: 100px;
+      min-width: 100px;
     }
-  }
 
-  .paragraph-type-title {
-    flex-basis: 25%;
-    min-width: 80px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+    &-icon {
+      padding-right: 5px;
+      height: $icon-size;
+      width: $icon-size;
+    }
+
+    &-label {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
   }
 
   @media screen and (min-width: 600px) {
@@ -140,29 +214,6 @@
 
 .paragraph--view-mode--preview {
   padding-right: 1em;
-}
-
-.paragraphs-edit-button-container {
-  display: flex;
-  flex-flow: row-reverse;
-  margin-left: auto;
-  padding-right: 1em;
-  padding-left: 1em;
-
-  // Override 600px breakpoint core submit button tweaks.
-  @media screen and (max-width: 600px) {
-    .js & {
-      width: 50px;
-      height: 40px;
-    }
-  }
-
-}
-
-.paragraphs-tabs-wrapper {
-  .paragraphs-tabs {
-    display: none;
-  }
 }
 
 .is-horizontal .paragraphs-tabs .tabs__tab {

@@ -51,8 +51,8 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $this->drupalPostForm(NULL, $edit, 'Collapse all');
 
     // Checks that after collapsing all we can edit again these paragraphs.
-    $this->assertRaw('edit-field-paragraphs-0-top-paragraphs-edit-button-container');
-    $this->assertRaw('edit-field-paragraphs-1-top-paragraphs-edit-button-container');
+    $this->assertRaw('field_paragraphs_0_edit');
+    $this->assertRaw('field_paragraphs_1_edit');
 
     // Test Edit all button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_edit_all');
@@ -127,7 +127,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     ];
     $this->drupalPostForm(NULL, $edit, 'Collapse all');
     $this->assertRaw('field-paragraphs-0-edit');
-    $this->assertRaw('edit-field-paragraphs-1-top-paragraphs-edit-button-container');
+    $this->assertRaw('edit-field-paragraphs-1-top-actions');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_edit_all');
     $this->assertRaw('field-paragraphs-0-collapse');
 
