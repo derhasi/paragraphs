@@ -13,6 +13,11 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
    * Tests header actions.
    */
   public function testHeaderActions() {
+
+    // To test with a single header action, ensure the drag and drop action is
+    // shown, even without the library.
+    \Drupal::state()->set('paragraphs_test_dragdrop_force_show', TRUE);
+
     $this->addParagraphedContentType('paragraphed_test');
 
     $this->loginAsAdmin([
@@ -38,6 +43,11 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $this->drupalGet('node/add/paragraphed_test');
     $this->assertNoRaw('field_paragraphs_collapse_all');
     $this->assertNoRaw('field_paragraphs_edit_all');
+    $this->assertRaw('field_paragraphs_dragdrop_mode');
+
+    // Ensure there is only a single table row.
+    $table_rows = $this->xpath('//table[contains(@class, :class)]/tbody/tr', [':class' => 'field-multiple-table']);
+    $this->assertEqual(1, count($table_rows));
 
     // Add second paragraph and check for Collapse/Edit all button.
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');

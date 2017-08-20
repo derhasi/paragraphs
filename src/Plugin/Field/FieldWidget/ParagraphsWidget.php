@@ -2321,6 +2321,7 @@ class ParagraphsWidget extends WidgetBase {
       }
     }
 
+    $elements['#paragraphs_header'] = TRUE;
     return $elements;
   }
 

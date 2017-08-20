@@ -285,15 +285,12 @@ function paragraphs_preprocess_field_multiple_value_form(&$variables) {
   if (count($variables['element']['#field_parents']) === 0 && isset($variables['table']['#rows'])) {
     // Find paragraph_actions and move to header.
     // @see template_preprocess_field_multiple_value_form()
-    foreach ($variables['table']['#rows'] as $i => $row) {
-      if (isset($row['data'][1]['data']['operations']) && $row['data'][1]['data']['operations']['#type'] === 'paragraph_actions') {
-        $variables['table']['#header'][0]['data'] = [
-          'title' => $variables['table']['#header'][0]['data'],
-          'button' => $row['data'][1],
-        ];
-        unset($variables['table']['#rows'][$i]);
-        break;
-      }
+    if (!empty($variables['table']['#rows'][0]['data'][1]['data']['#paragraphs_header'])) {
+      $variables['table']['#header'][0]['data'] = [
+        'title' => $variables['table']['#header'][0]['data'],
+        'button' => $variables['table']['#rows'][0]['data'][1]['data'],
+      ];
+      unset($variables['table']['#rows'][0]);
     }
   }
 }
