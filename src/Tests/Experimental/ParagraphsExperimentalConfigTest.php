@@ -160,7 +160,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   }
 
   /**
-   * Test included paragraph types.
+   * Test included Paragraph types.
    */
   public function testIncludedParagraphTypes() {
     $this->loginAsAdmin();
@@ -207,7 +207,7 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   }
 
   /**
-   * Test excluded paragraph types.
+   * Test excluded Paragraph types.
    */
   public function testExcludedParagraphTypes() {
     $this->loginAsAdmin();

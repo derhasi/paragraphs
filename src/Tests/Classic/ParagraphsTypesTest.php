@@ -5,7 +5,7 @@ namespace Drupal\paragraphs\Tests\Classic;
 use Drupal\paragraphs\Entity\ParagraphsType;
 
 /**
- * Tests paragraphs types.
+ * Tests Paragraphs types.
  *
  * @group paragraphs
  */

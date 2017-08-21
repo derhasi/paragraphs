@@ -72,7 +72,7 @@ class ParagraphsTypePermissionsTest extends WebTestBase {
         ->save();
     }
 
-    // Create a node with some paragraph types.
+    // Create a node with some Paragraph types.
     $this->drupalGet('node/add/paragraphed_content_demo');
     $this->drupalPostForm(NULL, NULL, t('Add Image + Text'));
     $this->drupalPostForm(NULL, NULL, t('Add Images'));

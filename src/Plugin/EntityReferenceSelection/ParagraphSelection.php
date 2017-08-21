@@ -109,7 +109,7 @@ class ParagraphSelection extends DefaultSelection {
         1 => $this->t('Exclude the selected below'),
         0 => $this->t('Include the selected below'),
       ],
-      '#title' => $this->t('Which paragraph types should be allowed?'),
+      '#title' => $this->t('Which Paragraph types should be allowed?'),
       '#default_value' => isset($selection_handler_settings['negate']) ? $selection_handler_settings['negate'] : 0,
     ];
 
@@ -133,7 +133,7 @@ class ParagraphSelection extends DefaultSelection {
           'id' => 'bundles',
         ],
         '#prefix' => '<h5>' . $this->t('Paragraph types') . '</h5>',
-        '#suffix' => '<div class="description">' . $this->t('Selection of paragraph types for this field. Select none to allow all paragraph types.') . '</div>',
+        '#suffix' => '<div class="description">' . $this->t('Selection of Paragraph types for this field. Select none to allow all Paragraph types.') . '</div>',
       ];
 
       $form['target_bundles_drag_drop']['#tabledrag'][] = [
@@ -179,7 +179,7 @@ class ParagraphSelection extends DefaultSelection {
     if (!count($bundle_options)) {
       $form['allowed_bundles_explain'] = [
         '#type' => 'markup',
-        '#markup' => $this->t('You did not add any paragraph types yet, click <a href=":here">here</a> to add one.', [':here' => Url::fromRoute('paragraphs.type_add')->toString()]),
+        '#markup' => $this->t('You did not add any Paragraph types yet, click <a href=":here">here</a> to add one.', [':here' => Url::fromRoute('paragraphs.type_add')->toString()]),
       ];
     }
 

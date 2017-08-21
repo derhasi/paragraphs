@@ -92,7 +92,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
       'edit any paragraphed_test content',
     ]);
 
-    // Add paragraph types.
+    // Add Paragraph types.
     $nested_paragraph_type = 'nested_paragraph';
     $this->addParagraphsType($nested_paragraph_type);
     $paragraph_type = 'text';

@@ -4,4 +4,4 @@ administer paragraphs types:
 
 edit behavior plugin settings:
   title: 'Edit behavior plugin settings'
-  description: 'Users with this permission can edit behavior plugin settings on paragraphs behavior instance'
+  description: 'Users with this permission can edit behavior plugin settings on Paragraphs behavior instance'

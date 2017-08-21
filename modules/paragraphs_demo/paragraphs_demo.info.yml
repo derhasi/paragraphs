@@ -1,4 +1,4 @@
-description: 'Provides multilingual demo paragraphs types.'
+description: 'Provides multilingual demo Paragraphs types.'
 core: 8.x
 dependencies:
   - paragraphs:paragraphs

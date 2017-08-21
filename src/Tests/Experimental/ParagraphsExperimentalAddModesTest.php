@@ -32,13 +32,13 @@ class ParagraphsExperimentalAddModesTest extends ParagraphsExperimentalTestBase 
   }
 
   /**
-   * Tests the field creation when no paragraphs types are available.
+   * Tests the field creation when no Paragraphs types are available.
    */
   public function testEmptyAllowedTypes() {
     $this->loginAsAdmin();
     $this->addParagraphedContentType('paragraphed_test');
 
-    // Edit the field and save when there are no paragraphs types available.
+    // Edit the field and save when there are no Paragraphs types available.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/fields');
     $this->clickLink(t('Edit'));
     $this->drupalPostForm(NULL, [], t('Save settings'));
@@ -50,7 +50,7 @@ class ParagraphsExperimentalAddModesTest extends ParagraphsExperimentalTestBase 
    */
   public function testDropDownMode() {
     $this->loginAsAdmin();
-    // Add two paragraph types.
+    // Add two Paragraph types.
     $this->addParagraphsType('btext');
     $this->addParagraphsType('dtext');
 
@@ -84,7 +84,7 @@ class ParagraphsExperimentalAddModesTest extends ParagraphsExperimentalTestBase 
    */
   public function testSelectMode() {
     $this->loginAsAdmin();
-    // Add two paragraph types.
+    // Add two Paragraph types.
     $this->addParagraphsType('btext');
     $this->addParagraphsType('dtext');
 

@@ -114,7 +114,7 @@ class ParagraphsDemoTest extends WebTestBase {
     // Check that title and the descriptions are set.
     $this->drupalGet('admin/structure/types/manage/paragraphed_content_demo');
     $this->assertText('Paragraphed article');
-    $this->assertText('Article with paragraphs.');
+    $this->assertText('Article with Paragraphs.');
 
     // Check that the Paragraph field is added.
     $this->clickLink('Manage fields');

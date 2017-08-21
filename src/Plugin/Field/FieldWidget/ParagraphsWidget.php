@@ -178,7 +178,7 @@ class ParagraphsWidget extends WidgetBase {
     $elements['add_mode'] = array(
       '#type' => 'select',
       '#title' => $this->t('Add mode'),
-      '#description' => $this->t('The way to add new paragraphs.'),
+      '#description' => $this->t('The way to add new Paragraphs.'),
       '#options' => $this->getSettingOptions('add_mode'),
       '#default_value' => $this->getSetting('add_mode'),
       '#required' => TRUE,

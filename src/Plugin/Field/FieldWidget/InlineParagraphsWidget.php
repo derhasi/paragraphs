@@ -133,7 +133,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $elements['add_mode'] = array(
       '#type' => 'select',
       '#title' => $this->t('Add mode'),
-      '#description' => $this->t('The way to add new paragraphs.'),
+      '#description' => $this->t('The way to add new Paragraphs.'),
       '#options' => array(
         'select' => $this->t('Select list'),
         'button' => $this->t('Buttons'),

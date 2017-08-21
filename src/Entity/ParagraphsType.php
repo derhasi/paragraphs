@@ -69,14 +69,14 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
   public $description;
 
   /**
-   * UUID of the paragraphs type icon file.
+   * UUID of the Paragraphs type icon file.
    *
    * @var string
    */
   protected $icon_uuid;
 
   /**
-   * The paragraphs type behavior plugins configuration keyed by their id.
+   * The Paragraphs type behavior plugins configuration keyed by their id.
    *
    * @var array
    */
@@ -84,7 +84,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
 
   /**
    * Holds the collection of behavior plugins that are attached to this
-   * paragraphs type.
+   * Paragraphs type.
    *
    * @var \Drupal\paragraphs\ParagraphsBehaviorCollection
    */
@@ -189,7 +189,7 @@ class ParagraphsType extends ConfigEntityBundleBase implements ParagraphsTypeInt
       $file_usage = \Drupal::service('file.usage');
 
       // Add usage of the new icon file, if it exists. It might not exist, if
-      // this paragraphs type was imported as configuration, or if the icon has
+      // this Paragraphs type was imported as configuration, or if the icon has
       // just been removed.
       if ($this->icon_uuid && $new_icon = $this->getFileByUuid($this->icon_uuid)) {
         $file_usage->add($new_icon, 'paragraphs', 'paragraphs_type', $this->id());

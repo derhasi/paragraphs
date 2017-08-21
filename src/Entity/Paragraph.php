@@ -313,7 +313,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface {
 
     $fields['type'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Type'))
-      ->setDescription(t('The paragraphs type.'))
+      ->setDescription(t('The Paragraphs type.'))
       ->setSetting('target_type', 'paragraphs_type')
       ->setReadOnly(TRUE);
 
@@ -594,7 +594,7 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface {
    *   available options.
    *
    * @return string
-   *   Short summary for nested paragraphs type
+   *   Short summary for nested Paragraphs type
    *   or NULL if the summary is empty.
    */
   protected function getNestedSummary($field_name, array $options) {

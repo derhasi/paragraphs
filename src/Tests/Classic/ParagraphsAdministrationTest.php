@@ -158,8 +158,8 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     $this->assertUrl('admin/structure/paragraphs_type/add');
 
     $this->drupalGet('admin/structure/paragraphs_type');
-    $this->clickLink(t('Add paragraphs type'));
-    $this->assertTitle('Add paragraphs type | Drupal');
+    $this->clickLink(t('Add Paragraphs type'));
+    $this->assertTitle('Add Paragraphs type | Drupal');
     // Create paragraph type text + image.
     $this->addParagraphsType('text_image');
     $this->drupalGet('admin/structure/paragraphs_type/text_image');
@@ -411,7 +411,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     $this->drupalPostForm(NULL, $edit, t('Save and continue'));
     $this->assertNoOption('edit-settings-target-type', 'paragraph');
 
-    // Test that all paragraph types can be referenced if none is selected.
+    // Test that all Paragraph types can be referenced if none is selected.
     $this->addParagraphsType('nested_double_test');
     static::fieldUIAddExistingField('admin/structure/paragraphs_type/nested_double_test', 'field_paragraphs', 'paragraphs_1');
     $this->clickLink(t('Manage form display'));

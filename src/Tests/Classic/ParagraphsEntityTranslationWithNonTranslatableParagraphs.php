@@ -55,7 +55,7 @@ class ParagraphsEntityTranslationWithNonTranslatableParagraphs extends Paragraph
     );
     $this->drupalPostForm('admin/structure/types/manage/article/fields/node.article.field_paragraphs', $edit, t('Save settings'));
 
-    // Add paragraphs type.
+    // Add Paragraphs type.
     $this->addParagraphsType('test_paragraph_type');
     // Configure paragraphs type.
     static::fieldUIAddNewField('admin/structure/paragraphs_type/test_paragraph_type', 'text', 'Text', 'string', [
