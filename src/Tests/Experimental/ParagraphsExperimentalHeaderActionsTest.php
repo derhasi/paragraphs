@@ -81,6 +81,27 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     $this->drupalGet('node/' . $node->id());
     $this->clickLink('Edit');
     $this->assertNoText('No Paragraph added yet.');
+
+    // Add and remove another paragraph.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_text_paragraph_add_more');
+    $edit = [
+      'field_paragraphs[2][subform][field_text][0][value]' => 'Third text',
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_2_remove');
+
+    // Check that pressing "Collapse all" does not restore the removed
+    // paragraph.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_edit_all');
+    $this->assertText('First text');
+    $this->assertText('Second text');
+    $this->assertNoText('Third text');
+
+    // Check that pressing "Edit all" does not restore the removed paragraph,
+    // either.
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_collapse_all');
+    $this->assertText('First text');
+    $this->assertText('Second text');
+    $this->assertNoText('Third text');
   }
 
   /**

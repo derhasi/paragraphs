@@ -2328,9 +2328,11 @@ class ParagraphsWidget extends WidgetBase {
 
     // Change edit mode for each paragraph.
     foreach ($submit['widget_state']['paragraphs'] as $delta => &$paragraph) {
-      $submit['widget_state']['paragraphs'][$delta]['mode'] = $submit['button']['#paragraphs_mode'];
-      if (!empty($submit['button']['#paragraphs_show_warning'])) {
-        $submit['widget_state']['paragraphs'][$delta]['show_warning'] = $submit['button']['#paragraphs_show_warning'];
+      if ($submit['widget_state']['paragraphs'][$delta]['mode'] !== 'remove') {
+        $submit['widget_state']['paragraphs'][$delta]['mode'] = $submit['button']['#paragraphs_mode'];
+        if (!empty($submit['button']['#paragraphs_show_warning'])) {
+          $submit['widget_state']['paragraphs'][$delta]['show_warning'] = $submit['button']['#paragraphs_show_warning'];
+        }
       }
     }
 
