@@ -3,8 +3,7 @@
 // Experimental paragraphs widget CSS.
 //
 
-$top-gutter: 5px !default;
-$icon-size: 16px !default;
+@import "variables";
 
 // Paragraphs state information icons.
 .paragraphs {
@@ -28,26 +27,6 @@ $icon-size: 16px !default;
   display: flex;
 }
 
-.paragraph-type-actions {
-  display: flex;
-
-  // We need additional .button selector here so we reset classy .button
-  // margins.
-  .paragraphs-button.button {
-    margin-left: 0;
-    margin-right: $top-gutter;
-  }
-
-  .paragraphs-icon {
-    margin-right: $top-gutter;
-  }
-
-  // Dropdown actions are on the end.
-  .paragraph-actions {
-    order: 1;
-  }
-}
-
 .paragraphs-tabs-wrapper {
   .paragraphs-tabs {
     display: none;
@@ -58,10 +37,10 @@ $icon-size: 16px !default;
 // only for JS version of a widget.
 .js {
   .field--widget-paragraphs {
-    .paragraph-actions {
+    .paragraphs-actions {
       float: right;
     }
-    th .paragraph-actions {
+    th .paragraphs-actions {
       // Table th padding is 12px but for some weird reason here we need to do
       // -11px to return it back.
       margin-right: -11px;
@@ -122,16 +101,16 @@ $icon-size: 16px !default;
     justify-content: space-between;
 
     .paragraph-type-title {
-      padding-right: $top-gutter;
+      padding-right: $gutter-top;
     }
 
     .paragraph-type-info {
-      padding-right: $top-gutter;
+      padding-right: $gutter-top;
     }
 
     .paragraph-type-summary {
       flex: 2;
-      padding-right: $top-gutter;
+      padding-right: $gutter-top;
     }
   }
 
@@ -178,9 +157,9 @@ $icon-size: 16px !default;
     }
 
     &-icon {
-      padding-right: 5px;
-      height: $icon-size;
-      width: $icon-size;
+      padding-right: $gutter-top;
+      height: $type-icon-size;
+      width: $type-icon-size;
     }
 
     &-label {
@@ -190,7 +169,7 @@ $icon-size: 16px !default;
     }
   }
 
-  @media screen and (min-width: 600px) {
+  @media (min-width: map-get($grid-breakpoints, 'sm')) {
     .paragraph-type-add-modal {
       width: 100%;
       padding: 10px 0;

@@ -27,8 +27,8 @@ function hook_paragraphs_behavior_info_alter(&$paragraphs_behavior) {
 /**
  * Alter paragraphs widget.
  *
- * @param array $links
- *   Array with all actions from dropbutton.
+ * @param array $widget_actions
+ *   Array with actions and dropdown widget actions.
  * @param array $context
  *   An associative array containing the following key-value pairs:
  *   - form: The form structure to which widgets are being attached. This may be
@@ -42,7 +42,7 @@ function hook_paragraphs_behavior_info_alter(&$paragraphs_behavior) {
  *   - paragraphs_entity: the paragraphs entity for this widget. Might be
  *     unsaved, if we have just added a new item to the widget.
  */
-function hook_paragraph_widget_dropbuttons_alter(array &$links, array &$context) {
+function hook_paragraphs_widget_actions_alter(array &$widget_actions, array &$context) {
 }
 
 /**

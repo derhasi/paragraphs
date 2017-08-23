@@ -174,7 +174,7 @@ class ParagraphsExperimentalWidgetButtonsTest extends ParagraphsExperimentalTest
     $this->assertFieldByName('field_paragraphs_2_collapse');
     $this->assertFieldByName('field_paragraphs_2_subform_field_nested_0_collapse');
 
-    // Tests hook_paragraph_widget_dropbuttons_alter.
+    // Tests hook_paragraphs_widget_actions_alter.
     $this->drupalGet('node/add/paragraphed_test');
     $this->drupalPostForm(NULL, NULL, t('Add text'));
     $this->assertNoField('edit-field-paragraphs-0-top-links-test-button');

@@ -34,15 +34,19 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class ParagraphsWidget extends WidgetBase {
 
   /**
-   * Indicates that widget action position is in the base of the widget.
+   * Action position is in the add paragraphs place.
    */
   const ACTION_POSITION_BASE = 1;
 
   /**
-   * Indicates that widget action position is in the actions section of the
-   * widget.
+   * Action position is in the table header section.
    */
-  const ACTION_POSITION_ACTIONS = 2;
+  const ACTION_POSITION_HEADER = 2;
+
+  /**
+   * Action position is in the actions section of the widget.
+   */
+  const ACTION_POSITION_ACTIONS = 3;
 
   /**
    * Indicates whether the current widget instance is in translation.
@@ -457,11 +461,9 @@ class ParagraphsWidget extends WidgetBase {
             '#type' => 'container',
             '#attributes' => ['class' => ['paragraph-type-summary']],
           ],
-          // Section for action buttons which can be default_buttons and
-          // dropdown_buttons.
+          // Paragraphs actions element for actions and dropdown actions.
           'actions' => [
-            '#type' => 'container',
-            '#attributes' => ['class' => ['paragraph-type-actions']],
+            '#type' => 'paragraphs_actions',
           ],
         ];
 
@@ -486,10 +488,13 @@ class ParagraphsWidget extends WidgetBase {
           '#weight' => 1,
         ];
 
-        // Action dropdown_buttons.
-        $dropdown_buttons = [];
+        // Widget actions.
+        $widget_actions = [
+          'actions' => [],
+          'dropdown_actions' => [],
+        ];
 
-        $dropdown_buttons['duplicate_button'] = [
+        $widget_actions['dropdown_actions']['duplicate_button'] = [
           '#type' => 'submit',
           '#value' => $this->t('Duplicate'),
           '#name' => $id_prefix . '_duplicate',
@@ -505,7 +510,7 @@ class ParagraphsWidget extends WidgetBase {
         ];
 
         if ($item_mode != 'remove') {
-          $dropdown_buttons['remove_button'] = [
+          $widget_actions['dropdown_actions']['remove_button'] = [
             '#type' => 'submit',
             '#value' => $this->t('Remove'),
             '#name' => $id_prefix . '_remove',
@@ -525,10 +530,10 @@ class ParagraphsWidget extends WidgetBase {
 
         if ($item_mode == 'edit') {
           if (isset($paragraphs_entity)) {
-            $dropdown_buttons['collapse_button'] = [
+            $widget_actions['actions']['collapse_button'] = [
               '#value' => $this->t('Collapse'),
               '#name' => $id_prefix . '_collapse',
-              '#weight' => 499,
+              '#weight' => 1,
               '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
               '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
               '#delta' => $delta,
@@ -543,11 +548,11 @@ class ParagraphsWidget extends WidgetBase {
           }
         }
         else {
-          $element['top']['actions']['default_buttons']['edit_button'] = $this->expandButton([
+          $widget_actions['actions']['edit_button'] = $this->expandButton([
             '#type' => 'submit',
             '#value' => $this->t('Edit'),
             '#name' => $id_prefix . '_edit',
-            '#weight' => 500,
+            '#weight' => 1,
             '#attributes' => ['class' => ['paragraphs-button']],
             '#submit' => [[get_class($this), 'paragraphsItemSubmit']],
             '#limit_validation_errors' => [
@@ -561,15 +566,6 @@ class ParagraphsWidget extends WidgetBase {
             '#access' => $paragraphs_entity->access('update'),
             '#paragraphs_mode' => 'edit',
           ]);
-          // If update is disabled we will show lock icon instead of a edit
-          // button.
-          if (!$paragraphs_entity->access('update')) {
-            $element['top']['actions']['default_buttons']['edit_disabled'] = [
-              '#theme' => 'paragraphs_info_icon',
-              '#message' => $this->t('You are not allowed to edit or remove this @title.', ['@title' => $this->getSetting('title')]),
-              '#icon' => 'lock',
-            ];
-          }
 
           if ($show_must_be_saved_warning && $paragraphs_entity->isChanged()) {
             $info['changed'] = [
@@ -586,6 +582,16 @@ class ParagraphsWidget extends WidgetBase {
               '#icon' => 'view',
             ];
           }
+        }
+
+        // If update is disabled we will show lock icon in actions section.
+        if (!$paragraphs_entity->access('update')) {
+          $widget_actions['actions']['edit_disabled'] = [
+            '#theme' => 'paragraphs_info_icon',
+            '#message' => $this->t('You are not allowed to edit or remove this @title.', ['@title' => $this->getSetting('title')]),
+            '#icon' => 'lock',
+            '#weight' => 1,
+          ];
         }
 
         if (!$paragraphs_entity->access('update') && !$paragraphs_entity->access('delete')) {
@@ -620,31 +626,19 @@ class ParagraphsWidget extends WidgetBase {
           'paragraphs_entity' => $paragraphs_entity,
         ];
 
-        // Allow modules to register buttons for widget actions.
-        // @todo - change this with #2901549 - rename hook and to
-        // paragraph_widget_actions and pass subarray which holds both
-        // default buttons and dropdown buttons.
-        \Drupal::moduleHandler()->alter('paragraph_widget_dropbutton', $dropdown_buttons, $context);
+        // Allow modules to alter widget actions.
+        \Drupal::moduleHandler()->alter('paragraphs_widget_actions', $widget_actions, $context);
 
-        // Expand all dropdown_buttons to proper dropdown button elements.
-        $dropdown_buttons = array_map([$this, 'expandButton'], $dropdown_buttons);
+        if (count($widget_actions['actions'])) {
+          // Expand all actions to proper submit elements and add it to top
+          // actions sub component.
+          $element['top']['actions']['actions'] = array_map([$this, 'expandButton'], $widget_actions['actions']);
+        }
 
-        if (count($dropdown_buttons)) {
-          $show_links = 0;
-          foreach ($dropdown_buttons as $link_item) {
-            if (!isset($link_item['#access']) || $link_item['#access']) {
-              $show_links++;
-            }
-          }
-
-          if ($show_links > 0) {
-            // Wrap in dropbutton operations if there's more than one.
-            if ($show_links > 1) {
-              $dropdown_buttons = $this->buildActionsElement($dropdown_buttons);
-            }
-            $dropdown_buttons['#weight'] = 1;
-            $element['top']['actions']['dropdown_buttons'] = $dropdown_buttons;
-          }
+        if (count($widget_actions['dropdown_actions'])) {
+          // Expand all dropdown actions to proper submit elements and add
+          // them to top dropdown actions sub component.
+          $element['top']['actions']['dropdown_actions'] = array_map([$this, 'expandButton'], $widget_actions['dropdown_actions']);
         }
 
         if (count($info)) {
@@ -932,6 +926,13 @@ class ParagraphsWidget extends WidgetBase {
     $header_actions = $this->buildHeaderActions($field_state, $form_state);
     if ($header_actions) {
       $elements['header_actions'] = $header_actions;
+      // Add a weight element so we guaranty that header actions will stay in
+      // first row. We will use this later in
+      // paragraphs_preprocess_field_multiple_value_form().
+      $elements['header_actions']['_weight'] = [
+        '#type' => 'weight',
+        '#default_value' => -100,
+      ];
     }
 
     if (!empty($field_state['dragdrop'])) {
@@ -1307,23 +1308,28 @@ class ParagraphsWidget extends WidgetBase {
   }
 
   /**
-   * Expand link array into a paragrpah widget action button.
+   * Expand button base array into a paragraph widget action button.
    *
-   * @param array $link
-   *   Link render array.
+   * @param array $button_base
+   *   Button base render array.
    *
    * @return array
    *   Button render array.
    */
-  public static function expandButton(array $link) {
-    $button = $link + [
+  public static function expandButton(array $button_base) {
+    // Do not expand elements that do not have submit handler.
+    if (empty($button_base['#submit'])) {
+      return $button_base;
+    }
+
+    $button = $button_base + [
       '#type' => 'submit',
       '#theme_wrappers' => ['input__submit__paragraph_action'],
     ];
 
     // Html::getId will give us '-' char in name but we want '_' for now so
     // we use strtr to search&replace '-' to '_'.
-    $button['#name'] = strtr(Html::getId($link['#name']), '-', '_');
+    $button['#name'] = strtr(Html::getId($button_base['#name']), '-', '_');
     $button['#id'] = Html::getUniqueId($button['#name']);
 
     if (isset($button['#ajax'])) {
@@ -1358,6 +1364,9 @@ class ParagraphsWidget extends WidgetBase {
     // Go up in the form, to the widgets container.
     if ($position == ParagraphsWidget::ACTION_POSITION_BASE) {
       $submit['element'] = NestedArray::getValue($form, array_slice($submit['button']['#array_parents'], 0, -2));
+    }
+    if ($position == ParagraphsWidget::ACTION_POSITION_HEADER) {
+      $submit['element'] = NestedArray::getValue($form, array_slice($submit['button']['#array_parents'], 0, -3));
     }
     elseif ($position == ParagraphsWidget::ACTION_POSITION_ACTIONS) {
       $submit['element'] = NestedArray::getValue($form, array_slice($submit['button']['#array_parents'], 0, -5));
@@ -1405,31 +1414,6 @@ class ParagraphsWidget extends WidgetBase {
       // Even though operations are run through the "links" element type, the
       // theme system will render any render array passed as a link "title".
       '#links' => $operations,
-    ];
-
-    return $build + $elements;
-  }
-
-  /**
-   * Build actions element.
-   *
-   * @param array $elements
-   *   Elements for the actions element.
-   *
-   * @return array
-   *   Element array.
-   */
-  protected function buildActionsElement(array $elements = []) {
-    $operations = [];
-    foreach (Element::children($elements, TRUE) as $child) {
-      $operations[$child] = $elements[$child];
-      // Flag the original element as printed so it doesn't render twice.
-      $elements[$child]['#printed'] = TRUE;
-    }
-
-    $build['operations'] = [
-      '#type' => 'paragraph_actions',
-      '#buttons' => $operations,
     ];
 
     return $build + $elements;
@@ -1529,6 +1513,21 @@ class ParagraphsWidget extends WidgetBase {
    */
   public static function addMoreAjax(array $form, FormStateInterface $form_state) {
     $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
+    $element = $submit['element'];
+
+    // Add a DIV around the delta receiving the Ajax effect.
+    $delta = $submit['element']['#max_delta'];
+    $element[$delta]['#prefix'] = '<div class="ajax-new-content">' . (isset($element[$delta]['#prefix']) ? $element[$delta]['#prefix'] : '');
+    $element[$delta]['#suffix'] = (isset($element[$delta]['#suffix']) ? $element[$delta]['#suffix'] : '') . '</div>';
+
+    return $element;
+  }
+
+  /**
+   * Ajax callback for all actions.
+   */
+  public static function allActionsAjax(array $form, FormStateInterface $form_state) {
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_HEADER);
     $element = $submit['element'];
 
     // Add a DIV around the delta receiving the Ajax effect.
@@ -1661,7 +1660,7 @@ class ParagraphsWidget extends WidgetBase {
    *   The current state of the form.
    */
   public static function dragDropModeSubmit(array $form, FormStateInterface $form_state) {
-    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_HEADER);
 
     if (empty($submit['widget_state']['dragdrop'])) {
       $submit['widget_state']['dragdrop'] = TRUE;
@@ -1862,7 +1861,7 @@ class ParagraphsWidget extends WidgetBase {
    *   The container form element.
    */
   public static function dragDropModeAjax(array $form, FormStateInterface $form_state) {
-    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_HEADER);
 
     $submit['element']['#prefix'] = '<div class="ajax-new-content">' . (isset($submit['element']['#prefix']) ? $submit['element']['#prefix'] : '');
     $submit['element']['#suffix'] = (isset($submit['element']['#suffix']) ? $submit['element']['#suffix'] : '') . '</div>';
@@ -2226,8 +2225,13 @@ class ParagraphsWidget extends WidgetBase {
    *   The form element array.
    */
   public function buildHeaderActions(array $field_state, FormStateInterface $form_state) {
-    $elements = [];
+    $actions = [];
     if (empty($this->fieldParents)) {
+      // Set actions.
+      $actions = [
+        '#type' => 'paragraphs_actions',
+      ];
+
       $field_name = $this->fieldDefinition->getName();
       $id_prefix = implode('-', array_merge($this->fieldParents, [$field_name]));
 
@@ -2235,7 +2239,7 @@ class ParagraphsWidget extends WidgetBase {
       $library_discovery = \Drupal::service('library.discovery');
       $library = $library_discovery->getLibraryByName('paragraphs', 'paragraphs-dragdrop');
       if ($library || \Drupal::state()->get('paragraphs_test_dragdrop_force_show', FALSE)) {
-        $elements['dragdrop_mode'] = $this->expandButton([
+        $dragdrop_mode = $this->expandButton([
           '#type' => 'submit',
           '#name' => $this->fieldIdPrefix . '_dragdrop_mode',
           '#value' => !empty($field_state['dragdrop']) ? $this->t('Complete drag & drop') : $this->t('Drag & drop'),
@@ -2251,17 +2255,21 @@ class ParagraphsWidget extends WidgetBase {
         // Make the complete button a primary button, limit validation errors
         // only for enabling drag and drop mode.
         if (!empty($field_state['dragdrop'])) {
-          $elements['dragdrop_mode']['#button_type'] = 'primary';
+          $dragdrop_mode['#button_type'] = 'primary';
+          $actions['actions']['dragdrop_mode'] = $dragdrop_mode;
         }
         else {
-          $elements['dragdrop_mode']['#limit_validation_errors'] = [
+          $dragdrop_mode['#limit_validation_errors'] = [
             array_merge($this->fieldParents, [$field_name, 'dragdrop_mode']),
           ];
+          $actions['dropdown_actions']['dragdrop_mode'] = $dragdrop_mode;
         }
       }
 
       if ($this->realItemCount > 1 && empty($field_state['dragdrop'])) {
-        $elements['collapse_all'] = $this->expandButton([
+
+        $collapse_all = $this->expandButton([
+          '#type' => 'submit',
           '#value' => $this->t('Collapse all'),
           '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
           '#name' => $id_prefix . '_collapse_all',
@@ -2269,60 +2277,42 @@ class ParagraphsWidget extends WidgetBase {
           '#limit_validation_errors' => [
             array_merge($this->fieldParents, [$field_name, 'collapse_all']),
           ],
-          '#prefix' => '<div class="paragraphs-collapse-all">',
-          '#suffix' => '</div>',
           '#ajax' => [
-            'callback' => [get_class($this), 'addMoreAjax'],
+            'callback' => [get_class($this), 'allActionsAjax'],
             'wrapper' => $this->fieldWrapperId,
           ],
           '#weight' => -1,
           '#paragraphs_show_warning' => TRUE,
         ]);
 
-        $elements['edit_all'] = $this->expandButton([
+        $edit_all = $this->expandButton([
           '#type' => 'submit',
           '#value' => $this->t('Edit all'),
           '#submit' => [[get_class($this), 'changeAllEditModeSubmit']],
           '#name' => $id_prefix . '_edit-all',
           '#paragraphs_mode' => 'edit',
           '#limit_validation_errors' => [],
-          '#prefix' => '<div class="paragraphs-edit-all">',
-          '#suffix' => '</div>',
           '#ajax' => [
-            'callback' => [get_class($this), 'addMoreAjax'],
+            'callback' => [get_class($this), 'allActionsAjax'],
             'wrapper' => $this->fieldWrapperId,
           ],
         ]);
 
-        // Set default action.
         if (isset($field_state['paragraphs'][0]['mode']) && $field_state['paragraphs'][0]['mode'] === 'closed') {
-          $elements['edit_all']['#weight'] = -10;
-          $elements['collapse_all']['#weight'] = -9;
+          $actions['actions']['edit_all'] = $edit_all;
+          $actions['dropdown_actions']['collapse_all'] = $collapse_all;
         }
         else {
-          $elements['collapse_all']['#weight'] = -10;
-          $elements['edit_all']['#weight'] = -9;
+          $actions['actions']['collapse_all'] = $collapse_all;
+          $actions['dropdown_actions']['edit_all'] = $edit_all;
         }
-      }
-
-      // @todo - with the ddo issue #2901549 'Introduce default actions for
-      // paragraph_actions dropdown' ddo issue' paragraph_actions element with
-      // only one default button should then render it self as simple button.
-      // Then we would not need this if else here but we could just simply
-      // call buildActionsElement().
-      if (count($elements) > 1) {
-        $elements = $this->buildActionsElement($elements);
-      }
-      else {
-        // Add container with appropriate paragraph-actions class for a case
-        // when we have only one element - for example drag & drop mode.
-        $elements['#type'] = 'container';
-        $elements['#attributes']['class'][] = 'paragraph-actions';
       }
     }
 
-    $elements['#paragraphs_header'] = TRUE;
-    return $elements;
+    // Add paragraphs_header flag which we use later in preprocessor to move
+    // header actions to table header.
+    $actions['#paragraphs_header'] = TRUE;
+    return $actions;
   }
 
   /**
@@ -2334,7 +2324,7 @@ class ParagraphsWidget extends WidgetBase {
    *   Current form state.
    */
   public static function changeAllEditModeSubmit(array $form, FormStateInterface $form_state) {
-    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state);
+    $submit = ParagraphsWidget::getSubmitElementInfo($form, $form_state, ParagraphsWidget::ACTION_POSITION_HEADER);
 
     // Change edit mode for each paragraph.
     foreach ($submit['widget_state']['paragraphs'] as $delta => &$paragraph) {

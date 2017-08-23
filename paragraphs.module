@@ -67,6 +67,10 @@ function paragraphs_theme() {
       'render element' => 'element',
       'template' => 'paragraphs-add-dialog',
     ],
+    'paragraphs_actions' => [
+      'render element' => 'element',
+      'template' => 'paragraphs-actions',
+    ],
   );
 }
 
@@ -275,6 +279,31 @@ function template_preprocess_paragraphs_add_dialog(&$variables) {
       // Buttons for the paragraph types in the modal form.
       $variables['buttons'][$key] = $variables['element'][$key];
     }
+  }
+}
+
+/**
+ * Prepares variables for paragraphs_actions component.
+ *
+ * Default template: paragraphs-actions.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - actions: An array of default action buttons.
+ *   - dropdown_actions: An array of buttons for dropdown.
+ */
+function template_preprocess_paragraphs_actions(&$variables) {
+  // Define variables for the template.
+  $variables += ['actions' => [], 'dropdown_actions' => []];
+
+  $element = $variables['element'];
+
+  if (!empty($element['actions'])) {
+    $variables['actions'] = $element['actions'];
+  }
+
+  if (!empty($element['dropdown_actions'])) {
+    $variables['dropdown_actions'] = $element['dropdown_actions'];
   }
 }
 

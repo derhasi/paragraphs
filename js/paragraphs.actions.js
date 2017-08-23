@@ -17,11 +17,11 @@
    */
   Drupal.behaviors.paragraphsActions = {
     attach: function (context, settings) {
-      var $actionsElement = $(context).find('.paragraph-actions').once('paragraph-actions');
+      var $actionsElement = $(context).find('.paragraphs-dropdown').once('paragraphs-dropdown');
       // Attach event handlers to toggle button.
       $actionsElement.each(function () {
         var $this = $(this);
-        var $toggle = $this.find('.paragraph-actions-toggle');
+        var $toggle = $this.find('.paragraphs-dropdown-toggle');
 
         $toggle.on('click', function (e) {
           e.preventDefault();

@@ -2,6 +2,8 @@
 
 namespace Drupal\paragraphs\Tests\Experimental;
 
+use Symfony\Component\CssSelector\CssSelectorConverter;
+
 /**
  * Tests collapse all button.
  *
@@ -137,7 +139,7 @@ class ParagraphsExperimentalHeaderActionsTest extends ParagraphsExperimentalTest
     ];
     $this->drupalPostForm(NULL, $edit, 'Collapse all');
     $this->assertRaw('field-paragraphs-0-edit');
-    $this->assertRaw('edit-field-paragraphs-1-top-actions');
+    $this->assertFieldByXPath((new CssSelectorConverter())->toXPath('[name="field_paragraphs_1_edit"] + .paragraphs-dropdown'));
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_edit_all');
     $this->assertRaw('field-paragraphs-0-collapse');
 

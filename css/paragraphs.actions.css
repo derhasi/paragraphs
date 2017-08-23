@@ -1,27 +1,50 @@
-.paragraph-actions {
+.paragraphs-actions {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.paragraphs-actions > .button {
+  margin-left: 5px;
+  margin-right: 0;
+}
+
+.paragraphs-actions > .button + .paragraphs-dropdown {
+  margin-left: 5px;
+}
+
+.paragraphs-actions .paragraphs-icon {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.paragraphs-dropdown {
   position: relative;
 }
 
-.paragraph-actions-toggle {
+.paragraphs-dropdown-toggle {
   display: block;
-  height: 26px;
-  min-width: 26px;
+  height: 36px;
+  width: 36px;
   background: url("../icons/icon-actions.svg") no-repeat center;
-  background-size: contain;
+  background-size: 26px 26px;
   border: none;
   transition: all 0.1s;
 }
 
-.paragraph-actions-toggle:hover, .paragraph-actions-toggle:focus {
+@media (min-width: 768px) {
+  .paragraphs-dropdown-toggle {
+    height: 26px;
+    width: 26px;
+  }
+}
+
+.paragraphs-dropdown-toggle:hover, .paragraphs-dropdown-toggle:focus {
   background-color: #eaeae4;
   outline: none;
 }
 
-.paragraph-actions.open .paragraph-actions-items {
-  display: block;
-}
-
-.paragraph-actions-items {
+.paragraphs-dropdown-actions {
   display: none;
   overflow: hidden;
   position: absolute;
@@ -34,20 +57,26 @@
   box-shadow: 0 2px 6px 0 #aaa;
 }
 
-.item-list .paragraph-actions-items {
+.item-list .paragraphs-dropdown-actions {
   list-style: none;
 }
 
-.item-list .paragraph-actions-items li {
+.item-list .paragraphs-dropdown-actions li {
   margin: 0;
   list-style: none;
 }
 
-.paragraph-actions-action {
+.paragraphs-dropdown.open .paragraphs-dropdown-actions {
+  display: block;
+}
+
+.paragraphs-dropdown-action {
   width: 100%;
 }
 
-.paragraph-actions-action.button {
+.paragraphs-dropdown-action.button {
+  margin-right: 0;
+  margin-left: 0;
   text-align: left;
   background: transparent;
   border: 0;
@@ -57,13 +86,13 @@
   white-space: nowrap;
 }
 
-.paragraph-actions-action.button:focus {
+.paragraphs-dropdown-action.button:focus {
   border: none;
   box-shadow: none;
   outline: none;
 }
 
-.paragraph-actions-item-icon {
+.paragraphs-actions-item-icon {
   height: 20px;
   padding: 0 10px;
 }

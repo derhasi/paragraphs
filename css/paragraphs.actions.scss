@@ -1,75 +1,100 @@
-// Common variables.
-// 5% darker so it works actions button in the table header also.
-$hover-icon-bg: darken(#f5f5f2, 5%) !default;
-$icon-size: 26px !default;
+@import "variables";
 
-.paragraph-actions {
-  position: relative;
+.paragraphs-actions {
+  display: flex;
 
-  &-toggle {
-    // Use block display so parent can have same dimensions as toggle button.
-    display: block;
-    height: $icon-size;
-    min-width: $icon-size;
-    background: url('../icons/icon-actions.svg') no-repeat center;
-    background-size: contain;
-    border: none;
-    transition: all 0.1s;
+  // Actions buttons (the one that are not in dropdown).
+  > .button {
+    margin-left: $gutter-top;
+    margin-right: 0;
 
-    &:hover, &:focus {
-      background-color: $hover-icon-bg;
-      outline: none;
+    + .paragraphs-dropdown {
+      margin-left: $gutter-top;
     }
   }
 
-  &.open {
-    .paragraph-actions-items {
+  .paragraphs-icon {
+    margin-left: $gutter-top;
+    // We need right margin here so that lock icon is horizontally aligned with
+    // dropdown icon.
+    margin-right: $gutter-top;
+  }
+
+  @at-root .paragraphs-dropdown {
+    position: relative;
+
+    &-toggle {
+      // Use block display so parent can have same dimensions as toggle button.
       display: block;
-    }
-  }
+      height: $action-toggle-size + 10px;
+      width: $action-toggle-size + 10px;
+      background: url('../icons/icon-actions.svg') no-repeat center;
+      background-size: $action-toggle-size $action-toggle-size;
+      border: none;
+      transition: all 0.1s;
 
-  &-items {
-    display: none;
-    // We are using overflow hidden to prevent button background overflowing
-    // on hover.
-    overflow: hidden;
-    position: absolute;
-    right: 0;
-    top: $icon-size;
-    z-index: 100;
-    background: $hover-icon-bg;
-    border: 1px solid #a6a6a6;
-    border-radius: 5px 0 5px 5px;
-    box-shadow: 0 2px 6px 0 #aaa;
+      @media (min-width: map-get($grid-breakpoints, 'md')) {
+        height: $action-toggle-size;
+        width: $action-toggle-size;
+      }
 
-    // Override seven .item-list styles - we need to do like this because we
-    // can't remove the class without overriding template.
-    .item-list & {
-      list-style: none;
-
-      li {
-        margin: 0;
-        list-style: none;
+      &:hover, &:focus {
+        background-color: $action-hover-bg;
+        outline: none;
       }
     }
-  }
 
-  &-action {
-    width: 100%;
+    &-actions {
+      display: none;
+      // We are using overflow hidden to prevent button background overflowing
+      // on hover.
+      overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: $action-toggle-size;
+      z-index: 100;
+      background: $action-hover-bg;
+      border: 1px solid #a6a6a6;
+      border-radius: 5px 0 5px 5px;
+      box-shadow: 0 2px 6px 0 #aaa;
 
-    &.button {
-      text-align: left;
-      background: transparent;
-      border: 0;
-      border-radius: 0;
-      font-weight: 600;
-      line-height: 18px;
-      white-space: nowrap;
+      // Override seven .item-list styles - we need to do like this because we
+      // can't remove the class without overriding template.
+      .item-list & {
+        list-style: none;
 
-      &:focus {
-        border: none;
-        box-shadow: none;
-        outline: none;
+        li {
+          margin: 0;
+          list-style: none;
+        }
+      }
+    }
+
+    &.open {
+      .paragraphs-dropdown-actions {
+        display: block;
+      }
+    }
+
+    &-action {
+      width: 100%;
+
+      &.button {
+        margin-right: 0;
+        margin-left: 0;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        font-weight: 600;
+        line-height: 18px;
+        white-space: nowrap;
+
+        &:focus {
+          border: none;
+          box-shadow: none;
+          outline: none;
+        }
       }
     }
   }

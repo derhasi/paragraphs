@@ -8,11 +8,11 @@
 use Drupal\paragraphs\Plugin\Field\FieldWidget\ParagraphsWidget;
 
 /**
- * Implements hook_paragraph_widget_dropbutton_alter().
+ * Implements hook_paragraphs_widget_actions_alter().
  */
-function paragraphs_test_paragraph_widget_dropbutton_alter(&$links, &$context) {
+function paragraphs_test_paragraphs_widget_actions_alter(&$widget_actions, &$context) {
   if (\Drupal::state()->get('paragraphs_test_dropbutton')) {
-    $links['test_button'] = ParagraphsWidget::expandButton([
+    $widget_actions['dropdown_actions']['test_button'] = ParagraphsWidget::expandButton([
       '#type' => 'submit',
       '#value' => t('Add to library'),
       '#delta' => 0,
