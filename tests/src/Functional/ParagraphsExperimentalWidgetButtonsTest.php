@@ -15,7 +15,6 @@ use Drupal\Tests\paragraphs\FunctionalJavascript\ParagraphsTestBaseTrait;
  */
 class ParagraphsExperimentalWidgetButtonsTest extends BrowserTestBase {
 
-  use FieldUiTestTrait;
   use LoginAdminTrait;
   use ParagraphsCoreVersionUiTestTrait;
   use ParagraphsTestBaseTrait;
@@ -35,18 +34,6 @@ class ParagraphsExperimentalWidgetButtonsTest extends BrowserTestBase {
   ];
 
   /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    // Place the breadcrumb, tested in fieldUIAddNewField().
-    $this->drupalPlaceBlock('system_breadcrumb_block');
-    $this->drupalPlaceBlock('local_tasks_block');
-    $this->drupalPlaceBlock('local_actions_block');
-    $this->drupalPlaceBlock('page_title_block');
-  }
-
-  /**
    * Tests the autocollapse functionality.
    */
   public function testAutocollapse() {
@@ -64,12 +51,12 @@ class ParagraphsExperimentalWidgetButtonsTest extends BrowserTestBase {
     ];
     $this->loginAsAdmin($permissions, TRUE);
 
-    // Add a Paragraph type.
+    // Add a text Paragraph type.
     $this->addParagraphsType('text_paragraph');
-    $this->addParagraphsType('text');
+    $this->addFieldtoParagraphType('text_paragraph', 'field_text', 'text_long');
 
-    // Add a text field to the text_paragraph type.
-    static::fieldUIAddNewField('admin/structure/paragraphs_type/text_paragraph', 'text', 'Text', 'text_long', [], []);
+    // Add another Paragraph type so that there is no default Paragraphs type.
+    $this->addParagraphsType('another_paragraph');
 
     // Check that the paragraphs field uses the experimental widget.
     $this->drupalGet('admin/structure/types/manage/paragraphed_test/form-display');
