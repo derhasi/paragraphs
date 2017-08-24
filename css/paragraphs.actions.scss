@@ -2,6 +2,7 @@
 
 .paragraphs-actions {
   display: flex;
+  align-items: center;
 
   // Actions buttons (the one that are not in dropdown).
   > .button {
@@ -26,20 +27,24 @@
     &-toggle {
       // Use block display so parent can have same dimensions as toggle button.
       display: block;
-      height: $action-toggle-size + 10px;
-      width: $action-toggle-size + 10px;
+      height: $action-size-big;
+      width: $action-size-big;
       background: url('../icons/icon-actions.svg') no-repeat center;
-      background-size: $action-toggle-size $action-toggle-size;
-      border: none;
+      background-size: $action-size-normal $action-size-normal;
+      border: 1px solid transparent;
+      border-radius: $action-border-radius;
       transition: all 0.1s;
 
       @media (min-width: map-get($grid-breakpoints, 'md')) {
-        height: $action-toggle-size;
-        width: $action-toggle-size;
+        height: $action-size-normal;
+        width: $action-size-normal;
       }
 
       &:hover, &:focus {
         background-color: $action-hover-bg;
+        // Border and shadow are the same as for standard Drupal button.
+        border: 1px solid $action-border;
+        box-shadow: $action-hover-box-shadow;
         outline: none;
       }
     }
@@ -51,12 +56,16 @@
       overflow: hidden;
       position: absolute;
       right: 0;
-      top: $action-toggle-size;
+      top: $action-size-big;
       z-index: 100;
       background: $action-hover-bg;
-      border: 1px solid #a6a6a6;
+      border: 1px solid $action-border;
       border-radius: 5px 0 5px 5px;
       box-shadow: 0 2px 6px 0 #aaa;
+
+      @media (min-width: map-get($grid-breakpoints, 'md')) {
+        top: $action-size-normal;
+      }
 
       // Override seven .item-list styles - we need to do like this because we
       // can't remove the class without overriding template.
@@ -94,6 +103,17 @@
           border: none;
           box-shadow: none;
           outline: none;
+        }
+
+        // Override seven button.css top margin.
+        .form-wrapper & {
+          margin-top: 0;
+
+          @media (max-width: map-get($grid-breakpoints, 'md')) {
+            // Bigger touch area for small screens.
+            padding-top: 10px;
+            padding-bottom: 10px;
+          }
         }
       }
     }

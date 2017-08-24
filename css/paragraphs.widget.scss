@@ -5,19 +5,50 @@
 
 @import "variables";
 
-// Paragraphs state information icons.
 .paragraphs {
+  // Paragraphs state information icons.
   &-icon {
     display: inline-block;
-    height: 20px;
-    width: 20px;
+    height: $info-size;
+    width: $info-size;
     background: no-repeat center;
-    background-size: contain;
+    background-size: $info-icon-size $info-icon-size;
 
-    $icons: view edit edit-disabled delete delete-disabled lock changed warning error;
+    $icons: view edit-info edit-disabled delete delete-disabled lock changed collapse warning error;
     @each $icon in $icons {
       &-#{$icon} {
         background-image: url('../icons/icon-#{$icon}.svg');
+      }
+    }
+  }
+}
+
+// Paragraphs button icon support for small screens.
+@media (max-width: map-get($grid-breakpoints, 'md')) {
+  .button.paragraphs-icon-button {
+    padding: 0;
+    width: $action-size-big !important;
+    height: $action-size-big;
+    // We need important flag here to easily override many specific rules from
+    // seven buttons.css.
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: $action-icon-size $action-icon-size;
+    border-radius: $action-border-radius;
+    text-indent: -9999em;
+
+    $icons: collapse edit;
+    @each $icon in $icons {
+      &-#{$icon},
+      &-#{$icon}:active,
+      &-#{$icon}:hover,
+      &-#{$icon}:focus {
+        background-image: url('../icons/icon-#{$icon}.svg');
+      }
+
+      &-#{$icon}:disabled,
+      &-#{$icon}:disabled:active {
+        background-image: url('../icons/icon-#{$icon}-disabled.svg');
       }
     }
   }
@@ -37,10 +68,8 @@
 // only for JS version of a widget.
 .js {
   .field--widget-paragraphs {
-    .paragraphs-actions {
-      float: right;
-    }
     th .paragraphs-actions {
+      float: right;
       // Table th padding is 12px but for some weird reason here we need to do
       // -11px to return it back.
       margin-right: -11px;
@@ -84,9 +113,7 @@
     }
 
     .tabledrag-handle .handle {
-      margin-right: 0;
-      margin-left: 0;
-      padding-right: 0.2em;
+      height: 22px;
     }
 
     .delta-order {
@@ -96,21 +123,40 @@
   }
 
   .paragraph-type-top {
-    display: flex;
+    display: grid;
+    grid-template-columns: 100px 0fr 1fr 0fr;
+    grid-template-rows: auto;
+    grid-gap: $gutter-top $gutter-top;
     align-items: center;
-    justify-content: space-between;
 
     .paragraph-type-title {
-      padding-right: $gutter-top;
+      grid-column: 1 / 2;
+      grid-row: 1 / span 1;
     }
 
     .paragraph-type-info {
-      padding-right: $gutter-top;
+      grid-column: 2 / 3;
+      grid-row: 1 / span 1;
     }
 
     .paragraph-type-summary {
-      flex: 2;
-      padding-right: $gutter-top;
+      grid-column: 1 / 5;
+      grid-row: 2 / span 1;
+
+      @media (min-width: map-get($grid-breakpoints, 'sm')) {
+        grid-column: 3 / 4;
+        grid-row: 1 / span 1;
+      }
+    }
+
+    .paragraphs-actions {
+      grid-column: 3 / 5;
+      grid-row: 1 / span 1;
+      justify-self: end;
+
+      @media (min-width: map-get($grid-breakpoints, 'sm')) {
+        grid-column: 4 / 5;
+      }
     }
   }
 
@@ -136,15 +182,21 @@
       content: "\00a0";
     }
 
-    .draggable:hover & {
+    @at-root .draggable:hover .paragraphs-collapsed-description {
       &::after {
         background: linear-gradient(to right, rgba(247, 252, 255, 0) 0%, #f7fcff 100%);
       }
     }
 
-    .drag-previous & {
+    @at-root .drag-previous .paragraphs-collapsed-description {
       &::after {
         background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #ffd 100%);
+      }
+    }
+
+    @at-root tr:hover .paragraphs-collapsed-description {
+      &::after {
+        background: linear-gradient(to right, rgba(255, 255, 221, 0) 0%, #f7fcff 100%);
       }
     }
   }
@@ -158,8 +210,8 @@
 
     &-icon {
       padding-right: $gutter-top;
-      height: $type-icon-size;
-      width: $type-icon-size;
+      height: $info-icon-size;
+      width: $info-icon-size;
     }
 
     &-label {

@@ -544,6 +544,10 @@ class ParagraphsWidget extends WidgetBase {
               '#access' => $paragraphs_entity->access('update'),
               '#paragraphs_mode' => 'closed',
               '#paragraphs_show_warning' => TRUE,
+              '#attributes' => [
+                'class' => ['paragraphs-icon-button', 'paragraphs-icon-button-collapse'],
+                'title' => $this->t('Collapse'),
+              ],
             ];
           }
         }
@@ -565,6 +569,10 @@ class ParagraphsWidget extends WidgetBase {
             ],
             '#access' => $paragraphs_entity->access('update'),
             '#paragraphs_mode' => 'edit',
+            '#attributes' => [
+              'class' => ['paragraphs-icon-button', 'paragraphs-icon-button-edit'],
+              'title' => $this->t('Edit'),
+            ],
           ]);
 
           if ($show_must_be_saved_warning && $paragraphs_entity->isChanged()) {
@@ -2299,10 +2307,19 @@ class ParagraphsWidget extends WidgetBase {
         ]);
 
         if (isset($field_state['paragraphs'][0]['mode']) && $field_state['paragraphs'][0]['mode'] === 'closed') {
+          $edit_all['#attributes'] = [
+            'class' => ['paragraphs-icon-button', 'paragraphs-icon-button-edit'],
+            'title' => $this->t('Edit all'),
+          ];
+          $edit_all['#title'] = $this->t('Edit All');
           $actions['actions']['edit_all'] = $edit_all;
           $actions['dropdown_actions']['collapse_all'] = $collapse_all;
         }
         else {
+          $collapse_all['#attributes'] = [
+            'class' => ['paragraphs-icon-button', 'paragraphs-icon-button-collapse'],
+            'title' => $this->t('Collapse all'),
+          ];
           $actions['actions']['collapse_all'] = $collapse_all;
           $actions['dropdown_actions']['edit_all'] = $edit_all;
         }

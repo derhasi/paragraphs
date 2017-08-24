@@ -19,8 +19,13 @@ $gutter-top: 5px !default;
 
 // Elements.
 
-// 5% darker so it works actions button in the table header also.
-$action-hover-bg: darken(#f5f5f2, 5%) !default;
-$action-toggle-size: 26px !default;
+$action-size-normal: 26px !default;
+$action-size-big: 36px !default;
+$action-icon-size: 24px !default;
+$action-hover-bg: #f9f8f6 !default;
+$action-border: #a6a6a6 !default;
+$action-border-radius: 4px !default;
+$action-hover-box-shadow: 0 1px 2px hsla(0, 0%, 0%, 0.125) !default;
 
-$type-icon-size: 16px !default;
+$info-size: 20px !default;
+$info-icon-size: 16px !default;
