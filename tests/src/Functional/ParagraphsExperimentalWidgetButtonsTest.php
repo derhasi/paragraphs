@@ -2,7 +2,6 @@
 
 namespace Drupal\Tests\paragraphs\Functional;
 
-use Drupal\field_ui\Tests\FieldUiTestTrait;
 use Drupal\paragraphs\Tests\Classic\ParagraphsCoreVersionUiTestTrait;
 use Drupal\Tests\BrowserTestBase;
 use Drupal\Tests\paragraphs\FunctionalJavascript\LoginAdminTrait;
