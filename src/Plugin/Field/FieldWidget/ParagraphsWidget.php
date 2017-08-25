@@ -2328,7 +2328,10 @@ class ParagraphsWidget extends WidgetBase {
 
     // Add paragraphs_header flag which we use later in preprocessor to move
     // header actions to table header.
-    $actions['#paragraphs_header'] = TRUE;
+    if ($actions) {
+      $actions['#paragraphs_header'] = TRUE;
+    }
+
     return $actions;
   }
 

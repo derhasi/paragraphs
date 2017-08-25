@@ -374,6 +374,10 @@ class ParagraphsExperimentalAdministrationTest extends ParagraphsExperimentalTes
     // Add a new article.
     $this->drupalGet('node/add/article');
     $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_nested_test_add_more');
+
+    // Ensure that nested header actions do not add a visible weight field.
+    $this->assertNoFieldByName('field_paragraphs[0][subform][field_paragraphs][header_actions][_weight]');
+
     $edit = [
       'field_paragraphs[0][subform][field_paragraphs][add_more][add_more_select]' => 'image',
     ];
