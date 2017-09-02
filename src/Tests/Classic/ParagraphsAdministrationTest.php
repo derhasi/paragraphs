@@ -158,7 +158,7 @@ class ParagraphsAdministrationTest extends ParagraphsTestBase {
     $this->assertUrl('admin/structure/paragraphs_type/add');
 
     $this->drupalGet('admin/structure/paragraphs_type');
-    $this->clickLink(t('Add Paragraphs type'));
+    $this->clickLink(t('Add paragraph type'));
     $this->assertTitle('Add Paragraphs type | Drupal');
     // Create paragraph type text + image.
     $this->addParagraphsType('text_image');
