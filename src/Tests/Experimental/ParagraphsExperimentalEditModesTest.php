@@ -20,6 +20,7 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
    */
   public static $modules = [
     'image',
+    'block_field',
   ];
 
   /**
@@ -121,6 +122,19 @@ class ParagraphsExperimentalEditModesTest extends ParagraphsExperimentalTestBase
     $this->drupalPostAjaxForm(NULL, [], t('field_paragraphs_0_edit'));
     $this->drupalPostAjaxForm(NULL, [], t('field_paragraphs_0_collapse'));
     $this->assertResponse(200);
+
+    // Add a Block Paragraphs type.
+    $this->addParagraphsType('block_paragraph');
+    $this->addFieldtoParagraphType('block_paragraph', 'field_block', 'block_field');
+
+    // Test the summary of a Block field.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_block_paragraph_add_more');
+    $edit = [
+      'field_paragraphs[0][subform][field_block][0][plugin_id]' => 'system_breadcrumb_block',
+    ];
+    $this->drupalPostAjaxForm(NULL, $edit, 'field_paragraphs_0_collapse');
+    $this->assertRaw('<div class="paragraphs-collapsed-description">Breadcrumbs');
   }
 
 }

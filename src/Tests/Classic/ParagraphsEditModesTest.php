@@ -20,6 +20,7 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
    */
   public static $modules = [
     'image',
+    'block_field',
   ];
 
   /**
@@ -84,6 +85,21 @@ class ParagraphsEditModesTest extends ParagraphsTestBase {
     // Assert the summary is correctly generated.
     $this->clickLink(t('Edit'));
     $this->assertRaw('<div class="paragraphs-collapsed-description">text_summary');
+
+    // Add a Block Paragraphs type.
+    $this->addParagraphsType('block_paragraph');
+    $this->addFieldtoParagraphType('block_paragraph', 'field_block', 'block_field');
+
+    // Test the summary of a Block field.
+    $this->drupalGet('node/add/paragraphed_test');
+    $this->drupalPostAjaxForm(NULL, [], 'field_paragraphs_block_paragraph_add_more');
+    $edit = [
+      'title[0][value]' => 'Node with a Block Paragraph',
+      'field_paragraphs[0][subform][field_block][0][plugin_id]' => 'system_breadcrumb_block',
+    ];
+    $this->drupalPostForm(NULL, $edit, t('Save'));
+    $this->clickLink(t('Edit'));
+    $this->assertRaw('<div class="paragraphs-collapsed-description">Breadcrumbs');
   }
 
 }

@@ -458,6 +458,13 @@ class Paragraph extends ContentEntityBase implements ParagraphInterface {
         }
       }
 
+      // Add the Block admin label referenced by block_field.
+      if ($field_definition->getType() == 'block_field') {
+        if (!empty($this->get($field_name)->first())) {
+          $block_admin_label = $this->get($field_name)->first()->getBlock()->getPluginDefinition()['admin_label'];
+          $summary[] = $block_admin_label;
+        }
+      }
     }
 
     if ($show_behavior_summary) {

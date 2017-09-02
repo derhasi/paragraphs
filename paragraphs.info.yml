@@ -13,3 +13,4 @@ test_dependencies:
   - replicate:replicate
   - inline_entity_form:inline_entity_form
   - field_group:field_group
+  - block_field:block_field
