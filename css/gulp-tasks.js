@@ -12,7 +12,7 @@ module.exports = function(gulp, plugins, options) {
 
   // Post CSS options.
   options.postcssOptions = [
-    plugins.autoprefixer({ browsers: options.browserSupport })
+    plugins.autoprefixer(options.autoprefixer)
   ];
 
   // Defining gulp tasks.

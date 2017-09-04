@@ -27,12 +27,14 @@
   padding: 3px;
   border: 1px solid #999999;
   border-left-width: 10px;
+  -webkit-transition: border .5s ease;
   transition: border .5s ease;
   border-radius: 3px;
   cursor: move;
 }
 
 .paragraphs-dragdrop .paragraphs-summary-wrapper {
+  display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -49,6 +51,7 @@
 }
 
 .paragraphs-dragdrop > li .paragraphs-summary-wrapper > div {
+  -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
           flex-grow: 1;

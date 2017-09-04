@@ -26,12 +26,17 @@ gulpLoadPlugins:
     postcss-reporter: "reporter"
     postcss-scss: "syntax_scss"
 
-# Browsers support for autoprefix plugin.
-browserSupport:
-  # Last two versions of all browsers by default.
-  - "last 2 versions"
-  - "ie >= 10"
-  - "Safari >= 7"
+autoprefixer:
+  # Autoprefixer 7.x version by default is disabling grid support for IE but
+  # we still needs to support old IE versions.
+  # @see https://github.com/postcss/autoprefixer/releases/tag/7.0.0.
+  grid: true
+  # Browsers support is last two versions of all browsers by default, IE10+ and
+  # Safari 7+ because of iPhone 5c and 5s.
+  browsers:
+    - "last 2 versions"
+    - "ie >= 10"
+    - "Safari >= 7"
 
 # Path to stylelint config file.
 stylelintOptions:
