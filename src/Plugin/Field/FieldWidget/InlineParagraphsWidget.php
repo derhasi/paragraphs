@@ -4,6 +4,7 @@ namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
@@ -317,25 +318,19 @@ class InlineParagraphsWidget extends WidgetBase {
         }
       }
 
-      /**
-       * Localised Paragraphs.
-       *
-       *  If the parent field is marked as translatable, assume paragraphs
-       *  to be localized (host entity expects different paragraphs for
-       *  different languages)
-       */
-      else if ($items->getFieldDefinition()->isTranslatable()) {
-        $paragraphs_entity = $this->cloneReferencedEntity($paragraphs_entity, $entity_manager, $target_type, $langcode);
+      // Localised Paragraphs.
+      //  If the parent field is marked as translatable, assume paragraphs
+      //  to be localized (host entity expects different paragraphs for
+      //  different languages)
+      elseif ($items->getFieldDefinition()->isTranslatable()) {
+        $paragraphs_entity = $this->cloneReferencedEntity($paragraphs_entity, $langcode);
       }
 
-      /**
-       * Translated Paragraphs
-       *
-       *  If the parent field is not translatable, assume the paragraph
-       *  entity itself (rather the fields within it) are marked as
-       *  translatable. (host entity expects same paragraphs in different
-       *  languages).
-       */
+      // Translated Paragraphs
+      //  If the parent field is not translatable, assume the paragraph
+      //  entity itself (rather the fields within it) are marked as
+      //  translatable. (host entity expects same paragraphs in different
+      //  languages).
       else {
         // Add translation if missing for the target language.
         if (!$paragraphs_entity->hasTranslation($langcode)) {
