@@ -1350,14 +1350,15 @@ class InlineParagraphsWidget extends WidgetBase {
 
     if (!$this->isTranslating) {
       // Set the langcode if we are not translating.
-      if ($entity->get('langcode') != $langcode) {
+      $langcode_key = $entity->getEntityType()->getKey('langcode');
+      if ($entity->get($langcode_key)->value != $langcode) {
         // If a translation in the given language already exists, switch to
         // that. If there is none yet, update the language.
         if ($entity->hasTranslation($langcode)) {
           $entity = $entity->getTranslation($langcode);
         }
         else {
-          $entity->set('langcode', $langcode);
+          $entity->set($langcode_key, $langcode);
         }
       }
     }
