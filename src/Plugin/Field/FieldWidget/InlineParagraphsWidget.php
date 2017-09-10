@@ -1443,6 +1443,64 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Clones Paragraphs (and field_collections) recursively, preparing them to be
+   * passed to the translated paragraph widget.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity_to_clone The Entity
+   * to clone
+   * @param string $langcode language code for all the clone entities created.
+   * @return \Drupal\Core\Entity\ContentEntityInterface New entity object which
+   * has the same data as the original $entity_to_clone, Note this entity is not
+   * saved.
+   */
+  protected function cloneReferencedEntity(ContentEntityInterface $entity_to_clone, $langcode) {
+    $entity_manager = \Drupal::entityTypeManager();
+    // Get the paragraph item as an array of values.
+    $paragraph_array = $entity_to_clone->toArray();
+    $target_type = $entity_to_clone->getEntityTypeId();
+    $entity_type = $entity_manager->getDefinition($target_type);
+    $bundle_key = $entity_type->getKey('bundle');
+
+    // Create a new entity for this language.
+    $new_entity = array(
+      $bundle_key => $entity_to_clone->bundle(),
+      'langcode' => $langcode
+    );
+
+    // Loop through all fields in the paragraph and add to new entity.
+    foreach ($entity_to_clone->getFieldDefinitions() as $field_name => $field_definition) {
+      // Check that the value is a field config and not empty.
+      if ($field_definition instanceof FieldConfig && !empty($paragraph_array[$field_name])) {
+        if ($this->checkEntityTypeCloneable($field_definition->getSetting('target_type'))) {
+          /** @var [EntityInterface] $entities */
+          $entities = $entity_to_clone->get($field_name)->referencedEntities();
+          $cloned_entites = [];
+          foreach ($entities as $entity) {
+            $cloned_entites[] = $this->cloneReferencedEntity($entity, $langcode);
+          }
+          $new_entity[$field_name] = $cloned_entites;
+        }
+        else {
+          $new_entity[$field_name] = $paragraph_array[$field_name];
+        }
+      }
+    }
+    return $entity_manager->getStorage($target_type)->create($new_entity);
+  }
+
+  /**
+   * Checks whether we support cloning a certain entity type or not.
+   *
+   * @param string $entity_type_id the entity type ID to check whether it's cloneable
+   * @return bool
+   */
+  protected function checkEntityTypeCloneable($entity_type_id) {
+    // @todo: maybe this list should be moved to widget configs with some sensible
+    // default?
+    return in_array($entity_type_id, ['field_collection_item', 'paragraph']);
+  }
+
+  /**
    * After-build callback for removing the translatability clue from the widget.
    *
    * If the fields on the paragraph type are translatable,
@@ -1556,64 +1614,6 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     return FALSE;
-  }
-
-  /**
-   * Clones Paragraphs (and field_collections) recursively, preparing them to be
-   * passed to the translated paragraph widget.
-   *
-   * @param \Drupal\Core\Entity\ContentEntityInterface $entity_to_clone The Entity
-   * to clone
-   * @param string $langcode language code for all the clone entities created.
-   * @return \Drupal\Core\Entity\ContentEntityInterface New entity object which
-   * has the same data as the original $entity_to_clone, Note this entity is not
-   * saved.
-   */
-  protected function cloneReferencedEntity(ContentEntityInterface $entity_to_clone, $langcode) {
-    $entity_manager = \Drupal::entityTypeManager();
-    // Get the paragraph item as an array of values.
-    $paragraph_array = $entity_to_clone->toArray();
-    $target_type = $entity_to_clone->getEntityTypeId();
-    $entity_type = $entity_manager->getDefinition($target_type);
-    $bundle_key = $entity_type->getKey('bundle');
-
-    // Create a new entity for this language.
-    $new_entity = array(
-      $bundle_key => $entity_to_clone->bundle(),
-      'langcode' => $langcode
-    );
-
-    // Loop through all fields in the paragraph and add to new entity.
-    foreach ($entity_to_clone->getFieldDefinitions() as $field_name => $field_definition) {
-      // Check that the value is a field config and not empty.
-      if ($field_definition instanceof FieldConfig && !empty($paragraph_array[$field_name])) {
-        if ($this->checkEntityTypeCloneable($field_definition->getSetting('target_type'))) {
-          /** @var [EntityInterface] $entities */
-          $entities = $entity_to_clone->get($field_name)->referencedEntities();
-          $cloned_entites = [];
-          foreach ($entities as $entity) {
-            $cloned_entites[] = $this->cloneReferencedEntity($entity, $langcode);
-          }
-          $new_entity[$field_name] = $cloned_entites;
-        }
-        else {
-          $new_entity[$field_name] = $paragraph_array[$field_name];
-        }
-      }
-    }
-    return $entity_manager->getStorage($target_type)->create($new_entity);
-  }
-
-  /**
-   * Checks whether we support cloning a certain entity type or not.
-   *
-   * @param string $entity_type_id the entity type ID to check whether it's cloneable
-   * @return bool
-   */
-  protected function checkEntityTypeCloneable($entity_type_id) {
-    // @todo: maybe this list should be moved to widget configs with some sensible
-    // default?
-    return in_array($entity_type_id, ['field_collection_item', 'paragraph']);
   }
 
 }
