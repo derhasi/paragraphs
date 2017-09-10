@@ -232,7 +232,6 @@ class InlineParagraphsWidget extends WidgetBase {
     $info = [];
 
     $paragraphs_entity = NULL;
-    $host = $items->getEntity();
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
 
     $entity_manager = \Drupal::entityTypeManager();
@@ -1330,6 +1329,82 @@ class InlineParagraphsWidget extends WidgetBase {
   }
 
   /**
+   * Prepares the paragraph entity for translation.
+   *
+   * @param \Drupal\paragraphs\Entity\Paragraph $entity
+   *   The paragraph entity.
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   The field items list that hosts this paragraph.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return \Drupal\paragraphs\Entity\Paragraph
+   *   The prepared paragraph.
+   *
+   * @see \Drupal\Core\Entity\ContentEntityForm::initFormLangcodes().
+   */
+  protected function prepareEntity(Paragraph $entity, FieldItemListInterface $items, FormStateInterface $form_state) {
+    // Detect if we are translating.
+    $this->initIsTranslating($form_state, $items->getEntity());
+    $langcode = $form_state->get('langcode');
+
+    if (!$this->isTranslating) {
+      // Set the langcode if we are not translating.
+      if ($entity->get('langcode') != $langcode) {
+        // If a translation in the given language already exists, switch to
+        // that. If there is none yet, update the language.
+        if ($entity->hasTranslation($langcode)) {
+          $entity = $entity->getTranslation($langcode);
+        }
+        else {
+          $entity->set('langcode', $langcode);
+        }
+      }
+    }
+
+    // Localised Paragraphs.
+    //  If the parent field is marked as translatable, assume paragraphs
+    //  to be localized (host entity expects different paragraphs for
+    //  different languages)
+    elseif ($items->getFieldDefinition()->isTranslatable()) {
+      $entity = $this->cloneReferencedEntity($entity, $langcode);
+    }
+
+    // Translated Paragraphs
+    //  If the parent field is not translatable, assume the paragraph
+    //  entity itself (rather the fields within it) are marked as
+    //  translatable. (host entity expects same paragraphs in different
+    //  languages).
+    else {
+      // Add translation if missing for the target language.
+      if (!$entity->hasTranslation($langcode)) {
+        // Get the selected translation of the paragraph entity.
+        $entity_langcode = $entity->language()->getId();
+        $source = $form_state->get(['content_translation', 'source']);
+        $source_langcode = $source ? $source->getId() : $entity_langcode;
+        $entity = $entity->getTranslation($source_langcode);
+        // The paragraphs entity has no content translation source field if
+        // no paragraph entity field is translatable, even if the host is.
+        if ($entity->hasField('content_translation_source')) {
+          // Initialise the translation with source language values.
+          $entity->addTranslation($langcode, $entity->toArray());
+          $translation = $entity->getTranslation($langcode);
+          $manager = \Drupal::service('content_translation.manager');
+          $manager->getTranslationMetadata($translation)
+            ->setSource($entity->language()->getId());
+        }
+      }
+      // If any paragraphs type is translatable do not switch.
+      if ($entity->hasField('content_translation_source')) {
+        // Switch the paragraph to the translation.
+        $entity = $entity->getTranslation($langcode);
+      }
+    }
+
+    return $entity;
+  }
+
+/**
    * Initializes the translation form state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
