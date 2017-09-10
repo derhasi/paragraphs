@@ -109,6 +109,16 @@ function paragraphs_form_entity_form_display_edit_form_alter(&$form, \Drupal\Cor
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function paragraphs_form_field_storage_config_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if ($form_state->getFormObject()->getEntity()->getType() == 'entity_reference') {
+    // Entity Reference fields are no longer supported to reference Paragraphs.
+    unset($form['settings']['target_type']['#options'][(string) t('Content')]['paragraph']);
+  }
+}
+
+/**
  * Implements hook_module_implements_alter().
  *
  * Our paragraphs_form_field_config_edit_form_alter() needs to be run after
