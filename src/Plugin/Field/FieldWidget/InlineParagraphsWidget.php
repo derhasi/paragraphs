@@ -25,6 +25,9 @@ use Drupal\paragraphs\Plugin\EntityReferenceSelection\ParagraphSelection;
 /**
  * Plugin implementation of the 'entity_reference paragraphs' widget.
  *
+ * We hide add / remove buttons when translating to avoid accidental loss of
+ * data because these actions effect all languages.
+ *
  * @FieldWidget(
  *   id = "entity_reference_paragraphs",
  *   label = @Translation("Paragraphs Classic"),
