@@ -119,48 +119,6 @@ function paragraphs_form_field_storage_config_edit_form_alter(&$form, \Drupal\Co
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * Indicate unsupported multilingual paragraphs field configuration.
- */
-function paragraphs_form_field_config_edit_form_alter(&$form,  \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $field = $form_state->getFormObject()->getEntity();
-
-  if (!\Drupal::hasService('content_translation.manager')) {
-    return;
-  }
-
-  $bundle_is_translatable = \Drupal::service('content_translation.manager')
-    ->isEnabled($field->getTargetEntityTypeId(), $field->getTargetBundle());
-
-  if (!$bundle_is_translatable
-    || $field->getType() != 'entity_reference_revisions'
-    || $field->getSetting('target_type') != 'paragraph') {
-    return;
-  }
-
-  // This is a translatable ERR field pointing to a paragraph.
-  $message_display = 'warning';
-  $message_text = t('Paragraphs fields do not support translation. See the <a href=":documentation">online documentation</a>.', [
-    ':documentation' => Url::fromUri('https://www.drupal.org/node/2735121')
-      ->toString()
-  ]);
-
-  if ($form['translatable']['#default_value'] == TRUE) {
-    $message_display = 'error';
-  }
-
-  $form['paragraphs_message'] = array(
-    '#type' => 'container',
-    '#markup' => $message_text,
-    '#attributes' => array(
-      'class' => array('messages messages--' . $message_display),
-    ),
-    '#weight' => 0,
-  );
-}
-
-/**
  * Implements hook_module_implements_alter().
  *
  * Our paragraphs_form_field_config_edit_form_alter() needs to be run after
