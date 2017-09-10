@@ -325,29 +325,7 @@ class InlineParagraphsWidget extends WidgetBase {
        *  different languages)
        */
       else if ($items->getFieldDefinition()->isTranslatable()) {
-        // Get the paragraph item as an array of values.
-        $paragraph_array = $paragraphs_entity->toArray();
-        // Get entity type if has not been previously fetched.
-        if (!isset($entity_type)) {
-          $entity_type = $entity_manager->getDefinition($target_type);
-          $bundle_key = $entity_type->getKey('bundle');
-        }
-
-        // Create a new paragraph entity for this language.
-        $new_paragraph = array(
-          $bundle_key => $paragraphs_entity->bundle(),
-          'langcode' => $langcode
-        );
-
-        // Loop through all fields in the paragraph and add to new entity.
-        foreach ($paragraphs_entity->getFieldDefinitions() as $key => $field) {
-          // Check that the value is a field config and not empty.
-          if ($field instanceof FieldConfig && !empty($paragraph_array[$key])) {
-            $new_paragraph[$key] = $paragraph_array[$key];
-          }
-        }
-        // Set the current entity to the new paragraph entity.
-        $paragraphs_entity = $entity_manager->getStorage($target_type)->create($new_paragraph);
+        $paragraphs_entity = $this->cloneReferencedEntity($paragraphs_entity, $entity_manager, $target_type, $langcode);
       }
 
       /**
