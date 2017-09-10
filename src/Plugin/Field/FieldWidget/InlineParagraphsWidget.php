@@ -1405,7 +1405,7 @@ class InlineParagraphsWidget extends WidgetBase {
     return $entity;
   }
 
-/**
+  /**
    * Initializes the translation form state.
    *
    * @param \Drupal\Core\Form\FormStateInterface $form_state
