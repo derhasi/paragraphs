@@ -102,7 +102,6 @@ function paragraphs_form_entity_form_display_edit_form_alter(&$form, \Drupal\Cor
   }
 }
 
-
 /**
  * Implements hook_module_implements_alter().
  *
