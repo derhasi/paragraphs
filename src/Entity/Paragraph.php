@@ -34,8 +34,7 @@ use Drupal\user\UserInterface;
  *       "default" = "Drupal\Core\Entity\ContentEntityForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "edit" = "Drupal\Core\Entity\ContentEntityForm"
- *     },
- *     "views_data" = "Drupal\views\EntityViewsData",
+ *     }
  *   },
  *   base_table = "paragraphs_item",
  *   data_table = "paragraphs_item_field_data",
