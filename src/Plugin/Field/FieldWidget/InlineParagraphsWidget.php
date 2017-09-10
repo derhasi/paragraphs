@@ -413,7 +413,8 @@ class InlineParagraphsWidget extends WidgetBase {
         $links = array();
 
         // Hide the button when translating.
-        $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
+        $button_access = $paragraphs_entity->access('delete') && (!$this->isTranslating || $items->getFieldDefinition()
+              ->isTranslatable());
         if ($item_mode != 'remove') {
           $links['remove_button'] = [
             '#type' => 'submit',
@@ -912,7 +913,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $host = $items->getEntity();
     $this->initIsTranslating($form_state, $host);
 
-    if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
+    if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && (!$this->isTranslating || $this->fieldDefinition->isTranslatable())) {
       $elements['add_more'] = $this->buildAddActions();
     }
 
@@ -1368,7 +1369,9 @@ class InlineParagraphsWidget extends WidgetBase {
     //  to be localized (host entity expects different paragraphs for
     //  different languages)
     elseif ($items->getFieldDefinition()->isTranslatable()) {
-      $entity = $this->cloneReferencedEntity($entity, $langcode);
+      if (!empty($form_state->get('content_translation'))) {
+        $entity = $this->cloneReferencedEntity($entity, $langcode);
+      }
     }
 
     // Translated Paragraphs
