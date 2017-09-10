@@ -119,48 +119,6 @@ function paragraphs_form_field_storage_config_edit_form_alter(&$form, \Drupal\Co
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- *
- * Indicate unsupported multilingual paragraphs field configuration.
- */
-function paragraphs_form_field_config_edit_form_alter(&$form,  \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  $field = $form_state->getFormObject()->getEntity();
-
-  if (!\Drupal::hasService('content_translation.manager')) {
-    return;
-  }
-
-  $bundle_is_translatable = \Drupal::service('content_translation.manager')
-    ->isEnabled($field->getTargetEntityTypeId(), $field->getTargetBundle());
-
-  if (!$bundle_is_translatable
-    || $field->getType() != 'entity_reference_revisions'
-    || $field->getSetting('target_type') != 'paragraph') {
-    return;
-  }
-
-  // This is a translatable ERR field pointing to a paragraph.
-  $message_display = 'warning';
-  $message_text = t('Paragraphs fields do not support translation. See the <a href=":documentation">online documentation</a>.', [
-    ':documentation' => Url::fromUri('https://www.drupal.org/node/2735121')
-      ->toString()
-  ]);
-
-  if ($form['translatable']['#default_value'] == TRUE) {
-    $message_display = 'error';
-  }
-
-  $form['paragraphs_message'] = array(
-    '#type' => 'container',
-    '#markup' => $message_text,
-    '#attributes' => array(
-      'class' => array('messages messages--' . $message_display),
-    ),
-    '#weight' => 0,
-  );
-}
-
-/**
  * Implements hook_module_implements_alter().
  *
  * Our paragraphs_form_field_config_edit_form_alter() needs to be run after
@@ -176,73 +134,6 @@ function paragraphs_module_implements_alter(&$implementations, $hook) {
     unset($implementations['paragraphs']);
     $implementations['paragraphs'] = $group;
   }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- *
- * Indicate unsupported multilingual paragraphs field configuration.
- *
- * Add a warning that paragraph fields can not be translated.
- * Switch to error if a paragraph field is marked as translatable.
- */
-function paragraphs_form_language_content_settings_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // Without it Paragraphs message are meaningless.
-  if (!\Drupal::hasService('content_translation.manager')) {
-    return;
-  }
-
-  $content_translation_manager = \Drupal::service('content_translation.manager');
-  $message_display = 'warning';
-  $message_text = t('(* unsupported) Paragraphs fields do not support translation. See the <a href=":documentation">online documentation</a>.', [
-    ':documentation' => Url::fromUri('https://www.drupal.org/node/2735121')
-      ->toString()]);
-  $map = \Drupal::service('entity_field.manager')->getFieldMapByFieldType('entity_reference_revisions');
-  foreach ($map as $entity_type_id => $info) {
-    if (!$content_translation_manager->isEnabled($entity_type_id)) {
-      continue;
-    }
-    $field_storage_definitions = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions($entity_type_id);
-
-    /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface  $storage_definition */
-    foreach ($field_storage_definitions as $name => $storage_definition) {
-      if ($storage_definition->getSetting('target_type') && $storage_definition->getSetting('target_type') == 'paragraph') {
-
-        // For configurable fields, check all bundles on which the field exists,
-        // for base fields that are translable, check all bundles,
-        // untranslatable base fields do not show up at all.
-        $bundles = [];
-        if ($storage_definition instanceof FieldStorageConfigInterface) {
-          $bundles = $storage_definition->getBundles();
-        }
-        elseif ($storage_definition->isTranslatable()) {
-          $bundles = Element::children($form['settings'][$entity_type_id]);
-        }
-        foreach($bundles as $bundle) {
-          if (!$content_translation_manager->isEnabled($entity_type_id, $bundle)) {
-            continue;
-          }
-
-          // Update the label and if the paragraph field is translatable,
-          // display an error message instead of just a warning.
-          if (isset($form['settings'][$entity_type_id][$bundle]['fields'][$name]['#label'])) {
-            $form['settings'][$entity_type_id][$bundle]['fields'][$name]['#label'] = t('@field_label (* unsupported)', ['@field_label' => $form['settings'][$entity_type_id][$bundle]['fields'][$name]['#label']]);
-          }
-          if (!empty($form['settings'][$entity_type_id][$bundle]['fields'][$name]['#default_value'])) {
-            $message_display = 'error';
-          }
-        }
-      }
-    }
-  }
-  $form['settings']['paragraphs_message'] = array(
-    '#type' => 'container',
-    '#markup' => $message_text,
-    '#attributes' => array(
-      'class' => array('messages messages--' . $message_display),
-    ),
-    '#weight' => 0,
-  );
 }
 
 /**
