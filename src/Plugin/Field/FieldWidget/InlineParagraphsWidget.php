@@ -146,14 +146,15 @@ class InlineParagraphsWidget extends WidgetBase {
 
     $elements['form_display_mode'] = array(
       '#type' => 'select',
-      '#options' => \Drupal::service('entity_display.repository')->getFormModeOptions($this->getFieldSetting('target_type')),
+      '#options' => \Drupal::service('entity_display.repository')
+        ->getFormModeOptions($this->getFieldSetting('target_type')),
       '#description' => $this->t('The form display mode to use when rendering the paragraph form.'),
       '#title' => $this->t('Form display mode'),
       '#default_value' => $this->getSetting('form_display_mode'),
       '#required' => TRUE,
     );
 
-    $options  = [];
+    $options = [];
     foreach ($this->getAllowedTypes() as $key => $bundle) {
       $options[$key] = $bundle['label'];
     }
@@ -180,7 +181,7 @@ class InlineParagraphsWidget extends WidgetBase {
       '@title_plural' => $this->getSetting('title_plural')
     ]);
 
-    switch($this->getSetting('edit_mode')) {
+    switch ($this->getSetting('edit_mode')) {
       case 'open':
       default:
         $edit_mode = $this->t('Open');
@@ -193,7 +194,7 @@ class InlineParagraphsWidget extends WidgetBase {
         break;
     }
 
-    switch($this->getSetting('add_mode')) {
+    switch ($this->getSetting('add_mode')) {
       case 'select':
       default:
         $add_mode = $this->t('Select list');
@@ -267,9 +268,10 @@ class InlineParagraphsWidget extends WidgetBase {
       $entity_type = $entity_manager->getDefinition($target_type);
       $bundle_key = $entity_type->getKey('bundle');
 
-      $paragraphs_entity = $entity_manager->getStorage($target_type)->create(array(
-        $bundle_key => $widget_state['selected_bundle'],
-      ));
+      $paragraphs_entity = $entity_manager->getStorage($target_type)
+        ->create(array(
+          $bundle_key => $widget_state['selected_bundle'],
+        ));
 
       $item_mode = 'edit';
     }
@@ -366,7 +368,10 @@ class InlineParagraphsWidget extends WidgetBase {
       $element_parents[] = $delta;
       $element_parents[] = 'subform';
 
-      $id_prefix = implode('-', array_merge($parents, array($field_name, $delta)));
+      $id_prefix = implode('-', array_merge($parents, array(
+        $field_name,
+        $delta
+      )));
       $wrapper_id = Html::getUniqueId($id_prefix . '-item-wrapper');
 
       $element += array(
@@ -381,7 +386,8 @@ class InlineParagraphsWidget extends WidgetBase {
       $element['#prefix'] = '<div id="' . $wrapper_id . '">';
       $element['#suffix'] = '</div>';
 
-      $item_bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($target_type);
+      $item_bundles = \Drupal::service('entity_type.bundle.info')
+        ->getBundleInfo($target_type);
       if (isset($item_bundles[$paragraphs_entity->bundle()])) {
         $bundle_info = $item_bundles[$paragraphs_entity->bundle()];
 
@@ -444,7 +450,12 @@ class InlineParagraphsWidget extends WidgetBase {
               '#value' => $this->t('Collapse'),
               '#name' => strtr($id_prefix, '-', '_') . '_collapse',
               '#weight' => 499,
-              '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
+              '#submit' => array(
+                array(
+                  get_class($this),
+                  'paragraphsItemSubmit'
+                )
+              ),
               '#delta' => $delta,
               '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
               '#ajax' => array(
@@ -491,7 +502,12 @@ class InlineParagraphsWidget extends WidgetBase {
             '#name' => strtr($id_prefix, '-', '_') . '_edit',
             '#weight' => 500,
             '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
-            '#limit_validation_errors' => array(array_merge($parents, array($field_name, 'add_more'))),
+            '#limit_validation_errors' => array(
+              array_merge($parents, array(
+                $field_name,
+                'add_more'
+              ))
+            ),
             '#delta' => $delta,
             '#ajax' => array(
               'callback' => array(get_class($this), 'itemAjax'),
@@ -585,7 +601,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
         if (count($links)) {
           $show_links = 0;
-          foreach($links as $link_item) {
+          foreach ($links as $link_item) {
             if (!isset($link_item['#access']) || $link_item['#access']) {
               $show_links++;
             }
@@ -595,7 +611,10 @@ class InlineParagraphsWidget extends WidgetBase {
 
             $element['top']['links'] = $links;
             if ($show_links > 1) {
-              $element['top']['links']['#theme_wrappers'] = array('dropbutton_wrapper', 'paragraphs_dropbutton_wrapper');
+              $element['top']['links']['#theme_wrappers'] = array(
+                'dropbutton_wrapper',
+                'paragraphs_dropbutton_wrapper'
+              );
               $element['top']['links']['prefix'] = array(
                 '#markup' => '<ul class="dropbutton">',
                 '#weight' => -999,
@@ -607,7 +626,7 @@ class InlineParagraphsWidget extends WidgetBase {
             }
             else {
               $element['top']['links']['#theme_wrappers'] = array('paragraphs_dropbutton_wrapper');
-              foreach($links as $key => $link_item) {
+              foreach ($links as $key => $link_item) {
                 unset($element['top']['links'][$key]['#prefix']);
                 unset($element['top']['links'][$key]['#suffix']);
               }
@@ -618,7 +637,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
         if (count($info)) {
           $show_info = FALSE;
-          foreach($info as $info_item) {
+          foreach ($info as $info_item) {
             if (!isset($info_item['#access']) || $info_item['#access']) {
               $show_info = TRUE;
               break;
@@ -633,7 +652,7 @@ class InlineParagraphsWidget extends WidgetBase {
 
         if (count($actions)) {
           $show_actions = FALSE;
-          foreach($actions as $action_item) {
+          foreach ($actions as $action_item) {
             if (!isset($action_item['#access']) || $action_item['#access']) {
               $show_actions = TRUE;
               break;
@@ -669,7 +688,8 @@ class InlineParagraphsWidget extends WidgetBase {
         $display->buildForm($paragraphs_entity, $element['subform'], $form_state);
         foreach (Element::children($element['subform']) as $field) {
           if ($paragraphs_entity->hasField($field)) {
-            $translatable = $paragraphs_entity->{$field}->getFieldDefinition()->isTranslatable();
+            $translatable = $paragraphs_entity->{$field}->getFieldDefinition()
+              ->isTranslatable();
             if ($translatable) {
               $element['subform'][$field]['widget']['#after_build'][] = [
                 static::class,
@@ -682,7 +702,8 @@ class InlineParagraphsWidget extends WidgetBase {
       elseif ($item_mode == 'preview') {
         $element['subform'] = array();
         $element['behavior_plugins'] = [];
-        $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()->getId());
+        $element['preview'] = entity_view($paragraphs_entity, 'preview', $paragraphs_entity->language()
+          ->getId());
         $element['preview']['#access'] = $paragraphs_entity->access('view');
       }
       elseif ($item_mode == 'closed') {
@@ -744,7 +765,8 @@ class InlineParagraphsWidget extends WidgetBase {
       $weight = 0;
       foreach ($bundles as $machine_name => $bundle) {
         if (!count($this->getSelectionHandlerSetting('target_bundles'))
-          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))) {
+          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))
+        ) {
 
           $return_bundles[$machine_name] = array(
             'label' => $bundle['label'],
@@ -762,7 +784,8 @@ class InlineParagraphsWidget extends WidgetBase {
 
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
     $field_name = $this->fieldDefinition->getName();
-    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
+    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()
+      ->getCardinality();
     $this->fieldParents = $form['#parents'];
     $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
 
@@ -777,9 +800,10 @@ class InlineParagraphsWidget extends WidgetBase {
       if ($default_type) {
         // Place the default paragraph.
         $target_type = $this->getFieldSetting('target_type');
-        $paragraphs_entity = $entity_type_manager->getStorage($target_type)->create([
-          'type' => $default_type,
-        ]);
+        $paragraphs_entity = $entity_type_manager->getStorage($target_type)
+          ->create([
+            'type' => $default_type,
+          ]);
         $field_state['selected_bundle'] = $default_type;
         $display = EntityFormDisplay::collectRenderDisplay($paragraphs_entity, $this->getSetting('form_display_mode'));
         $field_state['paragraphs'][0] = [
@@ -794,10 +818,12 @@ class InlineParagraphsWidget extends WidgetBase {
     }
 
     $this->realItemCount = $max;
-    $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()->isMultiple();
+    $is_multiple = $this->fieldDefinition->getFieldStorageDefinition()
+      ->isMultiple();
 
     $title = $this->fieldDefinition->getLabel();
-    $description = FieldFilteredMarkup::create(\Drupal::token()->replace($this->fieldDefinition->getDescription()));
+    $description = FieldFilteredMarkup::create(\Drupal::token()
+      ->replace($this->fieldDefinition->getDescription()));
 
     $elements = array();
     $this->fieldIdPrefix = implode('-', array_merge($this->fieldParents, array($field_name)));
@@ -931,7 +957,12 @@ class InlineParagraphsWidget extends WidgetBase {
     if (in_array('default_value_input', $parents, TRUE)) {
       // Since the entity is not reusable neither cloneable, having a default
       // value is not supported.
-      return ['#markup' => $this->t('No widget available for: %label.', ['%label' => $items->getFieldDefinition()->getLabel()])];
+      return [
+        '#markup' => $this->t('No widget available for: %label.', [
+          '%label' => $items->getFieldDefinition()
+            ->getLabel()
+        ])
+      ];
     }
 
     return parent::form($items, $form, $form_state, $get_delta);
@@ -960,7 +991,7 @@ class InlineParagraphsWidget extends WidgetBase {
         ];
       }
 
-      return $add_more_elements ;
+      return $add_more_elements;
     }
 
     if ($this->getSetting('add_mode') == 'button' || $this->getSetting('add_mode') == 'dropdown') {
@@ -989,7 +1020,8 @@ class InlineParagraphsWidget extends WidgetBase {
 
     foreach ($bundles as $machine_name => $bundle) {
       if ($dragdrop_settings || (!count($this->getSelectionHandlerSetting('target_bundles'))
-          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
+          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))
+      ) {
         if ($access_control_handler->createAccess($machine_name)) {
           $this->accessOptions[$machine_name] = $bundle['label'];
         }
@@ -1035,7 +1067,12 @@ class InlineParagraphsWidget extends WidgetBase {
         '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_' . $machine_name . '_add_more',
         '#value' => $this->t('Add @type', ['@type' => $label]),
         '#attributes' => ['class' => ['field-add-more-submit']],
-        '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'add_more'])],
+        '#limit_validation_errors' => [
+          array_merge($this->fieldParents, [
+            $field_name,
+            'add_more'
+          ])
+        ],
         '#submit' => [[get_class($this), 'addMoreSubmit']],
         '#ajax' => [
           'callback' => [get_class($this), 'addMoreAjax'],
@@ -1081,7 +1118,12 @@ class InlineParagraphsWidget extends WidgetBase {
       '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_add_more',
       '#value' => $text,
       '#attributes' => ['class' => ['field-add-more-submit']],
-      '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'add_more'])],
+      '#limit_validation_errors' => [
+        array_merge($this->fieldParents, [
+          $field_name,
+          'add_more'
+        ])
+      ],
       '#submit' => [[get_class($this), 'addMoreSubmit']],
       '#ajax' => [
         'callback' => [get_class($this), 'addMoreAjax'],
@@ -1106,7 +1148,9 @@ class InlineParagraphsWidget extends WidgetBase {
    * @return string
    */
   protected function getCurrentLangcode(FormStateInterface $form_state, FieldItemListInterface $items) {
-    return $form_state->get('langcode') ?: $items->getEntity()->language()->getId();
+    return $form_state->get('langcode') ?: $items->getEntity()
+      ->language()
+      ->getId();
   }
 
   /**
@@ -1219,7 +1263,8 @@ class InlineParagraphsWidget extends WidgetBase {
    */
   protected function isContentReferenced() {
     $target_type = $this->getFieldSetting('target_type');
-    $target_type_info = \Drupal::entityTypeManager()->getDefinition($target_type);
+    $target_type_info = \Drupal::entityTypeManager()
+      ->getDefinition($target_type);
     return $target_type_info->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface');
   }
 
@@ -1282,11 +1327,12 @@ class InlineParagraphsWidget extends WidgetBase {
 
     foreach ($values as $delta => &$item) {
       if (isset($widget_state['paragraphs'][$item['_original_delta']]['entity'])
-        && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove') {
+        && $widget_state['paragraphs'][$item['_original_delta']]['mode'] != 'remove'
+      ) {
         $paragraphs_entity = $widget_state['paragraphs'][$item['_original_delta']]['entity'];
 
         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
-        $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
+        $display = $widget_state['paragraphs'][$item['_original_delta']]['display'];
         if ($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'edit') {
           $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
         }
@@ -1431,7 +1477,9 @@ class InlineParagraphsWidget extends WidgetBase {
       // Adding a language through the ContentTranslationController.
       $this->isTranslating = TRUE;
     }
-    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($default_langcode_key)->value == 0) {
+    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))
+        ->get($default_langcode_key)->value == 0
+    ) {
       // Editing a translation.
       $this->isTranslating = TRUE;
     }
@@ -1479,7 +1527,7 @@ class InlineParagraphsWidget extends WidgetBase {
    * @return string $default_paragraph_type
    *   Label name for default paragraph type.
    */
-  protected function getDefaultParagraphTypeLabelName(){
+  protected function getDefaultParagraphTypeLabelName() {
     if ($this->getDefaultParagraphTypeMachineName() !== NULL) {
       $allowed_types = $this->getAllowedTypes();
       return $allowed_types[$this->getDefaultParagraphTypeMachineName()]['label'];
