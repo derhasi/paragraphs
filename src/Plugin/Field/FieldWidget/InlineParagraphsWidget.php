@@ -1374,6 +1374,7 @@ class InlineParagraphsWidget extends WidgetBase {
       if (!empty($form_state->get('content_translation'))) {
         $entity = $this->cloneReferencedEntity($entity, $langcode);
       }
+      $entity = $entity->getTranslation($langcode);
     }
 
     // Translated Paragraphs
