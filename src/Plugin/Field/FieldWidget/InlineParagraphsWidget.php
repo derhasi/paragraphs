@@ -419,7 +419,8 @@ class InlineParagraphsWidget extends WidgetBase {
         $links = array();
 
         // Hide the button when translating.
-        $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
+        $button_access = $paragraphs_entity->access('delete') && (!$this->isTranslating || $items->getFieldDefinition()
+              ->isTranslatable());
         if ($item_mode != 'remove') {
           $links['remove_button'] = [
             '#type' => 'submit',
@@ -452,9 +453,9 @@ class InlineParagraphsWidget extends WidgetBase {
               '#weight' => 499,
               '#submit' => array(
                 array(
-                  get_class($this),
-                  'paragraphsItemSubmit'
-                )
+                    get_class($this),
+                    'paragraphsItemSubmit'
+                  )
               ),
               '#delta' => $delta,
               '#limit_validation_errors' => [array_merge($parents, [$field_name, 'add_more'])],
@@ -504,9 +505,9 @@ class InlineParagraphsWidget extends WidgetBase {
             '#submit' => array(array(get_class($this), 'paragraphsItemSubmit')),
             '#limit_validation_errors' => array(
               array_merge($parents, array(
-                $field_name,
-                'add_more'
-              ))
+                  $field_name,
+                  'add_more'
+                ))
             ),
             '#delta' => $delta,
             '#ajax' => array(
@@ -766,7 +767,7 @@ class InlineParagraphsWidget extends WidgetBase {
       foreach ($bundles as $machine_name => $bundle) {
         if (!count($this->getSelectionHandlerSetting('target_bundles'))
           || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles'))
-        ) {
+          ) {
 
           $return_bundles[$machine_name] = array(
             'label' => $bundle['label'],
@@ -938,7 +939,7 @@ class InlineParagraphsWidget extends WidgetBase {
     $host = $items->getEntity();
     $this->initIsTranslating($form_state, $host);
 
-    if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
+    if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && (!$this->isTranslating || $this->fieldDefinition->isTranslatable())) {
       $elements['add_more'] = $this->buildAddActions();
     }
 
@@ -1069,9 +1070,9 @@ class InlineParagraphsWidget extends WidgetBase {
         '#attributes' => ['class' => ['field-add-more-submit']],
         '#limit_validation_errors' => [
           array_merge($this->fieldParents, [
-            $field_name,
-            'add_more'
-          ])
+              $field_name,
+              'add_more'
+            ])
         ],
         '#submit' => [[get_class($this), 'addMoreSubmit']],
         '#ajax' => [
@@ -1120,9 +1121,9 @@ class InlineParagraphsWidget extends WidgetBase {
       '#attributes' => ['class' => ['field-add-more-submit']],
       '#limit_validation_errors' => [
         array_merge($this->fieldParents, [
-          $field_name,
-          'add_more'
-        ])
+            $field_name,
+            'add_more'
+          ])
       ],
       '#submit' => [[get_class($this), 'addMoreSubmit']],
       '#ajax' => [
@@ -1357,7 +1358,7 @@ class InlineParagraphsWidget extends WidgetBase {
       }
       // If our mode is remove don't save or reference this entity.
       // @todo: Maybe we should actually delete it here?
-      elseif($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove' || $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'removed') {
+      elseif ($widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'remove' || $widget_state['paragraphs'][$item['_original_delta']]['mode'] == 'removed') {
         $item['target_id'] = NULL;
         $item['target_revision_id'] = NULL;
       }
@@ -1393,7 +1394,6 @@ class InlineParagraphsWidget extends WidgetBase {
     // Detect if we are translating.
     $this->initIsTranslating($form_state, $items->getEntity());
     $langcode = $form_state->get('langcode');
-
     if (!$this->isTranslating) {
       // Set the langcode if we are not translating.
       $langcode_key = $entity->getEntityType()->getKey('langcode');
@@ -1408,15 +1408,15 @@ class InlineParagraphsWidget extends WidgetBase {
         }
       }
     }
-
     // Localised Paragraphs.
     //  If the parent field is marked as translatable, assume paragraphs
     //  to be localized (host entity expects different paragraphs for
     //  different languages)
     elseif ($items->getFieldDefinition()->isTranslatable()) {
-      $entity = $this->cloneReferencedEntity($entity, $langcode);
+      if (!empty($form_state->get('content_translation'))) {
+        $entity = $this->cloneReferencedEntity($entity, $langcode);
+      }
     }
-
     // Translated Paragraphs
     //  If the parent field is not translatable, assume the paragraph
     //  entity itself (rather the fields within it) are marked as
@@ -1438,7 +1438,7 @@ class InlineParagraphsWidget extends WidgetBase {
           $translation = $entity->getTranslation($langcode);
           $manager = \Drupal::service('content_translation.manager');
           $manager->getTranslationMetadata($translation)
-            ->setSource($entity->language()->getId());
+                  ->setSource($entity->language()->getId());
         }
       }
       // If any paragraphs type is translatable do not switch.
@@ -1447,7 +1447,6 @@ class InlineParagraphsWidget extends WidgetBase {
         $entity = $entity->getTranslation($langcode);
       }
     }
-
     return $entity;
   }
 
