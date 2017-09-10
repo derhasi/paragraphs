@@ -1,0 +1,275 @@
+diff --git a/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php b/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
+index 4c29867..f462c04 100644
+--- a/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
++++ b/src/Plugin/Field/FieldWidget/InlineParagraphsWidget.php
+@@ -4,7 +4,7 @@ namespace Drupal\paragraphs\Plugin\Field\FieldWidget;
+ 
+ use Drupal\Component\Utility\NestedArray;
+ use Drupal\Component\Utility\Html;
+-use Drupal\Core\Entity\Entity;
++use Drupal\Core\Entity\ContentEntityInterface;
+ use Drupal\Core\Entity\Entity\EntityFormDisplay;
+ use Drupal\Core\Entity\EntityInterface;
+ use Drupal\Core\Entity\RevisionableInterface;
+@@ -14,7 +14,9 @@ use Drupal\Core\Field\WidgetBase;
+ use Drupal\Core\Form\FormStateInterface;
+ use Drupal\Core\Field\FieldItemListInterface;
+ use Drupal\Core\Render\Element;
++use Drupal\field\Entity\FieldConfig;
+ use Drupal\paragraphs;
++use Drupal\paragraphs\Entity\Paragraph;
+ use Symfony\Component\Validator\ConstraintViolationInterface;
+ 
+ 
+@@ -166,7 +168,6 @@ class InlineParagraphsWidget extends WidgetBase {
+     $parents = $element['#field_parents'];
+ 
+     $paragraphs_entity = NULL;
+-    $host = $items->getEntity();
+     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+ 
+     $entity_manager = \Drupal::entityTypeManager();
+@@ -215,47 +216,7 @@ class InlineParagraphsWidget extends WidgetBase {
+     }
+ 
+     if ($paragraphs_entity) {
+-      // Detect if we are translating.
+-      $this->initIsTranslating($form_state, $host);
+-      $langcode = $form_state->get('langcode');
+-
+-      if (!$this->isTranslating) {
+-        // Set the langcode if we are not translating.
+-        if ($paragraphs_entity->get('langcode') != $langcode) {
+-          // If a translation in the given language already exists, switch to
+-          // that. If there is none yet, update the language.
+-          if ($paragraphs_entity->hasTranslation($langcode)) {
+-            $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+-          }
+-          else {
+-            $paragraphs_entity->set('langcode', $langcode);
+-          }
+-        }
+-      }
+-      else {
+-        // Add translation if missing for the target language.
+-        if (!$paragraphs_entity->hasTranslation($langcode)) {
+-          // Get the selected translation of the paragraph entity.
+-          $entity_langcode = $paragraphs_entity->language()->getId();
+-          $source = $form_state->get(['content_translation', 'source']);
+-          $source_langcode = $source ? $source->getId() : $entity_langcode;
+-          $paragraphs_entity = $paragraphs_entity->getTranslation($source_langcode);
+-          // The paragraphs entity has no content translation source field if
+-          // no paragraph entity field is translatable, even if the host is.
+-          if ($paragraphs_entity->hasField('content_translation_source')) {
+-            // Initialise the translation with source language values.
+-            $paragraphs_entity->addTranslation($langcode, $paragraphs_entity->toArray());
+-            $translation = $paragraphs_entity->getTranslation($langcode);
+-            $manager = \Drupal::service('content_translation.manager');
+-            $manager->getTranslationMetadata($translation)->setSource($paragraphs_entity->language()->getId());
+-          }
+-        }
+-        // If any paragraphs type is translatable do not switch.
+-        if ($paragraphs_entity->hasField('content_translation_source')) {
+-          // Switch the paragraph to the translation.
+-          $paragraphs_entity = $paragraphs_entity->getTranslation($langcode);
+-        }
+-      }
++      $paragraphs_entity = $this->prepareEntity($paragraphs_entity, $items, $form_state);
+ 
+       $element_parents = $parents;
+       $element_parents[] = $field_name;
+@@ -332,7 +293,7 @@ class InlineParagraphsWidget extends WidgetBase {
+           }
+ 
+           // Hide the button when translating.
+-          $button_access = $paragraphs_entity->access('delete') && !$this->isTranslating;
++          $button_access = $paragraphs_entity->access('delete') && (!$this->isTranslating || $items->getFieldDefinition()->isTranslatable());
+           $links['remove_button'] = array(
+             '#type' => 'submit',
+             '#value' => $this->t('Remove'),
+@@ -733,7 +694,7 @@ class InlineParagraphsWidget extends WidgetBase {
+     foreach ($bundles as $machine_name => $bundle) {
+ 
+       if ($dragdrop_settings || (!count($this->getSelectionHandlerSetting('target_bundles'))
+-        || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
++          || in_array($machine_name, $this->getSelectionHandlerSetting('target_bundles')))) {
+         $options[$machine_name] = $bundle['label'];
+ 
+         if ($access_control_handler->createAccess($machine_name)) {
+@@ -794,7 +755,7 @@ class InlineParagraphsWidget extends WidgetBase {
+       $elements['add_more'] = array(
+         '#type' => 'container',
+         '#theme_wrappers' => array('paragraphs_dropbutton_wrapper'),
+-        '#access' => !$this->isTranslating,
++        '#access' => (!$this->isTranslating || $items->getFieldDefinition()->isTranslatable()),
+       );
+ 
+       if (count($access_options)) {
+@@ -830,7 +791,7 @@ class InlineParagraphsWidget extends WidgetBase {
+             );
+             if ($drop_button) {
+               $elements['add_more']['add_more_button_' . $machine_name]['#prefix'] = '<li>';
+-              $elements['add_more']['add_more_button_' . $machine_name]['#suffix'] = '</li>';
++              $elements['add_more']['add_more_button_' . $machine_name]['#suffix'] = '<li>';
+             }
+           }
+         }
+@@ -1082,9 +1043,8 @@ class InlineParagraphsWidget extends WidgetBase {
+ 
+         /** @var \Drupal\Core\Entity\Display\EntityFormDisplayInterface $display */
+         $display =  $widget_state['paragraphs'][$item['_original_delta']]['display'];
+-        if ($widget_state['paragraphs'][$delta]['mode'] == 'edit') {
+-          $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
+-        }
++        $display->extractFormValues($paragraphs_entity, $element[$item['_original_delta']]['subform'], $form_state);
++
+         $paragraphs_entity->setNewRevision($new_revision);
+         // A content entity form saves without any rebuild. It needs to set the
+         // language to update it in case of language change.
+@@ -1123,6 +1083,82 @@ class InlineParagraphsWidget extends WidgetBase {
+   }
+ 
+   /**
++   * Prepares the paragraph entity for translation.
++   *
++   * @param \Drupal\paragraphs\Entity\Paragraph $entity
++   *   The paragraph entity.
++   * @param \Drupal\Core\Field\FieldItemListInterface $items
++   *   The field items list that hosts this paragraph.
++   * @param \Drupal\Core\Form\FormStateInterface $form_state
++   *   The form state.
++   *
++   * @return \Drupal\paragraphs\Entity\Paragraph
++   *   The prepared paragraph.
++   *
++   * @see \Drupal\Core\Entity\ContentEntityForm::initFormLangcodes().
++   */
++  protected function prepareEntity(Paragraph $entity, FieldItemListInterface $items, FormStateInterface $form_state) {
++    // Detect if we are translating.
++    $this->initIsTranslating($form_state, $items->getEntity());
++    $langcode = $form_state->get('langcode');
++
++    if (!$this->isTranslating) {
++      // Set the langcode if we are not translating.
++      if ($entity->get('langcode') != $langcode) {
++        // If a translation in the given language already exists, switch to
++        // that. If there is none yet, update the language.
++        if ($entity->hasTranslation($langcode)) {
++          $entity = $entity->getTranslation($langcode);
++        }
++        else {
++          $entity->set('langcode', $langcode);
++        }
++      }
++    }
++
++    // Localised Paragraphs.
++    //  If the parent field is marked as translatable, assume paragraphs
++    //  to be localized (host entity expects different paragraphs for
++    //  different languages)
++    elseif ($items->getFieldDefinition()->isTranslatable()) {
++      $entity = $this->cloneReferencedEntity($entity, $langcode);
++    }
++
++    // Translated Paragraphs
++    //  If the parent field is not translatable, assume the paragraph
++    //  entity itself (rather the fields within it) are marked as
++    //  translatable. (host entity expects same paragraphs in different
++    //  languages).
++    else {
++      // Add translation if missing for the target language.
++      if (!$entity->hasTranslation($langcode)) {
++        // Get the selected translation of the paragraph entity.
++        $entity_langcode = $entity->language()->getId();
++        $source = $form_state->get(['content_translation', 'source']);
++        $source_langcode = $source ? $source->getId() : $entity_langcode;
++        $entity = $entity->getTranslation($source_langcode);
++        // The paragraphs entity has no content translation source field if
++        // no paragraph entity field is translatable, even if the host is.
++        if ($entity->hasField('content_translation_source')) {
++          // Initialise the translation with source language values.
++          $entity->addTranslation($langcode, $entity->toArray());
++          $translation = $entity->getTranslation($langcode);
++          $manager = \Drupal::service('content_translation.manager');
++          $manager->getTranslationMetadata($translation)
++            ->setSource($entity->language()->getId());
++        }
++      }
++      // If any paragraphs type is translatable do not switch.
++      if ($entity->hasField('content_translation_source')) {
++        // Switch the paragraph to the translation.
++        $entity = $entity->getTranslation($langcode);
++      }
++    }
++
++    return $entity;
++  }
++
++/**
+    * Initializes the translation form state.
+    *
+    * @param \Drupal\Core\Form\FormStateInterface $form_state
+@@ -1189,4 +1225,63 @@ class InlineParagraphsWidget extends WidgetBase {
+     }
+     return $element;
+   }
++
++  /**
++   * Clones Paragraphs (and field_collections) recursively, preparing them to be
++   * passed to the translated paragraph widget.
++   *
++   * @param \Drupal\Core\Entity\ContentEntityInterface $entity_to_clone The Entity
++   * to clone
++   * @param string $langcode language code for all the clone entities created.
++   * @return \Drupal\Core\Entity\ContentEntityInterface New entity object which
++   * has the same data as the original $entity_to_clone, Note this entity is not
++   * saved.
++   */
++  protected function cloneReferencedEntity(ContentEntityInterface $entity_to_clone, $langcode) {
++    $entity_manager = \Drupal::entityTypeManager();
++
++    // Get the paragraph item as an array of values.
++    $paragraph_array = $entity_to_clone->toArray();
++    $target_type = $entity_to_clone->getEntityTypeId();
++    $entity_type = $entity_manager->getDefinition($target_type);
++    $bundle_key = $entity_type->getKey('bundle');
++
++    // Create a new entity for this language.
++    $new_entity = array(
++      $bundle_key => $entity_to_clone->bundle(),
++      'langcode' => $langcode
++    );
++
++    // Loop through all fields in the paragraph and add to new entity.
++    foreach ($entity_to_clone->getFieldDefinitions() as $field_name => $field_definition) {
++      // Check that the value is a field config and not empty.
++      if ($field_definition instanceof FieldConfig && !empty($paragraph_array[$field_name])) {
++        if ($this->checkEntityTypeCloneable($field_definition->getSetting('target_type'))) {
++          /** @var [EntityInterface] $entities */
++          $entities = $entity_to_clone->get($field_name)->referencedEntities();
++          $cloned_entites = [];
++          foreach ($entities as $entity){
++            $cloned_entites[] = $this->cloneReferencedEntity($entity, $langcode);
++          }
++          $new_entity[$field_name] = $cloned_entites;
++        }
++        else {
++          $new_entity[$field_name] = $paragraph_array[$field_name];
++        }
++      }
++    }
++    return $entity_manager->getStorage($target_type)->create($new_entity);
++  }
++
++  /**
++   * Checks whether we support cloning a certain entity type or not.
++   *
++   * @param string $entity_type_id the entity type ID to check whether it's cloneable
++   * @return bool
++   */
++  protected function checkEntityTypeCloneable($entity_type_id){
++    // @todo: maybe this list should be moved to widget configs with some sensible
++    // default?
++    return in_array($entity_type_id, ['field_collection_item', 'paragraph']);
++  }
+ }
