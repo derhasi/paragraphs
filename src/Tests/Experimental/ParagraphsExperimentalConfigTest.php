@@ -66,6 +66,33 @@ class ParagraphsExperimentalConfigTest extends ParagraphsExperimentalTestBase {
   }
 
   /**
+   * Tests that we can use paragraphs widget only for paragraphs.
+   */
+  public function testAvoidUsingParagraphsWithWrongEntity() {
+    $node_type = NodeType::create([
+      'type' => 'article',
+      'name' => 'article',
+    ]);
+    $node_type->save();
+    $this->loginAsAdmin([
+      'edit any article content',
+    ]);
+    $this->addParagraphsType('paragraphed_type');
+
+    // Create reference to node.
+    $this->fieldUIAddNewField('admin/structure/types/manage/article', 'node_reference', 'NodeReference', 'entity_reference_revisions', [
+      'cardinality' => 'number',
+      'cardinality_number' => 1,
+      'settings[target_type]' => 'node',
+    ], [
+      'settings[handler_settings][target_bundles][article]' => 'article',
+    ]);
+    $this->drupalGet('admin/structure/types/manage/article/form-display');
+    $this->assertNoOption('edit-fields-field-node-reference-type', 'entity_reference_paragraphs');
+    $this->assertNoOption('edit-fields-field-node-reference-type', 'paragraphs');
+  }
+
+  /**
    * Test included Paragraph types.
    */
   public function testIncludedParagraphTypes() {
