@@ -322,45 +322,45 @@ class ParagraphsAsymmetricTranslationTest extends ParagraphsTestBase {
     // before the "Third text in english", as it has been set on the previous
     // steps.
     $this->drupalGet('node/' . $node->id());
-    $regex = '/(The updated english text)((.|\n)*)(Third text in english)/';
+    $regex = '/The updated english text.*Third text in english/s';
     $this->assertPattern($regex);
-
+ 
     $this->drupalGet('fr/node/' . $node->id());
-    $regex = '/(The updated french text)((.|\n)*)(Third text in french)/';
+    $regex = '/The updated french text.*Third text in french/s';
     $this->assertPattern($regex);
-
+ 
     // Reorder the paragraphs in the english node, and check if it applied
     // correctly. Check also that the french node is intact.
     $this->drupalGet('node/' . $node->id() . '/edit');
     $edit = [
       'field_paragraphs_demo[0][_weight]' => 2,
-      'field_paragraphs_demo[1][_weight]' => 1,
+      'field_paragraphs_demo[1][_weight]' => -2,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
-
+ 
     $this->drupalGet('node/' . $node->id());
-    $regex = '/(Third text in english)((.|\n)*)(The updated english text)/';
+    $regex = '/Third text in english.*The updated english text/s';
     $this->assertPattern($regex);
-
+ 
     $this->drupalGet('fr/node/' . $node->id());
-    $regex = '/(The updated french text)((.|\n)*)(Third text in french)/';
+    $regex = '/The updated french text.*Third text in french/s';
     $this->assertPattern($regex);
-
+ 
     // And now reorder the french node, and then confirm that the new order
     // applied correctly, and that the english node is intact.
     $this->drupalGet('fr/node/' . $node->id() . '/edit');
     $edit = [
       'field_paragraphs_demo[0][_weight]' => 2,
-      'field_paragraphs_demo[1][_weight]' => 1,
+      'field_paragraphs_demo[1][_weight]' => -2,
     ];
     $this->drupalPostForm(NULL, $edit, t('Save and keep published (this translation)'));
-
+ 
     $this->drupalGet('fr/node/' . $node->id());
-    $regex = '/(Third text in french)((.|\n)*)(The updated french text)/';
+    $regex = '/Third text in french.*The updated french text/s';
     $this->assertPattern($regex);
-
+ 
     $this->drupalGet('node/' . $node->id());
-    $regex = '/(Third text in english)((.|\n)*)(The updated english text)/';
+    $regex = '/Third text in english.*The updated english text/s';
     $this->assertPattern($regex);
   }
 }
